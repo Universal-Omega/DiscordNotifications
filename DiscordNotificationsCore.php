@@ -1,4 +1,7 @@
 <?php
+
+use MediaWiki\MediaWikiServices;
+
 class DiscordNotificationsCore {
 	/**
 	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
@@ -161,9 +164,12 @@ class DiscordNotificationsCore {
 				$isMinor == true ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
 				self::getDiscordArticleText( $wikiPage, true ),
 				$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
-			if ( $wgDiscordIncludeDiffSize ) {
+			if (
+				$wgDiscordIncludeDiffSize &&
+				MediaWikiServices::getInstance()->getRevisionLookup()->getPreviousRevision( $revisionRecord )
+			) {
 				$message .= ' (' . self::msg( 'discordnotifications-bytes',
-					$revisionRecord->getSize() - MediaWiki\MediaWikiServices::getInstance()->getRevisionLookup()->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
+					$revisionRecord->getSize() - MediaWikiServices::getInstance()->getRevisionLookup()->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
 			}
 			self::pushDiscordNotify( $message, $user, 'article_saved' );
 		}
@@ -202,10 +208,12 @@ class DiscordNotificationsCore {
 			self::getDiscordArticleText( $article, true ),
 			$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->plain()
 		)->inContentLanguage()->text();
+
 		if ( $wgDiscordIncludeDiffSize ) {
 			$message .= ' (' . self::msg( 'discordnotifications-bytes',
 				$article->getRevision()->getSize() - $article->getRevision()->getPrevious()->getSize() ) . ')';
 		}
+
 		self::pushDiscordNotify( $message, $user, 'article_saved' );
 		return true;
 	}
