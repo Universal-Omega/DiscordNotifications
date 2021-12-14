@@ -23,7 +23,7 @@ class DiscordNotificationsCore {
 			$wgDiscordNotificationWikiUrlEndingUserTalkPage, $wgDiscordNotificationWikiUrlEndingUserContributions,
 			$wgDiscordIncludeUserUrls;
 
-		$userName = $user->getName();
+		$userName = is_string( $user ) ? $user : $user->getName();
 		$user_url = str_replace( "&", "%26", $userName );
 		if ( $wgDiscordIncludeUserUrls ) {
 			return sprintf(
