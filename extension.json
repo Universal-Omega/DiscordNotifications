@@ -1,6 +1,6 @@
 {
 	"name": "Discord Notifications",
-	"version": "1.1.5",
+	"version": "1.1.6",
 	"author": [
 		"Aleksi Postari",
 		"Universal Omega"
@@ -35,6 +35,7 @@
 		"DiscordAdditionalIncomingWebhookUrls": [],
 		"DiscordFromName": "",
 		"DiscordSendMethod": "curl",
+		"DiscordCurlProxy": "",
 		"DiscordIncludePageUrls": true,
 		"DiscordIncludeUserUrls": true,
 		"DiscordIgnoreMinorEdits": false,
