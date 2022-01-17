@@ -634,8 +634,15 @@ class DiscordNotificationsCore {
 	}
 
 	private static function sendCurlRequest( $url, $postData ) {
+		global $wgDiscordCurlProxy;
+
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
+
+		if ( $wgDiscordCurlProxy ) {
+			curl_setopt( $h, CURLOPT_PROXY, $wgDiscordCurlProxy );
+		}
+
 		curl_setopt( $h, CURLOPT_POST, 1 );
 		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
 		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
