@@ -30,6 +30,7 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 		$this->revisionLookup = $revisionLookup;
 	}
+
 	/**
 	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
 	 */
