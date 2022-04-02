@@ -329,7 +329,7 @@ class DiscordNotificationsCore {
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/AddNewAccount
 	 */
 	public static function onDiscordNewUserAccount( $user, $byEmail ) {
-		global $wgDiscordNotificationNewUser, $wgDiscordShowNewUserFullName;
+		global $wgDiscordNotificationNewUser;
 
 		if ( !$wgDiscordNotificationNewUser ) {
 			return;
