@@ -40,7 +40,9 @@
 		"UserGroupsChanged": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordUserGroupsChanged",
 		"APIFlowAfterExecute": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordApiFlowAfterExecute",
 		"AfterImportPage": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordAfterImportPage",
-		"PageSaveComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordPageSaveComplete"
+		"PageSaveComplete": {
+			"handler": "main"
+		}
 	},
 	"config": {
 		"DiscordIncomingWebhookUrl": "",
