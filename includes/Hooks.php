@@ -8,29 +8,53 @@ use Config;
 use ConfigFactory;
 use Exception;
 use ExtensionRegistry;
+use MediaWiki\Hook\AddNewAccountHook;
+use MediaWiki\Hook\AfterImportPageHook;
+use MediaWiki\Hook\BlockIpCompleteHook;
+use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
+use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
+use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\User\Hook\UserGroupsChangedHook;
 use RequestContext;
 use Title;
 use WikiPage;
 
 class Hooks implements
+	AddNewAccountHook,
+	AfterImportPageHook,
 	ArticleDeleteCompleteHook,
-	PageSaveCompleteHook
+	ArticleProtectCompleteHook,
+	BlockIpCompleteHook,
+	PageMoveCompleteHook,
+	PageSaveCompleteHook,
+	UploadCompleteHook,
+	UserGroupsChangedHook
 {
 	/** @var Config */
 	private $config;
+
+	/** @var PermissionManager */
+	private $permissionManager;
 
 	/** @var RevisionLookup */
 	private $revisionLookup;
 
 	/**
 	 * @param ConfigFactory $configFactory
+	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
 	 */
-	public function __construct( ConfigFactory $configFactory, RevisionLookup $revisionLookup ) {
+	public function __construct(
+		ConfigFactory $configFactory,
+		PermissionManager $permissionManager,
+		RevisionLookup $revisionLookup
+	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
+		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 	}
 
@@ -157,12 +181,12 @@ class Hooks implements
 			$wgDiscordNotificationAddedArticle, $wgDiscordIncludeDiffSize;
 		$isNew = (bool)( $flags & EDIT_NEW );
 
-		if ( !$wgDiscordNotificationEditedArticle && !$isNew ) return true;
-		if ( !$wgDiscordNotificationAddedArticle && $isNew ) return true;
-		if ( self::titleIsExcluded( $wikiPage->getTitle() ) ) return true;
+		if ( !$wgDiscordNotificationEditedArticle && !$isNew ) return;
+		if ( !$wgDiscordNotificationAddedArticle && $isNew ) return;
+		if ( self::titleIsExcluded( $wikiPage->getTitle() ) ) return;
 
 		// Do not announce newly added file uploads as articles...
-		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) return true;
+		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) return;
 
 		if ( $isNew ) {
 			$message = self::msg( 'discordnotifications-article-created',
@@ -172,11 +196,12 @@ class Hooks implements
 			if ( $wgDiscordIncludeDiffSize ) {
 				$message .= " (" . self::msg( 'discordnotifications-bytes', $revisionRecord->getSize() ) . ")";
 			}
-			self::pushDiscordNotify( $message, $user, 'article_inserted' );
+
+			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 			// Skip minor edits if user wanted to ignore them
-			if ( $isMinor && $wgDiscordIgnoreMinorEdits ) return true;
+			if ( $isMinor && $wgDiscordIgnoreMinorEdits ) return;
 
 			$message = self::msg(
 				'discordnotifications-article-saved',
@@ -191,7 +216,8 @@ class Hooks implements
 				$message .= ' (' . self::msg( 'discordnotifications-bytes',
 					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
 			}
-			self::pushDiscordNotify( $message, $user, 'article_saved' );
+
+			$this->pushDiscordNotify( $message, $user, 'article_saved' );
 		}
 	}
 
@@ -215,31 +241,31 @@ class Hooks implements
 			$reason
 		)->inContentLanguage()->text();
 
-		self::pushDiscordNotify( $message, $user, 'article_deleted' );
+		$this->pushDiscordNotify( $message, $user, 'article_deleted' );
 	}
 
 	/**
 	 * Occurs after a page has been moved.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/TitleMoveComplete
+	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageMoveComplete
 	 */
-	public static function onDiscordArticleMoved( $title, $newtitle, $user, $oldid, $newid, $reason = null ) {
+	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
 		global $wgDiscordNotificationMovedArticle;
 		if ( !$wgDiscordNotificationMovedArticle ) return;
 
 		$message = self::msg( 'discordnotifications-article-moved',
 			self::getDiscordUserText( $user ),
-			self::getDiscordTitleText( $title ),
-			self::getDiscordTitleText( $newtitle ),
+			self::getDiscordTitleText( $old ),
+			self::getDiscordTitleText( $new ),
 			$reason );
-		self::pushDiscordNotify( $message, $user, 'article_moved' );
-		return true;
+
+		$this->pushDiscordNotify( $message, $user, 'article_moved' );
 	}
 
 	/**
 	 * Occurs after the protect article request has been processed.
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleProtectComplete
 	 */
-	public static function onDiscordArticleProtected( $wikiPage, $user, $protect, $reason ) {
+	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ) {
 		global $wgDiscordNotificationProtectedArticle;
 		if ( !$wgDiscordNotificationProtectedArticle ) return;
 
@@ -248,28 +274,28 @@ class Hooks implements
 			$protect ? self::msg( 'discordnotifications-article-protected-change' ) : self::msg( 'discordnotifications-article-protected-remove' ),
 			self::getDiscordArticleText( $wikiPage ),
 			$reason );
-		self::pushDiscordNotify( $message, $user, 'article_protected' );
+
+		$this->pushDiscordNotify( $message, $user, 'article_protected' );
 	}
 
 	/**
 	 * Occurs after page has been imported into wiki.
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/AfterImportPage
 	 */
-	public static function onDiscordAfterImportPage( $title = null, $origTitle = null, $revCount = null, $sRevCount = null, $pageInfo = null ) {
+	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ) {
 		global $wgDiscordNotificationAfterImportPage;
 		if ( !$wgDiscordNotificationAfterImportPage ) return;
 
 		$message = self::msg( 'discordnotifications-import-complete',
 			self::getDiscordTitleText( $title ) );
-		self::pushDiscordNotify( $message, null, 'import_complete' );
-		return true;
+		$this->pushDiscordNotify( $message, null, 'import_complete' );
 	}
 
 	/**
 	 * Called after a user account is created.
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/AddNewAccount
 	 */
-	public static function onDiscordNewUserAccount( $user, $byEmail ) {
+	public function onAddNewAccount( $user, $byEmail ) {
 		global $wgDiscordNotificationNewUser, $wgDiscordShowNewUserFullName,
 			$wgDiscordShowNewUserEmail, $wgDiscordShowNewUserIP;
 
@@ -321,16 +347,14 @@ class Hooks implements
 			self::getDiscordUserText( $user ),
 			$messageExtra );
 
-		self::pushDiscordNotify( $message, $user, 'new_user_account' );
-
-		return true;
+		$this->pushDiscordNotify( $message, $user, 'new_user_account' );
 	}
 
 	/**
 	 * Called when a file upload has completed.
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/UploadComplete
 	 */
-	public static function onDiscordFileUploaded( $image ) {
+	public function onUploadComplete( $uploadBase ) {
 		global $wgDiscordNotificationFileUpload, $wgDiscordNotificationWikiUrl,
 			$wgDiscordNotificationWikiUrlEnding;
 
@@ -338,7 +362,7 @@ class Hooks implements
 			return;
 		}
 
-		$localFile = $image->getLocalFile();
+		$localFile = $uploadBase->getLocalFile();
 
 		# Use bytes, KiB, and MiB, rounded to two decimal places.
 		$fsize = $localFile->size;
@@ -365,16 +389,14 @@ class Hooks implements
 			$fsize, $funits,
 			$localFile->getDescription() );
 
-		self::pushDiscordNotify( $message, $user, 'file_uploaded' );
-
-		return true;
+		$this->pushDiscordNotify( $message, $user, 'file_uploaded' );
 	}
 
 	/**
 	 * Occurs after the request to block an IP or user has been processed
 	 * @see http://www.mediawiki.org/wiki/Manual:MediaWiki_hooks/BlockIpComplete
 	 */
-	public static function onDiscordUserBlocked( Block $block, $user ) {
+	public function onBlockIpComplete( $block, $user, $priorBlock ) {
 		global $wgDiscordNotificationBlockedUser, $wgDiscordNotificationWikiUrl,
 			$wgDiscordNotificationWikiUrlEnding, $wgDiscordNotificationWikiUrlEndingBlockList;
 
@@ -390,15 +412,15 @@ class Hooks implements
 			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
 			'<' . self::parseurl( $wgDiscordNotificationWikiUrl . $wgDiscordNotificationWikiUrlEnding . $wgDiscordNotificationWikiUrlEndingBlockList ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.' );
-		self::pushDiscordNotify( $message, $user, 'user_blocked' );
-		return true;
+
+		$this->pushDiscordNotify( $message, $user, 'user_blocked' );
 	}
 
 	/**
 	 * Occurs after the user groups (rights) have been changed
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/UserGroupsChanged
 	 */
-	public static function onDiscordUserGroupsChanged( $user, array $added, array $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
+	public static function onUserGroupsChanged( $user, $added, $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
 		global $wgDiscordNotificationUserGroupsChanged;
 		if ( !$wgDiscordNotificationUserGroupsChanged ) return;
 
@@ -409,14 +431,14 @@ class Hooks implements
 			implode( ", ", array_keys( $oldUGMs ) ),
 			implode( ", ", $user->getGroups() ),
 			"<" . self::parseurl( $wgDiscordNotificationWikiUrl . $wgDiscordNotificationWikiUrlEnding . $wgDiscordNotificationWikiUrlEndingUserRights . self::getDiscordUserText( $performer ) ) . "|" . self::msg( 'discordnotifications-view-user-rights' ) . ">." );
-		self::pushDiscordNotify( $message, $user, 'user_groups_changed' );
-		return true;
+
+		$this->pushDiscordNotify( $message, $user, 'user_groups_changed' );
 	}
 
 	/**
 	 * Occurs after the execute() method of an Flow API module
 	 */
-	public static function onDiscordApiFlowAfterExecute( APIBase $module ) {
+	public function onAPIFlowAfterExecute( APIBase $module ) {
 		global $wgDiscordNotificationFlow;
 		if ( !$wgDiscordNotificationFlow || !ExtensionRegistry::getInstance()->isLoaded( 'Flow' ) ) return;
 
@@ -504,7 +526,8 @@ class Hooks implements
 			default:
 				return;
 		}
-		self::pushDiscordNotify( $message, $user, 'flow' );
+
+		$this->pushDiscordNotify( $message, $user, 'flow' );
 	}
 
 	/**
@@ -512,11 +535,11 @@ class Hooks implements
 	 * @param string $message Message to be sent.
 	 * @see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
 	 */
-	private static function pushDiscordNotify( $message, $user, $action ) {
+	private function pushDiscordNotify( $message, $user, $action ) {
 		global $wgDiscordIncomingWebhookUrl, $wgDiscordFromName, $wgDiscordAvatarUrl, $wgDiscordSendMethod, $wgDiscordExcludedPermission, $wgSitename, $wgDiscordAdditionalIncomingWebhookUrls;
 
 		if ( isset( $wgDiscordExcludedPermission ) && $wgDiscordExcludedPermission != "" ) {
-			if ( $user && $user->isAllowed( $wgDiscordExcludedPermission ) ) {
+			if ( $user && $this->permissionManager->userHasRight( $user, $wgDiscordExcludedPermission ) ) {
 				return; // Users with the permission suppress notifications
 			}
 		}
