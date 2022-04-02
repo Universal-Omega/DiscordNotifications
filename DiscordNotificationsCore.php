@@ -330,7 +330,7 @@ class DiscordNotificationsCore {
 	 */
 	public static function onDiscordNewUserAccount( $user, $byEmail ) {
 		global $wgDiscordNotificationNewUser, $wgDiscordShowNewUserFullName,
-			$wgDiscordShowNewUserEmail, $wgDiscordShowNewUserIP;;
+			$wgDiscordShowNewUserEmail, $wgDiscordShowNewUserIP;
 
 		if ( !$wgDiscordNotificationNewUser ) {
 			return;
