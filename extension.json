@@ -24,6 +24,7 @@
 			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
 			"services": [
 				"ConfigFactory",
+				"PermissionManager",
 				"RevisionLookup"
 			]
 		}
@@ -32,14 +33,30 @@
 		"ArticleDeleteComplete": {
 			"handler": "main"
 		},
-		"TitleMoveComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordArticleMoved",
-		"AddNewAccount": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordNewUserAccount",
-		"BlockIpComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordUserBlocked",
-		"UploadComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordFileUploaded",
-		"ArticleProtectComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordArticleProtected",
-		"UserGroupsChanged": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordUserGroupsChanged",
-		"APIFlowAfterExecute": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordApiFlowAfterExecute",
-		"AfterImportPage": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordAfterImportPage",
+		"PageMoveComplete": {
+			"handler": "main"
+		},
+		"AddNewAccount": {
+			"handler": "main"
+		},
+		"BlockIpComplete": {
+			"handler": "main"
+		},
+		"UploadComplete": {
+			"handler": "main"
+		},
+		"ArticleProtectComplete": {
+			"handler": "main"
+		},
+		"UserGroupsChanged": {
+			"handler": "main"
+		},
+		"APIFlowAfterExecute": {
+			"handler": "main"
+		},
+		"AfterImportPage": {
+			"handler": "main"
+		},
 		"PageSaveComplete": {
 			"handler": "main"
 		}
