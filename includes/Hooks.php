@@ -9,7 +9,7 @@ use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
-use MediaWiki\Hook\AddNewAccountHook;
+use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
@@ -25,11 +25,11 @@ use Title;
 use WikiPage;
 
 class Hooks implements
-	AddNewAccountHook,
 	AfterImportPageHook,
 	ArticleDeleteCompleteHook,
 	ArticleProtectCompleteHook,
 	BlockIpCompleteHook,
+	LocalUserCreatedHook,
 	PageMoveCompleteHook,
 	PageSaveCompleteHook,
 	UploadCompleteHook,
@@ -276,9 +276,9 @@ class Hooks implements
 
 	/**
 	 * Called after a user account is created.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/AddNewAccount
+	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/LocalUserCreated
 	 */
-	public function onAddNewAccount( $user, $byEmail ) {
+	public function onLocalUserCreated( $user, $autocreated ) {
 		if ( !$this->config->get( 'DiscordNotificationNewUser' ) ) {
 			return;
 		}
