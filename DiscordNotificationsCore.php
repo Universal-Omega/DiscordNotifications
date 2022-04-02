@@ -329,15 +329,16 @@ class DiscordNotificationsCore {
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/AddNewAccount
 	 */
 	public static function onDiscordNewUserAccount( $user, $byEmail ) {
-		global $wgDiscordNotificationNewUser;
+		global $wgDiscordNotificationNewUser, $wgDiscordShowNewUserFullName,
+			$wgDiscordShowNewUserEmail, $wgDiscordShowNewUserIP;;
 
 		if ( !$wgDiscordNotificationNewUser ) {
 			return;
 		}
 
-		$email = "";
-		$realname = "";
-		$ipaddress = "";
+		$email = '';
+		$realname = '';
+		$ipaddress = '';
 
 		try {
 			$email = $user->getEmail();
@@ -354,10 +355,33 @@ class DiscordNotificationsCore {
 		} catch ( Exception $e ) {
 		}
 
+		$messageExtra = '';
+		if ( $wgDiscordShowNewUserEmail || $wgDiscordShowNewUserFullName || $wgDiscordShowNewUserIP ) {
+			$messageExtra = '(';
+
+			if ( $wgDiscordShowNewUserEmail ) {
+				$messageExtra .= $email . ', ';
+			}
+
+			if ( $wgDiscordShowNewUserFullName ) {
+				$messageExtra .= $realname . ', ';
+			}
+
+			if ( $wgDiscordShowNewUserIP ) {
+				$messageExtra .= $ipaddress . ', ';
+			}
+
+			// Remove trailing comma
+			$messageExtra = substr( $messageExtra, 0, -2 );
+			$messageExtra .= ')';
+		}
+
 		$message = self::msg( 'discordnotifications-new-user',
 			self::getDiscordUserText( $user ),
-			'' );
+			$messageExtra );
+
 		self::pushDiscordNotify( $message, $user, 'new_user_account' );
+
 		return true;
 	}
 
@@ -366,10 +390,13 @@ class DiscordNotificationsCore {
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/UploadComplete
 	 */
 	public static function onDiscordFileUploaded( $image ) {
-		global $wgDiscordNotificationFileUpload;
-		if ( !$wgDiscordNotificationFileUpload ) return;
+		global $wgDiscordNotificationFileUpload, $wgDiscordNotificationWikiUrl,
+			$wgDiscordNotificationWikiUrlEnding;
 
-		global $wgDiscordNotificationWikiUrl, $wgDiscordNotificationWikiUrlEnding;
+		if ( !$wgDiscordNotificationFileUpload ) {
+			return;
+		}
+
 		$localFile = $image->getLocalFile();
 
 		# Use bytes, KiB, and MiB, rounded to two decimal places.
@@ -398,6 +425,7 @@ class DiscordNotificationsCore {
 			$localFile->getDescription() );
 
 		self::pushDiscordNotify( $message, $user, 'file_uploaded' );
+
 		return true;
 	}
 
@@ -406,12 +434,16 @@ class DiscordNotificationsCore {
 	 * @see http://www.mediawiki.org/wiki/Manual:MediaWiki_hooks/BlockIpComplete
 	 */
 	public static function onDiscordUserBlocked( Block $block, $user ) {
-		global $wgDiscordNotificationBlockedUser;
-		if ( !$wgDiscordNotificationBlockedUser ) return;
+		global $wgDiscordNotificationBlockedUser, $wgDiscordNotificationWikiUrl,
+			$wgDiscordNotificationWikiUrlEnding, $wgDiscordNotificationWikiUrlEndingBlockList;
 
-		global $wgDiscordNotificationWikiUrl, $wgDiscordNotificationWikiUrlEnding, $wgDiscordNotificationWikiUrlEndingBlockList;
-		$mReason = "";
-		if ( defined( 'MW_VERSION' ) && version_compare( MW_VERSION, '1.35', '>=' ) ) {  // DatabaseBlock::$mReason was made protected in MW 1.35
+		if ( !$wgDiscordNotificationBlockedUser ) {
+			return;
+		}
+
+		$mReason = '';
+		if ( version_compare( MW_VERSION, '1.35', '>=' ) ) {
+			// DatabaseBlock::$mReason was made protected in MW 1.35
 			$mReason = $block->getReasonComment()->text;
 		} else {
 			$mReason = $block->mReason;
@@ -420,9 +452,9 @@ class DiscordNotificationsCore {
 		$message = self::msg( 'discordnotifications-block-user',
 			self::getDiscordUserText( $user ),
 			self::getDiscordUserText( $block->getTarget() ),
-			$mReason == "" ? "" : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $mReason . "'.",
+			$mReason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $mReason . "'.",
 			$block->mExpiry,
-			"<" . self::parseurl( $wgDiscordNotificationWikiUrl . $wgDiscordNotificationWikiUrlEnding . $wgDiscordNotificationWikiUrlEndingBlockList ) . "|" . self::msg( 'discordnotifications-block-user-list' ) . ">." );
+			'<' . self::parseurl( $wgDiscordNotificationWikiUrl . $wgDiscordNotificationWikiUrlEnding . $wgDiscordNotificationWikiUrlEndingBlockList ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.' );
 		self::pushDiscordNotify( $message, $user, 'user_blocked' );
 		return true;
 	}
