@@ -3,7 +3,6 @@
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use APIBase;
-use Block;
 use Config;
 use ConfigFactory;
 use Exception;
