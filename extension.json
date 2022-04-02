@@ -62,43 +62,120 @@
 		}
 	},
 	"config": {
-		"DiscordIncomingWebhookUrl": "",
-		"DiscordAdditionalIncomingWebhookUrls": [],
-		"DiscordFromName": "",
-		"DiscordSendMethod": "curl",
-		"DiscordCurlProxy": "",
-		"DiscordIncludePageUrls": true,
-		"DiscordIncludeUserUrls": true,
-		"DiscordIgnoreMinorEdits": false,
-		"DiscordExcludeNotificationsFrom": [],
-		"DiscordExcludedPermission": "",
-		"DiscordNotificationWikiUrl": "",
-		"DiscordNotificationWikiUrlEnding": "index.php?title=",
-		"DiscordNotificationWikiUrlEndingUserRights": "Special%3AUserRights&user=",
-		"DiscordNotificationWikiUrlEndingBlockList": "Special:BlockList",
-		"DiscordNotificationWikiUrlEndingBlockUser": "Special:Block/",
-		"DiscordNotificationWikiUrlEndingUserPage": "User:",
-		"DiscordNotificationWikiUrlEndingUserTalkPage": "User_talk:",
-		"DiscordNotificationWikiUrlEndingUserContributions": "Special:Contributions/",
-		"DiscordNotificationWikiUrlEndingEditArticle": "action=edit",
-		"DiscordNotificationWikiUrlEndingDeleteArticle": "action=delete",
-		"DiscordNotificationWikiUrlEndingHistory": "action=history",
-		"DiscordNotificationWikiUrlEndingDiff": "diff=prev&oldid=",
-		"DiscordNotificationNewUser": true,
-		"DiscordNotificationBlockedUser": true,
-		"DiscordNotificationAddedArticle": true,
-		"DiscordNotificationRemovedArticle": true,
-		"DiscordNotificationMovedArticle": true,
-		"DiscordNotificationEditedArticle": true,
-		"DiscordNotificationFileUpload": true,
-		"DiscordNotificationProtectedArticle": true,
-		"DiscordNotificationShowSuppressed": true,
-		"DiscordNotificationUserGroupsChanged": true,
-		"DiscordNotificationFlow": true,
-		"DiscordNotificationAfterImportPage": true,
-		"DiscordIncludeDiffSize": true,
-		"DiscordShowNewUserFullName": true,
-		"DiscordAvatarUrl": ""
+		"DiscordIncomingWebhookUrl": {
+			"value": ""
+		},
+		"DiscordAdditionalIncomingWebhookUrls": {
+			"value": []
+		},
+		"DiscordFromName": {
+			"value": ""
+		},
+		"DiscordSendMethod": {
+			"value": "curl"
+		},
+		"DiscordCurlProxy": {
+			"value": ""
+		},
+		"DiscordIncludePageUrls": {
+			"value": true
+		},
+		"DiscordIncludeUserUrls": {
+			"value": true
+		},
+		"DiscordIgnoreMinorEdits": {
+			"value": false
+		},
+		"DiscordExcludeNotificationsFrom": {
+			"value": []
+		},
+		"DiscordExcludedPermission": {
+			"value": ""
+		},
+		"DiscordNotificationWikiUrl": {
+			"value": ""
+		},
+		"DiscordNotificationWikiUrlEnding": {
+			"value": "index.php?title="
+		},
+		"DiscordNotificationWikiUrlEndingUserRights": {
+			"value": "Special%3AUserRights&user="
+		},
+		"DiscordNotificationWikiUrlEndingBlockList": {
+			"value": "Special:BlockList"
+		},
+		"DiscordNotificationWikiUrlEndingBlockUser": {
+			"value": "Special:Block/"
+		},
+		"DiscordNotificationWikiUrlEndingUserPage": {
+			"value": "User:"
+		},
+		"DiscordNotificationWikiUrlEndingUserTalkPage": {
+			"value": "User_talk:"
+		},
+		"DiscordNotificationWikiUrlEndingUserContributions": {
+			"value": "Special:Contributions/"
+		},
+		"DiscordNotificationWikiUrlEndingEditArticle": {
+			"value": "action=edit"
+		},
+		"DiscordNotificationWikiUrlEndingDeleteArticle": {
+			"value": "action=delete"
+		},
+		"DiscordNotificationWikiUrlEndingHistory": {
+			"value": "action=history"
+		},
+		"DiscordNotificationWikiUrlEndingDiff": {
+			"value": "diff=prev&oldid="
+		},
+		"DiscordNotificationNewUser": {
+			"value": true
+		},
+		"DiscordNotificationBlockedUser": {
+			"value": true
+		},
+		"DiscordNotificationAddedArticle": {
+			"value": true
+		},
+		"DiscordNotificationRemovedArticle": {
+			"value": true
+		},
+		"DiscordNotificationMovedArticle": {
+			"value": true
+		},
+		"DiscordNotificationEditedArticle": {
+			"value": true
+		},
+		"DiscordNotificationFileUpload": {
+			"value": true
+		},
+		"DiscordNotificationProtectedArticle": {
+			"value": true
+		},
+		"DiscordNotificationShowSuppressed": {
+			"value": true
+		},
+		"DiscordNotificationUserGroupsChanged": {
+			"value": true
+		},
+		"DiscordNotificationFlow": {
+			"value": true
+		},
+		"DiscordNotificationAfterImportPage": {
+			"value": true
+		},
+		"DiscordIncludeDiffSize": {
+			"value": true
+		},
+		"DiscordShowNewUserFullName": {
+			"value": true
+		},
+		"DiscordAvatarUrl": {
+			"value": ""
+		}
 	},
-	"manifest_version": 1
+	"ConfigRegistry": {
+		"DiscordNotifications": "GlobalVarConfig::newInstance"
+	},
+	"manifest_version": 2
 }
