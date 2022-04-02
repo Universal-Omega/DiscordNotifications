@@ -4,8 +4,7 @@
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="Generic.Files.LineLength.TooLong"/>
 		<exclude name="Generic.ControlStructures.InlineControlStructure.NotAllowed"/>
-		<exclude name="MediaWiki.Commenting.FunctionComment.MissingParamTag"/>
-		<exclude name="MediaWiki.Commenting.FunctionComment.MissingReturn"/>
+		<exclude name="MediaWiki.Commenting.FunctionComment"/>
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment"/>
 	</rule>
 	<arg name="bootstrap" value="./vendor/mediawiki/mediawiki-codesniffer/utils/bootstrap-ci.php"/>
