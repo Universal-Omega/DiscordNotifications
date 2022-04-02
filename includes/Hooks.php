@@ -20,8 +20,10 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
+use MediaWiki\User\UserGroupManager;
 use RequestContext;
 use Title;
+use TitleFactory;
 use WikiPage;
 
 class Hooks implements
@@ -44,19 +46,31 @@ class Hooks implements
 	/** @var RevisionLookup */
 	private $revisionLookup;
 
+	/** @var TitleFactory */
+	private $titleFactory;
+
+	/** @var UserGroupManager */
+	private $userGroupManager;
+
 	/**
 	 * @param ConfigFactory $configFactory
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
+	 * @param TitleFactory $titleFactory
+	 * @param UserGroupManager $userGroupManager
 	 */
 	public function __construct(
 		ConfigFactory $configFactory,
 		PermissionManager $permissionManager,
-		RevisionLookup $revisionLookup
+		RevisionLookup $revisionLookup,
+		TitleFactory $titleFactory,
+		UserGroupManager $userGroupManager
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
+		$this->titleFactory = $titleFactory;
+		$this->userGroupManager = $userGroupManager;
 	}
 
 	/**
@@ -239,8 +253,8 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-article-moved',
 			$this->getDiscordUserText( $user ),
-			$this->getDiscordTitleText( $old ),
-			$this->getDiscordTitleText( $new ),
+			$this->getDiscordTitleText( $this->titleFactory->newFromLinkTarget( $old ) ),
+			$this->getDiscordTitleText( $this->titleFactory->newFromLinkTarget( $new ) ),
 			$reason );
 
 		$this->pushDiscordNotify( $message, $user, 'article_moved' );
@@ -360,7 +374,7 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-file-uploaded',
 			$this->getDiscordUserText( $user ),
-			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $image->getLocalFile()->getTitle() ),
+			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $localFile->getTitle() ),
 			$localFile->getTitle(),
 			$localFile->getMimeType(),
 			$fsize, $funits,
@@ -382,7 +396,7 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-block-user',
 			$this->getDiscordUserText( $user ),
-			$this->getDiscordUserText( $block->getTarget() ),
+			$this->getDiscordUserText( $block->getTargetName() ),
 			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.' );
@@ -401,7 +415,7 @@ class Hooks implements
 			$this->getDiscordUserText( $performer ),
 			$this->getDiscordUserText( $user ),
 			implode( ", ", array_keys( $oldUGMs ) ),
-			implode( ", ", $user->getGroups() ),
+			implode( ", ", $this->userGroupManager->getUserGroups( $user ) ),
 			"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $this->getDiscordUserText( $performer ) ) . "|" . self::msg( 'discordnotifications-view-user-rights' ) . ">." );
 
 		$this->pushDiscordNotify( $message, $user, 'user_groups_changed' );
