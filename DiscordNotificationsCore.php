@@ -198,7 +198,7 @@ class DiscordNotificationsCore {
 		if ( $isMinor && $wgDiscordIgnoreMinorEdits ) return;
 
 		// Skip edits that are just refreshing the page
-		if ( $article->getRevision()->getPrevious() == null || Revision::getRevisionStore()->getPreviousRevision() == null || !$revision || is_null( $status->getValue()['revision'] ) ) {
+		if ( $article->getRevision()->getPrevious() == null || Revision::getRevisionStore()->getPreviousRevision() == null || !$revision || $status->getValue()['revision'] === null ) {
 			return;
 		}
 
@@ -337,14 +337,14 @@ class DiscordNotificationsCore {
 		$realname = "";
 		$ipaddress = "";
 		try { $email = $user->getEmail();
-  } catch ( Exception $e ) {
-  }
+		} catch ( Exception $e ) {
+		}
 		try { $realname = $user->getRealName();
-  } catch ( Exception $e ) {
-  }
+		} catch ( Exception $e ) {
+		}
 		try { $ipaddress = $user->getRequest()->getIP();
-  } catch ( Exception $e ) {
-  }
+		} catch ( Exception $e ) {
+		}
 
 		$messageExtra = "";
 		if ( $wgDiscordShowNewUserEmail || $wgDiscordShowNewUserFullName || $wgDiscordShowNewUserIP ) {
@@ -603,7 +603,7 @@ class DiscordNotificationsCore {
 				break;
 			default:
 				$colour = 11777212;
-			break;
+				break;
 		}
 
 		$post = sprintf( '{"embeds": [{ "color" : "' . $colour . '" ,"description" : "%s"}], "username": "%s"',
