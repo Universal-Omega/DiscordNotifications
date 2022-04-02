@@ -9,12 +9,14 @@ use ConfigFactory;
 use ExtensionRegistry;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use RequestContext;
 use Title;
 use WikiPage;
 
 class Hooks implements
-	ArticleDeleteCompleteHook
+	ArticleDeleteCompleteHook,
+	PageSaveCompleteHook
 {
 	/** @var Config */
 	private $config;
@@ -149,7 +151,7 @@ class Hooks implements
 	 * Occurs after an article has been updated.
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageSaveComplete
 	 */
-	public static function onDiscordPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
+	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
 		global $wgDiscordNotificationEditedArticle, $wgDiscordIgnoreMinorEdits,
 			$wgDiscordNotificationAddedArticle, $wgDiscordIncludeDiffSize;
 		$isNew = (bool)( $flags & EDIT_NEW );
