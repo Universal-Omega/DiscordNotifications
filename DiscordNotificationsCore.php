@@ -61,11 +61,8 @@ class DiscordNotificationsCore {
 					"protect",
 					"watch"*/ );
 			if ( $diff ) {
-				if ( defined( 'MW_VERSION' ) && version_compare( MW_VERSION, '1.31', '>=' ) ) { // Revision::getId was deprecated in MediaWiki 1.31
-					$revisionId = $article->getRevisionRecord()->getId();
-				} else {
-					$revisionId = $article->getRevision()->getID();
-				}
+				$revisionId = $article->getRevisionRecord()->getId();
+
 				$out .= " | " . self::parseurl( $prefix . "&" . $wgDiscordNotificationWikiUrlEndingDiff . $revisionId ) . "|" . self::msg( 'discordnotifications-diff' ) . ">)";
 			} else {
 				$out .= ")";
@@ -120,19 +117,6 @@ class DiscordNotificationsCore {
 	}
 
 	/**
-	 * Register different hooks depending on MediaWiki version
-	 */
-	public static function registerExtraHooks() {
-		global $wgHooks;
-		if ( defined( 'MW_VERSION' ) && version_compare( MW_VERSION, '1.35', '>=' ) ) {
-			$wgHooks['PageSaveComplete'][] = 'DiscordNotificationsCore::onDiscordPageSaveComplete';
-		} else {
-			$wgHooks['PageContentSaveComplete'][] = 'DiscordNotificationsCore::onDiscordArticleSaved';
-			$wgHooks['PageContentInsertComplete'][] = 'DiscordNotificationsCore::onDiscordArticleInserted';
-		}
-	}
-
-	/**
 	 * Occurs after an article has been updated.
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageSaveComplete
 	 */
@@ -177,80 +161,6 @@ class DiscordNotificationsCore {
 			}
 			self::pushDiscordNotify( $message, $user, 'article_saved' );
 		}
-		return true;
-	}
-
-	/**
-	 * Occurs after the save page request has been processed.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageContentSaveComplete
-	 */
-	public static function onDiscordArticleSaved( WikiPage $article, $user, $content, $summary, $isMinor, $isWatch, $section, $flags, $revision, $status, $baseRevId ) {
-		global $wgDiscordNotificationEditedArticle;
-		global $wgDiscordIgnoreMinorEdits, $wgDiscordIncludeDiffSize;
-		if ( !$wgDiscordNotificationEditedArticle ) return;
-
-		if ( self::titleIsExcluded( $article->getTitle() ) ) return;
-
-		// Skip new articles that have view count below 1. Adding new articles is already handled in article_added function and
-		// calling it also here would trigger two notifications!
-		$isNew = $status->value['new']; // This is 1 if article is new
-		if ( $isNew == 1 ) {
-			return true;
-		}
-
-		// Skip minor edits if user wanted to ignore them
-		if ( $isMinor && $wgDiscordIgnoreMinorEdits ) return;
-
-		// Skip edits that are just refreshing the page
-		if ( $article->getRevision()->getPrevious() == null || Revision::getRevisionStore()->getPreviousRevision() == null || !$revision || $status->getValue()['revision'] === null ) {
-			return;
-		}
-
-		$message = wfMessage( 'discordnotifications-article-saved' )->plaintextParams(
-			self::getDiscordUserText( $user ),
-			$isMinor == true ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
-			self::getDiscordArticleText( $article, true ),
-			$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->plain()
-		)->inContentLanguage()->text();
-
-		if ( $wgDiscordIncludeDiffSize ) {
-			$message .= ' (' . self::msg( 'discordnotifications-bytes',
-				$article->getRevision()->getSize() - $article->getRevision()->getPrevious()->getSize() ) . ')';
-		}
-
-		self::pushDiscordNotify( $message, $user, 'article_saved' );
-		return true;
-	}
-
-	/**
-	 * Occurs after a new article has been created.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/ArticleInsertComplete
-	 */
-	public static function onDiscordArticleInserted( WikiPage $article, $user, $text, $summary, $isminor, $iswatch, $section, $flags, $revision ) {
-		global $wgDiscordNotificationAddedArticle, $wgDiscordIncludeDiffSize;
-		if ( !$wgDiscordNotificationAddedArticle ) return;
-
-		if ( self::titleIsExcluded( $article->getTitle() ) ) return;
-
-		// Do not announce newly added file uploads as articles...
-		if ( $article->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) return true;
-
-		$message = wfMessage( 'discordnotifications-article-created' )->plaintextParams(
-			self::getDiscordUserText( $user ),
-			self::getDiscordArticleText( $article ),
-			$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->plain()
-		)->inContentLanguage()->text();
-		if ( $wgDiscordIncludeDiffSize ) {
-			if ( defined( 'MW_VERSION' ) && version_compare( MW_VERSION, '1.31', '>=' ) ) {
-				// WikiPage::getRevision was deprecated in MediaWiki 1.35
-				// Revision::getSize was deprecated in MediaWiki 1.31
-				$size = $article->getRevisionRecord()->getSize();
-			} else {
-				$size = $article->getRevision()->getSize();
-			}
-			$message .= " (" . self::msg( 'discordnotifications-bytes', $size ) . ")";
-		}
-		self::pushDiscordNotify( $message, $user, 'article_inserted' );
 		return true;
 	}
 
@@ -441,19 +351,13 @@ class DiscordNotificationsCore {
 			return;
 		}
 
-		$mReason = '';
-		if ( version_compare( MW_VERSION, '1.35', '>=' ) ) {
-			// DatabaseBlock::$mReason was made protected in MW 1.35
-			$mReason = $block->getReasonComment()->text;
-		} else {
-			$mReason = $block->mReason;
-		}
+		$reason = $block->getReasonComment()->text;
 
 		$message = self::msg( 'discordnotifications-block-user',
 			self::getDiscordUserText( $user ),
 			self::getDiscordUserText( $block->getTarget() ),
-			$mReason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $mReason . "'.",
-			$block->mExpiry,
+			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
+			$block->getExpiry(),
 			'<' . self::parseurl( $wgDiscordNotificationWikiUrl . $wgDiscordNotificationWikiUrlEnding . $wgDiscordNotificationWikiUrlEndingBlockList ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.' );
 		self::pushDiscordNotify( $message, $user, 'user_blocked' );
 		return true;
@@ -485,9 +389,10 @@ class DiscordNotificationsCore {
 		global $wgDiscordNotificationFlow;
 		if ( !$wgDiscordNotificationFlow || !ExtensionRegistry::getInstance()->isLoaded( 'Flow' ) ) return;
 
-		global $wgRequest;
+		$request = RequestContext::getMain()->getRequest();
+
 		$action = $module->getModuleName();
-		$request = $wgRequest->getValues();
+		$request = $request->getValues();
 		$result = $module->getResult()->getResultData()['flow'][$action];
 		if ( $result['status'] != 'ok' ) return;
 
