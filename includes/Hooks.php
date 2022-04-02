@@ -25,7 +25,7 @@ class Hooks implements
 	private $revisionLookup;
 
 	/**
-	 * @param ConfigFactory $config
+	 * @param ConfigFactory $configFactory
 	 * @param RevisionLookup $revisionLookup
 	 */
 	public function __construct( ConfigFactory $configFactory, RevisionLookup $revisionLookup ) {
@@ -54,7 +54,7 @@ class Hooks implements
 			$wgDiscordNotificationWikiUrlEndingUserTalkPage, $wgDiscordNotificationWikiUrlEndingUserContributions,
 			$wgDiscordIncludeUserUrls;
 
-		$userName = is_string( $user ) ? $user : $user->getName();
+		$userName = is_object( $user ) ? $user->getName() : $user;
 		$user_url = str_replace( "&", "%26", $userName );
 		if ( $wgDiscordIncludeUserUrls ) {
 			return sprintf(
@@ -180,7 +180,7 @@ class Hooks implements
 			$message = self::msg(
 				'discordnotifications-article-saved',
 				self::getDiscordUserText( $user ),
-				$isMinor == true ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
+				$isMinor ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
 				self::getDiscordArticleText( $wikiPage, true ),
 				$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
 			if (
@@ -192,7 +192,6 @@ class Hooks implements
 			}
 			self::pushDiscordNotify( $message, $user, 'article_saved' );
 		}
-		return true;
 	}
 
 	/**
@@ -207,11 +206,11 @@ class Hooks implements
 		global $wgDiscordNotificationShowSuppressed;
 		if ( !$wgDiscordNotificationShowSuppressed && $logEntry->getType() != 'delete' ) return;
 
-		if ( self::titleIsExcluded( $article->getTitle() ) ) return;
+		if ( self::titleIsExcluded( $wikiPage->getTitle() ) ) return;
 
 		$message = wfMessage( 'discordnotifications-article-deleted' )->plaintextParams(
 			self::getDiscordUserText( $user ),
-			self::getDiscordArticleText( $article ),
+			self::getDiscordArticleText( $wikiPage ),
 			$reason
 		)->inContentLanguage()->text();
 
@@ -239,17 +238,16 @@ class Hooks implements
 	 * Occurs after the protect article request has been processed.
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleProtectComplete
 	 */
-	public static function onDiscordArticleProtected( $article = null, $user = null, $protect = false, $reason = "", $moveonly = false ) {
+	public static function onDiscordArticleProtected( $wikiPage, $user, $protect, $reason ) {
 		global $wgDiscordNotificationProtectedArticle;
 		if ( !$wgDiscordNotificationProtectedArticle ) return;
 
 		$message = self::msg( 'discordnotifications-article-protected',
 			self::getDiscordUserText( $user ),
 			$protect ? self::msg( 'discordnotifications-article-protected-change' ) : self::msg( 'discordnotifications-article-protected-remove' ),
-			self::getDiscordArticleText( $article ),
+			self::getDiscordArticleText( $wikiPage ),
 			$reason );
 		self::pushDiscordNotify( $message, $user, 'article_protected' );
-		return true;
 	}
 
 	/**
