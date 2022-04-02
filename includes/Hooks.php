@@ -1,8 +1,35 @@
 <?php
 
-use MediaWiki\MediaWikiServices;
+namespace MediaWiki\Extension\DiscordNotifications;
 
-class DiscordNotificationsCore {
+use APIBase;
+use Block;
+use Config;
+use ConfigFactory;
+use ExtensionRegistry;
+use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
+use MediaWiki\Revision\RevisionLookup;
+use RequestContext;
+use Title;
+use WikiPage;
+
+class Hooks implements
+	ArticleDeleteCompleteHook
+{
+	/** @var Config */
+	private $config;
+
+	/** @var RevisionLookup */
+	private $revisionLookup;
+
+	/**
+	 * @param ConfigFactory $config
+	 * @param RevisionLookup $revisionLookup
+	 */
+	public function __construct( ConfigFactory $configFactory, RevisionLookup $revisionLookup ) {
+		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
+		$this->revisionLookup = $revisionLookup;
+	}
 	/**
 	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
 	 */
@@ -10,6 +37,7 @@ class DiscordNotificationsCore {
 		$url = str_replace( " ", "%20", $url );
 		$url = str_replace( "(", "%28", $url );
 		$url = str_replace( ")", "%29", $url );
+
 		return $url;
 	}
 
@@ -154,10 +182,10 @@ class DiscordNotificationsCore {
 				$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
 			if (
 				$wgDiscordIncludeDiffSize &&
-				MediaWikiServices::getInstance()->getRevisionLookup()->getPreviousRevision( $revisionRecord )
+				$this->revisionLookup->getPreviousRevision( $revisionRecord )
 			) {
 				$message .= ' (' . self::msg( 'discordnotifications-bytes',
-					$revisionRecord->getSize() - MediaWikiServices::getInstance()->getRevisionLookup()->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
+					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
 			}
 			self::pushDiscordNotify( $message, $user, 'article_saved' );
 		}
@@ -168,7 +196,8 @@ class DiscordNotificationsCore {
 	 * Occurs after the delete article request has been processed.
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/ArticleDeleteComplete
 	 */
-	public static function onDiscordArticleDeleted( WikiPage $article, User $user, $reason, $id, $content, ManualLogEntry $logEntry ) {
+	public function onArticleDeleteComplete( $wikiPage, $user, $reason, $id,
+		$content, $logEntry, $archivedRevisionCount ) {
 		global $wgDiscordNotificationRemovedArticle;
 		if ( !$wgDiscordNotificationRemovedArticle ) return;
 
@@ -182,8 +211,8 @@ class DiscordNotificationsCore {
 			self::getDiscordArticleText( $article ),
 			$reason
 		)->inContentLanguage()->text();
+
 		self::pushDiscordNotify( $message, $user, 'article_deleted' );
-		return true;
 	}
 
 	/**
@@ -598,11 +627,12 @@ class DiscordNotificationsCore {
 	private static function sendHttpRequest( $url, $postData ) {
 		$extradata = [
 			'http' => [
-			'header'  => "Content-type: application/json",
-			'method'  => 'POST',
-			'content' => $postData,
+				'header'  => "Content-type: application/json",
+				'method'  => 'POST',
+				'content' => $postData,
 			],
 		];
+
 		$context = stream_context_create( $extradata );
 		$result = file_get_contents( $url, false, $context );
 	}
@@ -619,6 +649,7 @@ class DiscordNotificationsCore {
 		$UUID = \Flow\Model\UUID::create( $UUID );
 		$collection = \Flow\Collection\PostCollection::newFromId( $UUID );
 		$revision = $collection->getLastRevision();
+
 		return $revision->getContent( 'topic-title-plaintext' );
 	}
 }
