@@ -6,6 +6,7 @@ use APIBase;
 use Block;
 use Config;
 use ConfigFactory;
+use Exception;
 use ExtensionRegistry;
 use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Revision\RevisionLookup;
