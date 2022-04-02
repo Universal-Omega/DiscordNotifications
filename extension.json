@@ -25,7 +25,9 @@
 			"services": [
 				"ConfigFactory",
 				"PermissionManager",
-				"RevisionLookup"
+				"RevisionLookup",
+				"TitleFactory",
+				"UserGroupManager"
 			]
 		}
 	},
