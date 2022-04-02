@@ -107,11 +107,15 @@ class DiscordNotificationsCore {
 	 */
 	private static function titleIsExcluded( $title ) {
 		global $wgDiscordExcludeNotificationsFrom;
+
 		if ( is_array( $wgDiscordExcludeNotificationsFrom ) && count( $wgDiscordExcludeNotificationsFrom ) > 0 ) {
 			foreach ( $wgDiscordExcludeNotificationsFrom as &$currentExclude ) {
-				if ( 0 === strpos( $title, $currentExclude ) ) return true;
+				if ( strpos( $title, $currentExclude ) === 0 ) {
+					return true;
+				}
 			}
 		}
+
 		return false;
 	}
 
@@ -327,38 +331,32 @@ class DiscordNotificationsCore {
 	public static function onDiscordNewUserAccount( $user, $byEmail ) {
 		global $wgDiscordNotificationNewUser, $wgDiscordShowNewUserFullName;
 
-		// Disable reporting of new user email and IP address
-		//global $wgDiscordShowNewUserEmail, $wgDiscordShowNewUserIP;
-		$wgDiscordShowNewUserEmail = false;
-		$wgDiscordShowNewUserIP = false;
-		if ( !$wgDiscordNotificationNewUser ) return;
+		if ( !$wgDiscordNotificationNewUser ) {
+			return;
+		}
 
 		$email = "";
 		$realname = "";
 		$ipaddress = "";
-		try { $email = $user->getEmail();
-		} catch ( Exception $e ) {
-		}
-		try { $realname = $user->getRealName();
-		} catch ( Exception $e ) {
-		}
-		try { $ipaddress = $user->getRequest()->getIP();
+
+		try {
+			$email = $user->getEmail();
 		} catch ( Exception $e ) {
 		}
 
-		$messageExtra = "";
-		if ( $wgDiscordShowNewUserEmail || $wgDiscordShowNewUserFullName || $wgDiscordShowNewUserIP ) {
-			$messageExtra = "(";
-			if ( $wgDiscordShowNewUserEmail ) $messageExtra .= $email . ", ";
-			if ( $wgDiscordShowNewUserFullName ) $messageExtra .= $realname . ", ";
-			if ( $wgDiscordShowNewUserIP ) $messageExtra .= $ipaddress . ", ";
-			$messageExtra = substr( $messageExtra, 0, -2 ); // Remove trailing ,
-			$messageExtra .= ")";
+		try {
+			$realname = $user->getRealName();
+		} catch ( Exception $e ) {
+		}
+
+		try {
+			$ipaddress = $user->getRequest()->getIP();
+		} catch ( Exception $e ) {
 		}
 
 		$message = self::msg( 'discordnotifications-new-user',
 			self::getDiscordUserText( $user ),
-			$messageExtra );
+			'' );
 		self::pushDiscordNotify( $message, $user, 'new_user_account' );
 		return true;
 	}
@@ -543,7 +541,7 @@ class DiscordNotificationsCore {
 
 	/**
 	 * Sends the message into Discord room.
-	 * @param $message Message to be sent.
+	 * @param string $message Message to be sent.
 	 * @see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
 	 */
 	private static function pushDiscordNotify( $message, $user, $action ) {
