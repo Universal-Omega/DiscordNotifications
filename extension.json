@@ -1,6 +1,6 @@
 {
-	"name": "Discord Notifications",
-	"version": "1.1.7",
+	"name": "DiscordNotifications",
+	"version": "2.0.0",
 	"author": [
 		"Universal Omega",
 		"Aleksi Postari"
@@ -11,25 +11,36 @@
 	"requires": {
 		"MediaWiki": ">= 1.37.0"
 	},
-	"AutoloadClasses": {
-		"DiscordNotificationsCore": "DiscordNotificationsCore.php"
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\DiscordNotifications\\": "includes/"
 	},
 	"MessagesDirs": {
 		"DiscordNotifications": [
 			"i18n"
 		]
 	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
+			"services": [
+				"ConfigFactory",
+				"RevisionLookup"
+			]
+		}
+	},
 	"Hooks": {
-		"ArticleDeleteComplete": "DiscordNotificationsCore::onDiscordArticleDeleted",
-		"TitleMoveComplete": "DiscordNotificationsCore::onDiscordArticleMoved",
-		"AddNewAccount": "DiscordNotificationsCore::onDiscordNewUserAccount",
-		"BlockIpComplete": "DiscordNotificationsCore::onDiscordUserBlocked",
-		"UploadComplete": "DiscordNotificationsCore::onDiscordFileUploaded",
-		"ArticleProtectComplete": "DiscordNotificationsCore::onDiscordArticleProtected",
-		"UserGroupsChanged": "DiscordNotificationsCore::onDiscordUserGroupsChanged",
-		"APIFlowAfterExecute": "DiscordNotificationsCore::onDiscordApiFlowAfterExecute",
-		"AfterImportPage": "DiscordNotificationsCore::onDiscordAfterImportPage",
-		"PageSaveComplete": "DiscordNotificationsCore::onDiscordPageSaveComplete"
+		"ArticleDeleteComplete": {
+			"handler": "main"
+		},
+		"TitleMoveComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordArticleMoved",
+		"AddNewAccount": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordNewUserAccount",
+		"BlockIpComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordUserBlocked",
+		"UploadComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordFileUploaded",
+		"ArticleProtectComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordArticleProtected",
+		"UserGroupsChanged": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordUserGroupsChanged",
+		"APIFlowAfterExecute": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordApiFlowAfterExecute",
+		"AfterImportPage": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordAfterImportPage",
+		"PageSaveComplete": "MediaWiki\\Extension\\DiscordNotifications\\Hooks::onDiscordPageSaveComplete"
 	},
 	"config": {
 		"DiscordIncomingWebhookUrl": "",
