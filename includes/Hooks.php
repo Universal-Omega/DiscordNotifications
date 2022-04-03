@@ -88,9 +88,9 @@ class Hooks implements
 	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
 	 */
 	private static function parseurl( $url ) {
-		$url = str_replace( " ", "%20", $url );
-		$url = str_replace( "(", "%28", $url );
-		$url = str_replace( ")", "%29", $url );
+		$url = str_replace( ' ', '%20', $url );
+		$url = str_replace( '(', '%28', $url );
+		$url = str_replace( ')', '%29', $url );
 
 		return $url;
 	}
@@ -101,18 +101,18 @@ class Hooks implements
 	 */
 	private function getDiscordUserText( $user ) {
 		$userName = is_object( $user ) ? $user->getName() : $user;
-		$user_url = str_replace( "&", "%26", $userName );
+		$user_url = str_replace( '&', '%26', $userName );
 
 		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
-				"%s (%s | %s | %s | %s)",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . "|$userName>",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . "|" . self::msg( 'discordnotifications-block' ) . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . "|" . self::msg( 'discordnotifications-groups' ) . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . "|" . self::msg( 'discordnotifications-talk' ) . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . "|" . self::msg( 'discordnotifications-contribs' ) . ">" );
+				'%s (%s | %s | %s | %s)',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . self::msg( 'discordnotifications-block' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . self::msg( 'discordnotifications-groups' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . self::msg( 'discordnotifications-talk' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . self::msg( 'discordnotifications-contribs' ) . '>' );
 		} else {
-			return "<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . "|$userName>";
+			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>';
 		}
 	}
 
@@ -122,31 +122,31 @@ class Hooks implements
 	 */
 	private function getDiscordArticleText( WikiPage $article, $diff = false ) {
 		$title = $article->getTitle()->getFullText();
-		$title_url = str_replace( "&", "%26", $title );
-		$prefix = "<" . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
+		$title_url = str_replace( '&', '%26', $title );
+		$prefix = '<' . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
 
 		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
 			$out = sprintf(
-				"%s (%s | %s | %s",
-				self::parseurl( $prefix ) . "|" . $title . ">",
-				self::parseurl( $prefix . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . "|" . self::msg( 'discordnotifications-edit' ) . ">",
-				self::parseurl( $prefix . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . "|" . self::msg( 'discordnotifications-delete' ) . ">",
-				self::parseurl( $prefix . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . "|" . self::msg( 'discordnotifications-history' ) . ">"/*,
-					"move",
-					"protect",
-					"watch"*/ );
+				'%s (%s | %s | %s',
+				self::parseurl( $prefix ) . '|' . $title . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'/*,
+					'move',
+					'protect',
+					'watch'*/ );
 
 			if ( $diff ) {
 				$revisionId = $article->getRevisionRecord()->getId();
 
-				$out .= " | " . self::parseurl( $prefix . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . "|" . self::msg( 'discordnotifications-diff' ) . ">)";
+				$out .= ' | ' . self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . self::msg( 'discordnotifications-diff' ) . '>)';
 			} else {
-				$out .= ")";
+				$out .= ')';
 			}
 
 			return $out . "\n";
 		} else {
-			return self::parseurl( $prefix ) . "|" . $title . ">";
+			return self::parseurl( $prefix ) . '|' . $title . '>';
 		}
 	}
 
@@ -156,20 +156,20 @@ class Hooks implements
 	 */
 	private function getDiscordTitleText( Title $title ) {
 		$titleName = $title->getFullText();
-		$title_url = str_replace( "&", "%26", $titleName );
+		$title_url = str_replace( '&', '%26', $titleName );
 
 		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
 			return sprintf(
-				"%s (%s | %s | %s)",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . "|" . $titleName . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . "|" . self::msg( 'discordnotifications-edit' ) . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . "|" . self::msg( 'discordnotifications-delete' ) . ">",
-				"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . "&" . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . "|" . self::msg( 'discordnotifications-history' ) . ">"/*,
-						"move",
-						"protect",
-						"watch"*/ );
+				'%s (%s | %s | %s)',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'/*,
+						'move',
+						'protect',
+						'watch'*/ );
 		} else {
-			return "<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . "|" . $titleName . ">";
+			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>';
 		}
 	}
 
@@ -216,9 +216,9 @@ class Hooks implements
 			$message = self::msg( 'discordnotifications-article-created',
 			$this->getDiscordUserText( $user ),
 			$this->getDiscordArticleText( $wikiPage ),
-			$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
+			$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-				$message .= " (" . self::msg( 'discordnotifications-bytes', $revisionRecord->getSize() ) . ")";
+				$message .= ' (' . self::msg( 'discordnotifications-bytes', $revisionRecord->getSize() ) . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
@@ -235,7 +235,7 @@ class Hooks implements
 				$this->getDiscordUserText( $user ),
 				$isMinor ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
 				$this->getDiscordArticleText( $wikiPage, true ),
-				$summary == "" ? "" : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary ) );
 			if (
 				$this->config->get( 'DiscordIncludeDiffSize' ) &&
 				$this->revisionLookup->getPreviousRevision( $revisionRecord )
@@ -454,9 +454,9 @@ class Hooks implements
 		$message = self::msg( 'discordnotifications-change-user-groups-with-old',
 			$this->getDiscordUserText( $performer ),
 			$this->getDiscordUserText( $user ),
-			implode( ", ", array_keys( $oldUGMs ) ),
-			implode( ", ", $this->userGroupManager->getUserGroups( $user ) ),
-			"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $this->getDiscordUserText( $performer ) ) . "|" . self::msg( 'discordnotifications-view-user-rights' ) . ">." );
+			implode( ', ', array_keys( $oldUGMs ) ),
+			implode( ', ', $this->userGroupManager->getUserGroups( $user ) ),
+			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $this->getDiscordUserText( $performer ) ) . '|' . self::msg( 'discordnotifications-view-user-rights' ) . '>.' );
 
 		$this->pushDiscordNotify( $message, $user, 'user_groups_changed' );
 	}
@@ -487,37 +487,37 @@ class Hooks implements
 
 		switch ( $action ) {
 			case 'edit-header':
-				$message = self::msg( "discordnotifications-flow-edit-header",
+				$message = self::msg( 'discordnotifications-flow-edit-header',
 					$this->getDiscordUserText( $user ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . "|" . $request['page'] . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . $request['page'] . '>' );
 				break;
 			case 'edit-post':
-				$message = self::msg( "discordnotifications-flow-edit-post",
+				$message = self::msg( 'discordnotifications-flow-edit-post',
 					$this->getDiscordUserText( $user ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . "Topic:" . $result['workflow'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'edit-title':
-				$message = self::msg( "discordnotifications-flow-edit-title",
+				$message = self::msg( 'discordnotifications-flow-edit-title',
 					$this->getDiscordUserText( $user ),
 					$request['etcontent'],
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'edit-topic-summary':
-				$message = self::msg( "discordnotifications-flow-edit-topic-summary",
+				$message = self::msg( 'discordnotifications-flow-edit-topic-summary',
 					$this->getDiscordUserText( $user ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'lock-topic':
-				$message = self::msg( "discordnotifications-flow-lock-topic",
+				$message = self::msg( 'discordnotifications-flow-lock-topic',
 					$this->getDiscordUserText( $user ),
 					// Messages that can be used here:
 					// * discordnotifications-flow-lock-topic-lock
 					// * discordnotifications-flow-lock-topic-unlock
-					self::msg( "discordnotifications-flow-lock-topic-" . $request['cotmoderationState'] ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					self::msg( 'discordnotifications-flow-lock-topic-' . $request['cotmoderationState'] ),
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'moderate-post':
-				$message = self::msg( "discordnotifications-flow-moderate-post",
+				$message = self::msg( 'discordnotifications-flow-moderate-post',
 					$this->getDiscordUserText( $user ),
 					// Messages that can be used here:
 					// * discordnotifications-flow-moderate-hide
@@ -526,11 +526,11 @@ class Hooks implements
 					// * discordnotifications-flow-moderate-unsuppress
 					// * discordnotifications-flow-moderate-delete
 					// * discordnotifications-flow-moderate-undelete
-					self::msg( "discordnotifications-flow-moderate-" . $request['mpmoderationState'] ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					self::msg( 'discordnotifications-flow-moderate-' . $request['mpmoderationState'] ),
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'moderate-topic':
-				$message = self::msg( "discordnotifications-flow-moderate-topic",
+				$message = self::msg( 'discordnotifications-flow-moderate-topic',
 					$this->getDiscordUserText( $user ),
 					// Messages that can be used here:
 					// * discordnotifications-flow-moderate-hide
@@ -539,19 +539,19 @@ class Hooks implements
 					// * discordnotifications-flow-moderate-unsuppress
 					// * discordnotifications-flow-moderate-delete
 					// * discordnotifications-flow-moderate-undelete
-					self::msg( "discordnotifications-flow-moderate-" . $request['mtmoderationState'] ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					self::msg( 'discordnotifications-flow-moderate-' . $request['mtmoderationState'] ),
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			case 'new-topic':
-				$message = self::msg( "discordnotifications-flow-new-topic",
+				$message = self::msg( 'discordnotifications-flow-new-topic',
 					$this->getDiscordUserText( $user ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . "Topic:" . $result['committed']['topiclist']['topic-id'] ) . "|" . $request['nttopic'] . ">",
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . "|" . $request['page'] . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['committed']['topiclist']['topic-id'] ) . '|' . $request['nttopic'] . '>',
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . $request['page'] . '>' );
 				break;
 			case 'reply':
-				$message = self::msg( "discordnotifications-flow-reply",
+				$message = self::msg( 'discordnotifications-flow-reply',
 					$this->getDiscordUserText( $user ),
-					"<" . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . "|" . self::flowUUIDToTitleText( $result['workflow'] ) . ">" );
+					'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>' );
 				break;
 			default:
 				return;
@@ -568,7 +568,8 @@ class Hooks implements
 	private function pushDiscordNotify( $message, $user, $action ) {
 		if ( $this->config->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->config->get( 'DiscordExcludedPermission' ) ) ) {
-				return; // Users with the permission suppress notifications
+				// Users with the permission suppress notifications
+				return;
 			}
 		}
 
@@ -576,11 +577,11 @@ class Hooks implements
 		$message = str_replace( '"', "'", $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
-		if ( $discordFromName == "" ) {
+		if ( $discordFromName == '' ) {
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( "~(<)(http)([^|]*)(\|)([^\>]*)(>)~", "[$5]($2$3)", $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
 		switch ( $action ) {
@@ -631,7 +632,7 @@ class Hooks implements
 		$post .= '}';
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
-		if ( $this->config->get( 'DiscordSendMethod' ) == "file_get_contents" ) {
+		if ( $this->config->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
 			self::sendHttpRequest( $this->config->get( 'DiscordIncomingWebhookUrl' ), $post );
 			if ( $this->config->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->config->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->config->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
@@ -660,30 +661,35 @@ class Hooks implements
 		curl_setopt( $h, CURLOPT_POST, 1 );
 		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
 		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 ); // Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 ); // Set global 10 second timeout to handle all data
+
+		// Set 10 second timeout to connection
+		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
+
+		// Set global 10 second timeout to handle all data
+		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
+
+		// Set Content-Type to application/json
 		curl_setopt( $h, CURLOPT_HTTPHEADER, [
 			'Content-Type: application/json',
 			'Content-Length: ' . strlen( $postData )
-		] ); // Set Content-Type to application/json
-		// Commented out lines below. Using default curl settings for host and peer verification.
-		//curl_setopt ($h, CURLOPT_SSL_VERIFYHOST, 0);
-		//curl_setopt ($h, CURLOPT_SSL_VERIFYPEER, 0);
-		// ... Aaand execute the curl script!
+		] );
+
+		// Execute the curl script
 		$curl_output = curl_exec( $h );
+
 		curl_close( $h );
 	}
 
 	private static function sendHttpRequest( $url, $postData ) {
-		$extradata = [
+		$extraData = [
 			'http' => [
-				'header'  => "Content-type: application/json",
+				'header'  => 'Content-type: application/json',
 				'method'  => 'POST',
 				'content' => $postData,
 			],
 		];
 
-		$context = stream_context_create( $extradata );
+		$context = stream_context_create( $extraData );
 		$result = file_get_contents( $url, false, $context );
 	}
 
