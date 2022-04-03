@@ -754,7 +754,7 @@ class Hooks implements
 	}
 
 	/**
-	 * @param string $url
+	 * @param string $key
 	 * @param mixed ...$params
 	 * @return string
 	 */
