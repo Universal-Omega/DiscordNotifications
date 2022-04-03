@@ -172,6 +172,12 @@
 		"DiscordShowNewUserFullName": {
 			"value": true
 		},
+		"DiscordShowNewUserEmail": {
+			"value": false
+		},
+		"DiscordShowNewUserIP": {
+			"value": false
+		},
 		"DiscordAvatarUrl": {
 			"value": ""
 		}
