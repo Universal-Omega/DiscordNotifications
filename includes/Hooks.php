@@ -244,15 +244,17 @@ class Hooks implements
 
 		if ( !$this->config->get( 'DiscordNotificationShowSuppressed' ) && $logEntry->getType() != 'delete' ) return;
 
-		if ( $this->titleIsExcluded( $page->getText() ) ) return;
+		$wikiPage = $this->wikiPageFactory->newFromTitle( $page );
+
+		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) return;
 
 		$message = wfMessage( 'discordnotifications-article-deleted' )->plaintextParams(
 			$this->getDiscordUserText( $deleter->getUser() ),
-			$this->getDiscordArticleText( $this->wikiPageFactory->newFromTitle( $page ) ),
+			$this->getDiscordArticleText( $wikiPage ),
 			$reason
 		)->inContentLanguage()->text();
 
-		$this->pushDiscordNotify( $message, $user, 'article_deleted' );
+		$this->pushDiscordNotify( $message, $deleter->getUser(), 'article_deleted' );
 	}
 
 	/**
