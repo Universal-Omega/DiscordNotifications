@@ -9,6 +9,7 @@ use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
+use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
