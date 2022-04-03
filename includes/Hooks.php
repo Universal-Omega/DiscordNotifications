@@ -224,8 +224,10 @@ class Hooks implements
 			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
+
 			// Skip minor edits if user wanted to ignore them
-			if ( $isMinor && $this->config->get( 'DiscordIgnoreMinorEdits' ) ) { return;
+			if ( $isMinor && $this->config->get( 'DiscordIgnoreMinorEdits' ) ) {
+				return;
 			}
 
 			$message = self::msg(
