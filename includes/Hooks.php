@@ -26,6 +26,7 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
@@ -45,6 +46,9 @@ class Hooks implements
 	UploadCompleteHook,
 	UserGroupsChangedHook
 {
+	/** @var ActorStore */
+	private $actorStore;
+
 	/** @var Config */
 	private $config;
 
@@ -64,6 +68,7 @@ class Hooks implements
 	private $wikiPageFactory;
 
 	/**
+	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
@@ -72,6 +77,7 @@ class Hooks implements
 	 * @param WikiPageFactory $wikiPageFactory
 	 */
 	public function __construct(
+		ActorStore $actorStore,
 		ConfigFactory $configFactory,
 		PermissionManager $permissionManager,
 		RevisionLookup $revisionLookup,
@@ -80,6 +86,8 @@ class Hooks implements
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
+
+		$this->actorStore = $actorStore;
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -337,7 +345,9 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-block-user',
 			$this->getDiscordUserText( $user ),
-			$this->getDiscordUserText( $block->getTargetUserIdentity() ),
+			$this->getDiscordUserText(
+				$block->getTargetUserIdentity() ?? $this->actorStore->getUnknownActor()
+			),
 			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.'
