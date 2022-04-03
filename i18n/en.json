@@ -5,6 +5,7 @@
         ]
     },
     "discordnotifications-desc": "Sends Discord notifications for selected actions that have occurred in your MediaWiki sites.",
+    "discordnotifications-extensionname": "DiscordNotifications",
     "discordnotifications-block": "block",
     "discordnotifications-groups": "groups",
     "discordnotifications-talk": "talk",
