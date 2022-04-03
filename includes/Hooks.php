@@ -118,7 +118,7 @@ class Hooks implements
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-				$message .= ' (' . self::msg( 'discordnotifications-bytes', $revisionRecord->getSize() ) . ')';
+				$message .= ' (' . wfMessage( 'discordnotifications-bytes' )->sizeParams( $revisionRecord->getSize() )->inContentLanguage()->text() . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
@@ -142,8 +142,9 @@ class Hooks implements
 				$this->config->get( 'DiscordIncludeDiffSize' ) &&
 				$this->revisionLookup->getPreviousRevision( $revisionRecord )
 			) {
-				$message .= ' (' . self::msg( 'discordnotifications-bytes',
-					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
+				$message .= ' (' . wfMessage( 'discordnotifications-bytes' )->sizeParams(
+					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize()
+				)->inContentLanguage()->text() . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_saved' );
