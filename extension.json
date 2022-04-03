@@ -172,7 +172,7 @@
 			"value": true
 		},
 		"DiscordShowNewUserFullName": {
-			"value": true
+			"value": false
 		},
 		"DiscordShowNewUserEmail": {
 			"value": false
