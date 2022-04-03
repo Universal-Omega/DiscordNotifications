@@ -27,12 +27,13 @@
 				"PermissionManager",
 				"RevisionLookup",
 				"TitleFactory",
-				"UserGroupManager"
+				"UserGroupManager",
+				"WikiPageFactory"
 			]
 		}
 	},
 	"Hooks": {
-		"ArticleDeleteComplete": {
+		"PageDeleteComplete": {
 			"handler": "main"
 		},
 		"PageMoveComplete": {
