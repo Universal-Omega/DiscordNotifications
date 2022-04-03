@@ -1,5 +1,7 @@
 <?php
 
+declare( strict_types = 1 );
+
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use APIBase;
@@ -83,123 +85,6 @@ class Hooks implements
 		$this->titleFactory = $titleFactory;
 		$this->userGroupManager = $userGroupManager;
 		$this->wikiPageFactory = $wikiPageFactory;
-	}
-
-	/**
-	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
-	 *
-	 * @param string $url
-	 * @return string
-	 */
-	private static function parseurl( $url ) {
-		$url = str_replace( ' ', '%20', $url );
-		$url = str_replace( '(', '%28', $url );
-		$url = str_replace( ')', '%29', $url );
-
-		return $url;
-	}
-
-	/**
-	 * Gets nice HTML text for user containing the link to user page
-	 * and also links to user site, groups editing, talk and contribs pages.
-	 *
-	 * @param UserIdentity|string $user
-	 * @return string
-	 */
-	private function getDiscordUserText( $user ) {
-		$userName = is_object( $user ) ? $user->getName() : $user;
-		$user_url = str_replace( '&', '%26', $userName );
-
-		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
-			return sprintf(
-				'%s (%s | %s | %s | %s)',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . self::msg( 'discordnotifications-block' ) . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . self::msg( 'discordnotifications-groups' ) . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . self::msg( 'discordnotifications-talk' ) . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . self::msg( 'discordnotifications-contribs' ) . '>'
-			);
-		} else {
-			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>';
-		}
-	}
-
-	/**
-	 * Gets nice HTML text for article containing the link to article page
-	 * and also into edit, delete and article history pages.
-	 *
-	 * @param WikiPage $wikiPage
-	 * @param bool $diff
-	 * @return string
-	 */
-	private function getDiscordArticleText( WikiPage $wikiPage, $diff = false ) {
-		$title = $wikiPage->getTitle()->getFullText();
-		$title_url = str_replace( '&', '%26', $title );
-		$prefix = '<' . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
-
-		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
-			$out = sprintf(
-				'%s (%s | %s | %s',
-				self::parseurl( $prefix ) . '|' . $title . '>',
-				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
-				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
-				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'
-			);
-
-			if ( $diff ) {
-				$revisionId = $wikiPage->getRevisionRecord()->getId();
-
-				$out .= ' | ' . self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . self::msg( 'discordnotifications-diff' ) . '>)';
-			} else {
-				$out .= ')';
-			}
-
-			return $out . "\n";
-		} else {
-			return self::parseurl( $prefix ) . '|' . $title . '>';
-		}
-	}
-
-	/**
-	 * Gets nice HTML text for title object containing the link to article page
-	 * and also into edit, delete and article history pages.
-	 *
-	 * @param Title $title
-	 * @return string
-	 */
-	private function getDiscordTitleText( Title $title ) {
-		$titleName = $title->getFullText();
-		$title_url = str_replace( '&', '%26', $titleName );
-
-		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
-			return sprintf(
-				'%s (%s | %s | %s)',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
-				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'
-			);
-		} else {
-			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>';
-		}
-	}
-
-	/**
-	 * Returns whether the given title should be excluded
-	 *
-	 * @param string $title
-	 * @return bool
-	 */
-	private function titleIsExcluded( $title ) {
-		if ( is_array( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) && count( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) > 0 ) {
-			foreach ( $this->config->get( 'DiscordExcludeNotificationsFrom' ) as &$currentExclude ) {
-				if ( strpos( $title, $currentExclude ) === 0 ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
 	}
 
 	/**
@@ -603,7 +488,7 @@ class Hooks implements
 	 * @param ?UserIdentity $user
 	 * @param string $action
 	 */
-	private function pushDiscordNotify( $message, $user, $action ) {
+	private function pushDiscordNotify( string $message, ?UserIdentity $user, string $action ) {
 		if ( $this->config->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->config->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
@@ -704,10 +589,127 @@ class Hooks implements
 	}
 
 	/**
+	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private static function parseurl( string $url ): string {
+		$url = str_replace( ' ', '%20', $url );
+		$url = str_replace( '(', '%28', $url );
+		$url = str_replace( ')', '%29', $url );
+
+		return $url;
+	}
+
+	/**
+	 * Gets nice HTML text for user containing the link to user page
+	 * and also links to user site, groups editing, talk and contribs pages.
+	 *
+	 * @param UserIdentity $user
+	 * @return string
+	 */
+	private function getDiscordUserText( UserIdentity $user ): string {
+		$userName = $user->getName();
+		$user_url = str_replace( '&', '%26', $userName );
+
+		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
+			return sprintf(
+				'%s (%s | %s | %s | %s)',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . self::msg( 'discordnotifications-block' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . self::msg( 'discordnotifications-groups' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . self::msg( 'discordnotifications-talk' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . self::msg( 'discordnotifications-contribs' ) . '>'
+			);
+		} else {
+			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>';
+		}
+	}
+
+	/**
+	 * Gets nice HTML text for article containing the link to article page
+	 * and also into edit, delete and article history pages.
+	 *
+	 * @param WikiPage $wikiPage
+	 * @param bool $diff
+	 * @return string
+	 */
+	private function getDiscordArticleText( WikiPage $wikiPage, bool $diff = false ): string {
+		$title = $wikiPage->getTitle()->getFullText();
+		$title_url = str_replace( '&', '%26', $title );
+		$prefix = '<' . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
+
+		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
+			$out = sprintf(
+				'%s (%s | %s | %s',
+				self::parseurl( $prefix ) . '|' . $title . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
+				self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'
+			);
+
+			if ( $diff ) {
+				$revisionId = $wikiPage->getRevisionRecord()->getId();
+
+				$out .= ' | ' . self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . self::msg( 'discordnotifications-diff' ) . '>)';
+			} else {
+				$out .= ')';
+			}
+
+			return $out . "\n";
+		} else {
+			return self::parseurl( $prefix ) . '|' . $title . '>';
+		}
+	}
+
+	/**
+	 * Gets nice HTML text for title object containing the link to article page
+	 * and also into edit, delete and article history pages.
+	 *
+	 * @param Title $title
+	 * @return string
+	 */
+	private function getDiscordTitleText( Title $title ): string {
+		$titleName = $title->getFullText();
+		$title_url = str_replace( '&', '%26', $titleName );
+
+		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
+			return sprintf(
+				'%s (%s | %s | %s)',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . self::msg( 'discordnotifications-edit' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . self::msg( 'discordnotifications-delete' ) . '>',
+				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . self::msg( 'discordnotifications-history' ) . '>'
+			);
+		} else {
+			return '<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>';
+		}
+	}
+
+	/**
+	 * Returns whether the given title should be excluded
+	 *
+	 * @param string $title
+	 * @return bool
+	 */
+	private function titleIsExcluded( string $title ): bool {
+		if ( is_array( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) && count( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) > 0 ) {
+			foreach ( $this->config->get( 'DiscordExcludeNotificationsFrom' ) as &$currentExclude ) {
+				if ( strpos( $title, $currentExclude ) === 0 ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private function sendCurlRequest( $url, $postData ) {
+	private function sendCurlRequest( string $url, string $postData ) {
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -741,7 +743,7 @@ class Hooks implements
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private static function sendHttpRequest( $url, $postData ) {
+	private static function sendHttpRequest( string $url, string $postData ) {
 		$extraData = [
 			'http' => [
 				'header'  => 'Content-type: application/json',
@@ -756,10 +758,10 @@ class Hooks implements
 
 	/**
 	 * @param string $key
-	 * @param mixed ...$params
+	 * @param string ...$params
 	 * @return string
 	 */
-	private static function msg( $key, ...$params ) {
+	private static function msg( string $key, string ...$params ): string {
 		if ( $params ) {
 			return wfMessage( $key, ...$params )->inContentLanguage()->text();
 		} else {
@@ -771,7 +773,7 @@ class Hooks implements
 	 * @param int $UUID
 	 * @return string
 	 */
-	private static function flowUUIDToTitleText( $UUID ) {
+	private static function flowUUIDToTitleText( int $UUID ): string {
 		$UUID = UUID::create( $UUID );
 		$collection = PostCollection::newFromId( $UUID );
 		$revision = $collection->getLastRevision();
