@@ -29,6 +29,7 @@ use MediaWiki\User\UserGroupManager;
 use RequestContext;
 use Title;
 use TitleFactory;
+use User;
 use WikiPage;
 
 class Hooks implements
