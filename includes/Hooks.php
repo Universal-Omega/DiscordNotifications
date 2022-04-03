@@ -114,7 +114,7 @@ class Hooks implements
 			$message = self::msg( 'discordnotifications-article-created',
 				$this->getDiscordUserText( $user ),
 				$this->getDiscordArticleText( $wikiPage ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
@@ -135,7 +135,7 @@ class Hooks implements
 				$this->getDiscordUserText( $user ),
 				$isMinor ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
 				$this->getDiscordArticleText( $wikiPage, true ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if (
