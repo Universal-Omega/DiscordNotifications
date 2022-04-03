@@ -86,6 +86,9 @@ class Hooks implements
 
 	/**
 	 * Replaces some special characters on urls. This has to be done as Discord webhook api does not accept urlencoded text.
+	 *
+	 * @param string $url
+	 * @return string
 	 */
 	private static function parseurl( $url ) {
 		$url = str_replace( ' ', '%20', $url );
@@ -98,6 +101,9 @@ class Hooks implements
 	/**
 	 * Gets nice HTML text for user containing the link to user page
 	 * and also links to user site, groups editing, talk and contribs pages.
+	 *
+	 * @param string|User $user
+	 * @return string
 	 */
 	private function getDiscordUserText( $user ) {
 		$userName = is_object( $user ) ? $user->getName() : $user;
@@ -119,9 +125,13 @@ class Hooks implements
 	/**
 	 * Gets nice HTML text for article containing the link to article page
 	 * and also into edit, delete and article history pages.
+	 *
+	 * @param WikiPage $wikiPage
+	 * @param bool $diff
+	 * @return string
 	 */
-	private function getDiscordArticleText( WikiPage $article, $diff = false ) {
-		$title = $article->getTitle()->getFullText();
+	private function getDiscordArticleText( WikiPage $wikiPage, $diff = false ) {
+		$title = $wikiPage->getTitle()->getFullText();
 		$title_url = str_replace( '&', '%26', $title );
 		$prefix = '<' . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
 
@@ -137,7 +147,7 @@ class Hooks implements
 					'watch'*/ );
 
 			if ( $diff ) {
-				$revisionId = $article->getRevisionRecord()->getId();
+				$revisionId = $wikiPage->getRevisionRecord()->getId();
 
 				$out .= ' | ' . self::parseurl( $prefix . '&' . $this->config->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . self::msg( 'discordnotifications-diff' ) . '>)';
 			} else {
@@ -153,6 +163,9 @@ class Hooks implements
 	/**
 	 * Gets nice HTML text for title object containing the link to article page
 	 * and also into edit, delete and article history pages.
+	 *
+	 * @param Title $title
+	 * @return string
 	 */
 	private function getDiscordTitleText( Title $title ) {
 		$titleName = $title->getFullText();
@@ -175,6 +188,9 @@ class Hooks implements
 
 	/**
 	 * Returns whether the given title should be excluded
+	 *
+	 * @param string $title
+	 * @return bool
 	 */
 	private function titleIsExcluded( $title ) {
 		if ( is_array( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) && count( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) > 0 ) {
@@ -189,8 +205,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after an article has been updated.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageSaveComplete
+	 * @inheritDoc
 	 */
 	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
 		$isNew = (bool)( $flags & EDIT_NEW );
@@ -249,8 +264,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after the delete article request has been processed.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/PageDeleteComplete
+	 * @inheritDoc
 	 */
 	public function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
 		if ( !$this->config->get( 'DiscordNotificationRemovedArticle' ) ) {
@@ -277,8 +291,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after a page has been moved.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageMoveComplete
+	 * @inheritDoc
 	 */
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
 		if ( !$this->config->get( 'DiscordNotificationMovedArticle' ) ) {
@@ -295,8 +308,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after the protect article request has been processed.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleProtectComplete
+	 * @inheritDoc
 	 */
 	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ) {
 		if ( !$this->config->get( 'DiscordNotificationProtectedArticle' ) ) {
@@ -313,8 +325,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after page has been imported into wiki.
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/AfterImportPage
+	 * @inheritDoc
 	 */
 	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ) {
 		if ( !$this->config->get( 'DiscordNotificationAfterImportPage' ) ) {
@@ -327,8 +338,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Called after a user account is created.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/LocalUserCreated
+	 * @inheritDoc
 	 */
 	public function onLocalUserCreated( $user, $autocreated ) {
 		if ( !$this->config->get( 'DiscordNotificationNewUser' ) ) {
@@ -383,8 +393,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Called when a file upload has completed.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/UploadComplete
+	 * @inheritDoc
 	 */
 	public function onUploadComplete( $uploadBase ) {
 		if ( !$this->config->get( 'DiscordNotificationFileUpload' ) ) {
@@ -422,8 +431,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after the request to block an IP or user has been processed
-	 * @see http://www.mediawiki.org/wiki/Manual:MediaWiki_hooks/BlockIpComplete
+	 * @inheritDoc
 	 */
 	public function onBlockIpComplete( $block, $user, $priorBlock ) {
 		if ( !$this->config->get( 'DiscordNotificationBlockedUser' ) ) {
@@ -443,8 +451,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after the user groups (rights) have been changed
-	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/UserGroupsChanged
+	 * @inheritDoc
 	 */
 	public function onUserGroupsChanged( $user, $added, $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
 		if ( !$this->config->get( 'DiscordNotificationUserGroupsChanged' ) ) {
@@ -462,7 +469,7 @@ class Hooks implements
 	}
 
 	/**
-	 * Occurs after the execute() method of an Flow API module
+	 * @param APIBase $module
 	 */
 	public function onAPIFlowAfterExecute( APIBase $module ) {
 		if ( !$this->config->get( 'DiscordNotificationFlow' ) || !ExtensionRegistry::getInstance()->isLoaded( 'Flow' ) ) {
@@ -561,9 +568,11 @@ class Hooks implements
 	}
 
 	/**
-	 * Sends the message into Discord room.
-	 * @param string $message Message to be sent.
-	 * @see https://discordapp.com/developers/docs/resources/webhook#execute-webhook
+	 * Sends the message into Discord.
+	 *
+	 * @param string $message
+	 * @param User $user
+	 * @param string $action
 	 */
 	private function pushDiscordNotify( $message, $user, $action ) {
 		if ( $this->config->get( 'DiscordExcludedPermission' ) ) {
@@ -650,6 +659,10 @@ class Hooks implements
 		}
 	}
 
+	/**
+	 * @param string $url
+	 * @param string $postData
+	 */
 	private function sendCurlRequest( $url, $postData ) {
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
@@ -680,6 +693,10 @@ class Hooks implements
 		curl_close( $h );
 	}
 
+	/**
+	 * @param string $url
+	 * @param string $postData
+	 */
 	private static function sendHttpRequest( $url, $postData ) {
 		$extraData = [
 			'http' => [
@@ -693,6 +710,11 @@ class Hooks implements
 		$result = file_get_contents( $url, false, $context );
 	}
 
+	/**
+	 * @param string $url
+	 * @param mixed ...$params
+	 * @return string
+	 */
 	private static function msg( $key, ...$params ) {
 		if ( $params ) {
 			return wfMessage( $key, ...$params )->inContentLanguage()->text();
@@ -701,6 +723,10 @@ class Hooks implements
 		}
 	}
 
+	/**
+	 * @param int $UUID
+	 * @return string
+	 */
 	private static function flowUUIDToTitleText( $UUID ) {
 		$UUID = UUID::create( $UUID );
 		$collection = PostCollection::newFromId( $UUID );
