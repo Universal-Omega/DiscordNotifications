@@ -1,10 +1,6 @@
-# Discord MediaWiki
+# DiscordNotifications
 
-This is a extension for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) that sends notifications of actions in your Wiki like editing, adding or removing a page into [Discord](https://discordapp.com/) channel.
-
-> Looking for extension that can send notifications to [HipChat](https://github.com/kulttuuri/hipchat_mediawiki) or [Slack](https://github.com/kulttuuri/slack_mediawiki)?
-
-![Screenshot](https://github.com/kulttuuri/discord_mediawiki/blob/master/screenshot.jpg)
+This is a extension for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) that sends notifications of actions in your Wiki like editing, adding or removing a page into [Discord](https://discord.com/) channel.
 
 ## Supported MediaWiki operations to send notifications
 
@@ -26,7 +22,7 @@ Want to translate this extension to your language? Just visit [translatewiki.net
 ## Upgrading extension
 
 Upgrading from older version to 1.1.3 of this extension has one change that you need to take into account:
-- All configuration parameters now use the format `wgDiscord`. If you had configured any of the `wgNotificationWikiUrlEnding` parameters, you need to change these to format: `wgDiscordNotificationWikiUrlEnding`.
+- All configuration parameters now use the format `$wgDiscord`. If you had configured any of the `$wgNotificationWikiUrlEnding` parameters, you need to change these to format: `$wgDiscordNotificationWikiUrlEnding`.
 
 ## Requirements
 
@@ -40,24 +36,30 @@ Upgrading from older version to 1.1.3 of this extension has one change that you 
 
 2) After setting up the Webhook you will get a Webhook URL. Copy that URL as you will need it in step 4.
 
-3) [Download latest release of this extension](https://github.com/kulttuuri/discord_mediawiki/archive/master.zip), uncompress the archive and move folder `DiscordNotifications` into your `mediawiki_installation/extensions` folder. (And instead of manually downloading the latest version, you could also just git clone this repository to that same extensions folder).
+3) [Download latest release of this extension](https://github.com/Universal-Omega/DiscordNotifications/archive/master.zip), uncompress the archive and move folder `DiscordNotifications` into your `mediawiki_installation/extensions` folder. (And instead of manually downloading the latest version, you could also just git clone this repository to that same extensions folder).
 
 4) Add settings listed below in your `localSettings.php`. Note that it is mandatory to set these settings for this extension to work:
 
 ```php
-require_once("$IP/extensions/DiscordNotifications/DiscordNotifications.php");
+wfLoadExtension( 'DiscordNotifications' );
+
 // Required. Your Discord webhook URL. Read more from here: https://support.discordapp.com/hc/en-us/articles/228383668
-$wgDiscordIncomingWebhookUrl = "";
+$wgDiscordIncomingWebhookUrl = '';
+
 // Required. Name the message will appear to be sent from. Change this to whatever you wish it to be.
 $wgDiscordFromName = $wgSitename;
+
 // Avatar to use for messages. If blank, uses the webhook's default avatar.
-$wgDiscordAvatarUrl = "";
+$wgDiscordAvatarUrl = '';
+
 // URL into your MediaWiki installation with the trailing /.
-$wgDiscordNotificationWikiUrl = "http://your_wiki_url/";
+$wgDiscordNotificationWikiUrl = 'http://your_wiki_url/';
+
 // Wiki script name. Leave this to default one if you do not have URL rewriting enabled.
-$wgDiscordNotificationWikiUrlEnding = "index.php?title=";
-// What method will be used to send the data to Discord server. By default this is "curl" which only works if you have the curl extension enabled. There have been cases where VisualEditor extension does not work with the curl method, so in that case the recommended solution is to use the file_get_contents method. This can be: "curl" or "file_get_contents". Default: "curl".
-$wgDiscordSendMethod = "curl";
+$wgDiscordNotificationWikiUrlEnding = 'index.php?title=';
+
+// What method will be used to send the data to Discord server. By default this is 'curl' which only works if you have the curl extension enabled. There have been cases where VisualEditor extension does not work with the curl method, so in that case the recommended solution is to use the file_get_contents method. This can be: 'curl' or 'file_get_contents'. Default: 'curl'.
+$wgDiscordSendMethod = 'curl';
 ```
 
 5) Enjoy the notifications in your Discord room!
@@ -71,7 +73,7 @@ These options can be set after including your plugin in your `localSettings.php`
 By default this extension uses curl to send the requests to slack's API. If you use VisualEditor and get unknown errors, do not have curl enabled on your server or notice other problems, the recommended solution is to change method to file_get_contents.
 
 ```php
-$wgDiscordSendMethod = "file_get_contents";
+$wgDiscordSendMethod = 'file_get_contents';
 ```
 
 ### Send notifications to multiple channels
@@ -79,7 +81,10 @@ $wgDiscordSendMethod = "file_get_contents";
 You can add more webhook urls that you want to send notifications to by adding them in this array:
 
 ```php
-$wgDiscordAdditionalIncomingWebhookUrls = ["https://yourUrlOne.com", "https://yourUrlTwo..."];
+$wgDiscordAdditionalIncomingWebhookUrls = [
+	'https://yourUrlOne.com',
+	'https://yourUrlTwo...',
+];
 ```
 
 ### Remove additional links from user and article pages
@@ -89,19 +94,27 @@ By default user and article links in the nofication message will get additional 
 ```php
 // If this is true, pages will get additional links in the notification message (edit | delete | history).
 $wgDiscordIncludePageUrls = true;
+
 // If this is true, users will get additional links in the notification message (block | groups | talk | contribs).
 $wgDiscordIncludeUserUrls = true;
+
 // If this is true, all minor edits made to articles will not be submitted to Discord.
 $wgDiscordIgnoreMinorEdits = false;
 ```
 
-### Disable new user extra information
+### Enable new user extra information
 
-By default we show full name of newly created user in the notification. You can disable this setting using the settings below. This is helpful for example in situation where you do not want to expose this information for users in your Discord channel.
+By default we don't show full name, email, or IP address of newly created user in the notification. You can enable these settings using the settings below.
 
 ```php
 // If this is true, newly created user full name is added to notification.
 $wgDiscordShowNewUserFullName = true;
+
+// If this is true, newly created user email address is added to notification.
+$wgDiscordShowNewUserEmail = true;
+
+// If this is true, newly created user IP address is added to notification.
+$wgDiscordShowNewUserIP = true;
 ```
 
 ### Show edit size
@@ -118,7 +131,7 @@ By default notifications from all users will be sent to your Discord room. If yo
 
 ```php
 // If this is set, actions by users with this permission won't cause alerts
-$wgDiscordExcludedPermission = "";
+$wgDiscordExcludedPermission = '';
 ```
 
 ### Disable notifications from certain pages / namespaces
@@ -127,7 +140,10 @@ You can exclude notifications from certain namespaces / articles by adding them 
 
 ```php
 // Actions (add, edit, modify) won't be notified to Discord room from articles starting with these names
-$wgDiscordExcludeNotificationsFrom = ["User:", "Weirdgroup"];
+$wgDiscordExcludeNotificationsFrom = [
+	'User:',
+	'Weirdgroup',
+];
 ```
 
 ### Show non-public article deletions
@@ -145,24 +161,34 @@ MediaWiki actions that will be sent notifications of into Discord. Set desired o
 ```php
 // New user added into MediaWiki
 $wgDiscordNotificationNewUser = true;
+
 // User or IP blocked in MediaWiki
 $wgDiscordNotificationBlockedUser = true;
+
 // User groups changed in MediaWiki
-$wgDiscordNotificationUserGroupsChanged
+$wgDiscordNotificationUserGroupsChanged = true;
+
 // Article added to MediaWiki
 $wgDiscordNotificationAddedArticle = true;
+
 // Article removed from MediaWiki
 $wgDiscordNotificationRemovedArticle = true;
+
 // Article moved under new title in MediaWiki
 $wgDiscordNotificationMovedArticle = true;
+
 // Article edited in MediaWiki
 $wgDiscordNotificationEditedArticle = true;
+
 // File uploaded
 $wgDiscordNotificationFileUpload = true;
+
 // Article protection settings changed
 $wgDiscordNotificationProtectedArticle = true;
+
 // Action on Flow Boards (experimental)
 $wgDiscordNotificationFlow = true;
+
 // Article has been imported
 $wgDiscordNotificationAfterImportPage = true;
 ```
@@ -172,21 +198,17 @@ $wgDiscordNotificationAfterImportPage = true;
 Should any of these default MediaWiki system page URLs differ in your installation, change them here.
 
 ```php
-$wgDiscordNotificationWikiUrlEndingUserRights          = "Special%3AUserRights&user=";
-$wgDiscordNotificationWikiUrlEndingBlockUser           = "Special:Block/";
-$wgDiscordNotificationWikiUrlEndingUserPage            = "User:";
-$wgDiscordNotificationWikiUrlEndingUserTalkPage        = "User_talk:";
-$wgDiscordNotificationWikiUrlEndingUserContributions   = "Special:Contributions/";
-$wgDiscordNotificationWikiUrlEndingBlockList           = "Special:BlockList";
-$wgDiscordNotificationWikiUrlEndingEditArticle         = "action=edit";
-$wgDiscordNotificationWikiUrlEndingDeleteArticle       = "action=delete";
-$wgDiscordNotificationWikiUrlEndingHistory             = "action=history";
-$wgDiscordNotificationWikiUrlEndingDiff                = "diff=prev&oldid=";
+$wgDiscordNotificationWikiUrlEndingUserRights = 'Special%3AUserRights&user=';
+$wgDiscordNotificationWikiUrlEndingBlockUser = 'Special:Block/';
+$wgDiscordNotificationWikiUrlEndingUserPage = 'User:';
+$wgDiscordNotificationWikiUrlEndingUserTalkPage = 'User_talk:';
+$wgDiscordNotificationWikiUrlEndingUserContributions = 'Special:Contributions/';
+$wgDiscordNotificationWikiUrlEndingBlockList = 'Special:BlockList';
+$wgDiscordNotificationWikiUrlEndingEditArticle = 'action=edit';
+$wgDiscordNotificationWikiUrlEndingDeleteArticle = 'action=delete';
+$wgDiscordNotificationWikiUrlEndingHistory = 'action=history';
+$wgDiscordNotificationWikiUrlEndingDiff = 'diff=prev&oldid=';
 ```
-
-## Contributors
-
-[@innosflew](https://github.com/innosflew) [@uzalu](https://github.com/uzalu) [@DFelten](https://github.com/DFelten) [@lens0021](https://github.com/lens0021) [@The-Voidwalker](https://github.com/The-Voidwalker) [@GerbilSoft](https://github.com/GerbilSoft)
 
 ## License
 
@@ -194,4 +216,4 @@ $wgDiscordNotificationWikiUrlEndingDiff                = "diff=prev&oldid=";
 
 ## Issues / Ideas / Comments
 
-Feel free to use the [Issues](https://github.com/kulttuuri/discord_mediawiki/issues) section on Github for this project to submit any issues / ideas / comments! :)
+Feel free to use the [Issues](https://github.com/Universal-Omega/DiscordNotifications/issues) section on Github for this project to submit any issues / ideas / comments! :)
