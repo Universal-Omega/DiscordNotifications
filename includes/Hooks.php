@@ -195,12 +195,22 @@ class Hooks implements
 	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
 		$isNew = (bool)( $flags & EDIT_NEW );
 
-		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) return;
-		if ( !$this->config->get( 'DiscordNotificationAddedArticle' ) && $isNew ) return;
-		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) {
+			return;
+		}
+
+		if ( !$this->config->get( 'DiscordNotificationAddedArticle' ) && $isNew ) {
+			return;
+		}
+
+		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
+			return;
+		}
 
 		// Do not announce newly added file uploads as articles...
-		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) return;
+		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) {
+			return;
+		}
 
 		if ( $isNew ) {
 			$message = self::msg( 'discordnotifications-article-created',
@@ -240,13 +250,19 @@ class Hooks implements
 	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/PageDeleteComplete
 	 */
 	public function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
-		if ( !$this->config->get( 'DiscordNotificationRemovedArticle' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationRemovedArticle' ) ) {
+			return;
+		}
 
-		if ( !$this->config->get( 'DiscordNotificationShowSuppressed' ) && $logEntry->getType() != 'delete' ) return;
+		if ( !$this->config->get( 'DiscordNotificationShowSuppressed' ) && $logEntry->getType() != 'delete' ) {
+			return;
+		}
 
 		$wikiPage = $this->wikiPageFactory->newFromTitle( $page );
 
-		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) return;
+		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
+			return;
+		}
 
 		$message = wfMessage( 'discordnotifications-article-deleted' )->plaintextParams(
 			$this->getDiscordUserText( $deleter->getUser() ),
@@ -262,7 +278,9 @@ class Hooks implements
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/PageMoveComplete
 	 */
 	public function onPageMoveComplete( $old, $new, $user, $pageid, $redirid, $reason, $revision ) {
-		if ( !$this->config->get( 'DiscordNotificationMovedArticle' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationMovedArticle' ) ) {
+			return;
+		}
 
 		$message = self::msg( 'discordnotifications-article-moved',
 			$this->getDiscordUserText( $user ),
@@ -278,7 +296,9 @@ class Hooks implements
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/ArticleProtectComplete
 	 */
 	public function onArticleProtectComplete( $wikiPage, $user, $protect, $reason ) {
-		if ( !$this->config->get( 'DiscordNotificationProtectedArticle' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationProtectedArticle' ) ) {
+			return;
+		}
 
 		$message = self::msg( 'discordnotifications-article-protected',
 			$this->getDiscordUserText( $user ),
@@ -294,7 +314,9 @@ class Hooks implements
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/AfterImportPage
 	 */
 	public function onAfterImportPage( $title, $foreignTitle, $revCount, $sRevCount, $pageInfo ) {
-		if ( !$this->config->get( 'DiscordNotificationAfterImportPage' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationAfterImportPage' ) ) {
+			return;
+		}
 
 		$message = self::msg( 'discordnotifications-import-complete',
 			$this->getDiscordTitleText( $title ) );
@@ -422,7 +444,9 @@ class Hooks implements
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/UserGroupsChanged
 	 */
 	public function onUserGroupsChanged( $user, $added, $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
-		if ( !$this->config->get( 'DiscordNotificationUserGroupsChanged' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationUserGroupsChanged' ) ) {
+			return;
+		}
 
 		$message = self::msg( 'discordnotifications-change-user-groups-with-old',
 			$this->getDiscordUserText( $performer ),
@@ -438,16 +462,23 @@ class Hooks implements
 	 * Occurs after the execute() method of an Flow API module
 	 */
 	public function onAPIFlowAfterExecute( APIBase $module ) {
-		if ( !$this->config->get( 'DiscordNotificationFlow' ) || !ExtensionRegistry::getInstance()->isLoaded( 'Flow' ) ) return;
+		if ( !$this->config->get( 'DiscordNotificationFlow' ) || !ExtensionRegistry::getInstance()->isLoaded( 'Flow' ) ) {
+			return;
+		}
 
 		$request = RequestContext::getMain()->getRequest();
 
 		$action = $module->getModuleName();
 		$request = $request->getValues();
 		$result = $module->getResult()->getResultData()['flow'][$action];
-		if ( $result['status'] != 'ok' ) return;
 
-		if ( $this->titleIsExcluded( $request['page'] ) ) return;
+		if ( $result['status'] != 'ok' ) {
+			return;
+		}
+
+		if ( $this->titleIsExcluded( $request['page'] ) ) {
+			return;
+		}
 
 		$user = RequestContext::getMain()->getUser();
 
