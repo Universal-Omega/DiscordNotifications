@@ -781,10 +781,10 @@ class Hooks implements
 	}
 
 	/**
-	 * @param int $UUID
+	 * @param string $UUID
 	 * @return string
 	 */
-	private static function flowUUIDToTitleText( int $UUID ): string {
+	private static function flowUUIDToTitleText( string $UUID ): string {
 		$UUID = UUID::create( $UUID );
 		$collection = PostCollection::newFromId( $UUID );
 		$revision = $collection->getLastRevision();
