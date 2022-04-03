@@ -118,7 +118,7 @@ class Hooks implements
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-				$message .= ' (' . wfMessage( 'discordnotifications-bytes' )->sizeParams( $revisionRecord->getSize() )->inContentLanguage()->text() . ')';
+				$message .= ' (' . self::msg( 'discordnotifications-bytes', $revisionRecord->getSize() ) . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
@@ -142,9 +142,9 @@ class Hooks implements
 				$this->config->get( 'DiscordIncludeDiffSize' ) &&
 				$this->revisionLookup->getPreviousRevision( $revisionRecord )
 			) {
-				$message .= ' (' . wfMessage( 'discordnotifications-bytes' )->sizeParams(
+				$message .= ' (' . self::msg( 'discordnotifications-bytes',
 					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize()
-				)->inContentLanguage()->text() . ')';
+				) . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_saved' );
@@ -337,7 +337,7 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-block-user',
 			$this->getDiscordUserText( $user ),
-			$this->getDiscordUserText( $block->getTargetName() ),
+			$this->getDiscordUserText( $block->getTargetUserIdentity() ),
 			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.'
@@ -759,10 +759,10 @@ class Hooks implements
 
 	/**
 	 * @param string $key
-	 * @param string ...$params
+	 * @param mixed ...$params
 	 * @return string
 	 */
-	private static function msg( string $key, string ...$params ): string {
+	private static function msg( string $key, ...$params ): string {
 		if ( $params ) {
 			return wfMessage( $key, ...$params )->inContentLanguage()->text();
 		} else {
