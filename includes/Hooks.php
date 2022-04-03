@@ -14,10 +14,14 @@ use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\UploadCompleteHook;
-use MediaWiki\Page\Hook\ArticleDeleteCompleteHook;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
+use MediaWiki\Page\Hook\PageDeleteCompleteHook;
+use MediaWiki\Page\ProperPageIdentity;
+use MediaWiki\Page\WikiPageFactory;
+use MediaWiki\Permissions\Authority;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
+use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
@@ -28,10 +32,10 @@ use WikiPage;
 
 class Hooks implements
 	AfterImportPageHook,
-	ArticleDeleteCompleteHook,
 	ArticleProtectCompleteHook,
 	BlockIpCompleteHook,
 	LocalUserCreatedHook,
+	PageDeleteCompleteHook,
 	PageMoveCompleteHook,
 	PageSaveCompleteHook,
 	UploadCompleteHook,
@@ -52,25 +56,31 @@ class Hooks implements
 	/** @var UserGroupManager */
 	private $userGroupManager;
 
+	/** @var WikiPageFactory */
+	private $wikiPageFactory;
+
 	/**
 	 * @param ConfigFactory $configFactory
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
 	 * @param UserGroupManager $userGroupManager
+	 * @param WikiPageFactory $wikiPageFactory
 	 */
 	public function __construct(
 		ConfigFactory $configFactory,
 		PermissionManager $permissionManager,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
-		UserGroupManager $userGroupManager
+		UserGroupManager $userGroupManager,
+		WikiPageFactory $wikiPageFactory
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
 		$this->userGroupManager = $userGroupManager;
+		$this->wikiPageFactory = $wikiPageFactory;
 	}
 
 	/**
@@ -186,7 +196,7 @@ class Hooks implements
 
 		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) return;
 		if ( !$this->config->get( 'DiscordNotificationAddedArticle' ) && $isNew ) return;
-		if ( $this->titleIsExcluded( $wikiPage->getTitle() ) ) return;
+		if ( $this->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) return;
 
 		// Do not announce newly added file uploads as articles...
 		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == self::msg( 'discordnotifications-file-namespace' ) ) return;
@@ -226,18 +236,18 @@ class Hooks implements
 
 	/**
 	 * Occurs after the delete article request has been processed.
-	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/ArticleDeleteComplete
+	 * @see http://www.mediawiki.org/wiki/Manual:Hooks/PageDeleteComplete
 	 */
-	public function onArticleDeleteComplete( $wikiPage, $user, $reason, $id, $content, $logEntry, $archivedRevisionCount ) {
+	public function onPageDeleteComplete( ProperPageIdentity $page, Authority $deleter, string $reason, int $pageID, RevisionRecord $deletedRev, ManualLogEntry $logEntry, int $archivedRevisionCount ) {
 		if ( !$this->config->get( 'DiscordNotificationRemovedArticle' ) ) return;
 
 		if ( !$this->config->get( 'DiscordNotificationShowSuppressed' ) && $logEntry->getType() != 'delete' ) return;
 
-		if ( $this->titleIsExcluded( $wikiPage->getTitle() ) ) return;
+		if ( $this->titleIsExcluded( $page->getText() ) ) return;
 
 		$message = wfMessage( 'discordnotifications-article-deleted' )->plaintextParams(
-			$this->getDiscordUserText( $user ),
-			$this->getDiscordArticleText( $wikiPage ),
+			$this->getDiscordUserText( $deleter->getUser() ),
+			$this->getDiscordArticleText( $this->wikiPageFactory->newFromTitle( $page ) ),
 			$reason
 		)->inContentLanguage()->text();
 
