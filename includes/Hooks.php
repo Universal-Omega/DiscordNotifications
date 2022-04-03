@@ -26,10 +26,10 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
+use MediaWiki\User\UserIdentity;
 use RequestContext;
 use Title;
 use TitleFactory;
-use User;
 use WikiPage;
 
 class Hooks implements
@@ -103,7 +103,7 @@ class Hooks implements
 	 * Gets nice HTML text for user containing the link to user page
 	 * and also links to user site, groups editing, talk and contribs pages.
 	 *
-	 * @param string|User $user
+	 * @param UserIdentity|string $user
 	 * @return string
 	 */
 	private function getDiscordUserText( $user ) {
@@ -600,7 +600,7 @@ class Hooks implements
 	 * Sends the message into Discord.
 	 *
 	 * @param string $message
-	 * @param User $user
+	 * @param ?UserIdentity $user
 	 * @param string $action
 	 */
 	private function pushDiscordNotify( $message, $user, $action ) {
