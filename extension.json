@@ -25,6 +25,7 @@
 		"main": {
 			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
 			"services": [
+				"ActorStore",
 				"ConfigFactory",
 				"PermissionManager",
 				"RevisionLookup",

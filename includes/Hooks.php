@@ -1,5 +1,7 @@
 <?php
 
+declare( strict_types = 1 );
+
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use APIBase;
@@ -24,6 +26,7 @@ use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
+use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
@@ -43,6 +46,9 @@ class Hooks implements
 	UploadCompleteHook,
 	UserGroupsChangedHook
 {
+	/** @var ActorStore */
+	private $actorStore;
+
 	/** @var Config */
 	private $config;
 
@@ -62,6 +68,7 @@ class Hooks implements
 	private $wikiPageFactory;
 
 	/**
+	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
@@ -70,6 +77,7 @@ class Hooks implements
 	 * @param WikiPageFactory $wikiPageFactory
 	 */
 	public function __construct(
+		ActorStore $actorStore,
 		ConfigFactory $configFactory,
 		PermissionManager $permissionManager,
 		RevisionLookup $revisionLookup,
@@ -78,6 +86,8 @@ class Hooks implements
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
+
+		$this->actorStore = $actorStore;
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -91,7 +101,7 @@ class Hooks implements
 	 * @param string $url
 	 * @return string
 	 */
-	private static function parseurl( $url ) {
+	private static function parseurl( string $url ): string {
 		$url = str_replace( ' ', '%20', $url );
 		$url = str_replace( '(', '%28', $url );
 		$url = str_replace( ')', '%29', $url );
@@ -103,11 +113,11 @@ class Hooks implements
 	 * Gets nice HTML text for user containing the link to user page
 	 * and also links to user site, groups editing, talk and contribs pages.
 	 *
-	 * @param UserIdentity|string $user
+	 * @param UserIdentity $user
 	 * @return string
 	 */
-	private function getDiscordUserText( $user ) {
-		$userName = is_object( $user ) ? $user->getName() : $user;
+	private function getDiscordUserText( UserIdentity $user ): string {
+		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
 		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
@@ -132,7 +142,7 @@ class Hooks implements
 	 * @param bool $diff
 	 * @return string
 	 */
-	private function getDiscordArticleText( WikiPage $wikiPage, $diff = false ) {
+	private function getDiscordArticleText( WikiPage $wikiPage, bool $diff = false ): string {
 		$title = $wikiPage->getTitle()->getFullText();
 		$title_url = str_replace( '&', '%26', $title );
 		$prefix = '<' . $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
@@ -167,7 +177,7 @@ class Hooks implements
 	 * @param Title $title
 	 * @return string
 	 */
-	private function getDiscordTitleText( Title $title ) {
+	private function getDiscordTitleText( Title $title ): string {
 		$titleName = $title->getFullText();
 		$title_url = str_replace( '&', '%26', $titleName );
 
@@ -190,7 +200,7 @@ class Hooks implements
 	 * @param string $title
 	 * @return bool
 	 */
-	private function titleIsExcluded( $title ) {
+	private function titleIsExcluded( string $title ): bool {
 		if ( is_array( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) && count( $this->config->get( 'DiscordExcludeNotificationsFrom' ) ) > 0 ) {
 			foreach ( $this->config->get( 'DiscordExcludeNotificationsFrom' ) as &$currentExclude ) {
 				if ( strpos( $title, $currentExclude ) === 0 ) {
@@ -258,7 +268,8 @@ class Hooks implements
 				$this->revisionLookup->getPreviousRevision( $revisionRecord )
 			) {
 				$message .= ' (' . self::msg( 'discordnotifications-bytes',
-					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() ) . ')';
+					$revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize()
+				) . ')';
 			}
 
 			$this->pushDiscordNotify( $message, $user, 'article_saved' );
@@ -451,7 +462,9 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-block-user',
 			$this->getDiscordUserText( $user ),
-			$this->getDiscordUserText( $block->getTargetName() ),
+			$this->getDiscordUserText(
+				$block->getTargetUserIdentity() ?? $this->actorStore->getUnknownActor()
+			),
 			$reason == '' ? '' : self::msg( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.'
@@ -603,7 +616,7 @@ class Hooks implements
 	 * @param ?UserIdentity $user
 	 * @param string $action
 	 */
-	private function pushDiscordNotify( $message, $user, $action ) {
+	private function pushDiscordNotify( string $message, ?UserIdentity $user, string $action ) {
 		if ( $this->config->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->config->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
@@ -707,7 +720,7 @@ class Hooks implements
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private function sendCurlRequest( $url, $postData ) {
+	private function sendCurlRequest( string $url, string $postData ) {
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -741,7 +754,7 @@ class Hooks implements
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private static function sendHttpRequest( $url, $postData ) {
+	private static function sendHttpRequest( string $url, string $postData ) {
 		$extraData = [
 			'http' => [
 				'header'  => 'Content-type: application/json',
@@ -759,7 +772,7 @@ class Hooks implements
 	 * @param mixed ...$params
 	 * @return string
 	 */
-	private static function msg( $key, ...$params ) {
+	private static function msg( string $key, ...$params ): string {
 		if ( $params ) {
 			return wfMessage( $key, ...$params )->inContentLanguage()->text();
 		} else {
@@ -768,10 +781,10 @@ class Hooks implements
 	}
 
 	/**
-	 * @param int $UUID
+	 * @param string $UUID
 	 * @return string
 	 */
-	private static function flowUUIDToTitleText( $UUID ) {
+	private static function flowUUIDToTitleText( string $UUID ): string {
 		$UUID = UUID::create( $UUID );
 		$collection = PostCollection::newFromId( $UUID );
 		$revision = $collection->getLastRevision();
