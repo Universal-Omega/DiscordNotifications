@@ -1,4 +1,4 @@
 <?php
 
-$wgDiscordIncomingWebhookUrl = 'https://discord.com/api/webhooks/960010437364187187/PdfF_aD1Npod3spF_Hhtt5Z3G-LfBvlakFxYQ5mrTWWRGe7PLL2IddsJusEsCrs-Pxj5';
+$wgDiscordIncomingWebhookUrl = 'https://discord.com/api/webhooks/960979188364484658/pejDt4WX1MT3D-JBg7l1LiKtZF3vAj8Nx7QnAKQOjbDJX9STNNdv5ugARCs3fVgLh_6N';
 $wgDiscordNotificationWikiUrl = 'http://localhost/';
