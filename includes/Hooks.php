@@ -427,8 +427,8 @@ class Hooks implements
 
 		$message = self::msg( 'discordnotifications-file-uploaded',
 			$this->getDiscordUserText( $user ),
-			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $localFile->getTitle() ),
-			$localFile->getTitle(),
+			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $localFile->getName() ),
+			$localFile->getName(),
 			$localFile->getMimeType(),
 			$lang->formatSize( $localFile->getSize() ),
 			'',
