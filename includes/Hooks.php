@@ -431,6 +431,7 @@ class Hooks implements
 			$localFile->getTitle(),
 			$localFile->getMimeType(),
 			$lang->formatSize( $localFile->getSize() ),
+			'',
 			$localFile->getDescription()
 		);
 
