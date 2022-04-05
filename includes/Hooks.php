@@ -422,22 +422,7 @@ class Hooks implements
 
 		$localFile = $uploadBase->getLocalFile();
 
-		// Use bytes, KiB, and MiB, rounded to two decimal places.
-		$fsize = $localFile->size;
-		$funits = '';
-
-		if ( $localFile->size < 2048 ) {
-			$funits = 'bytes';
-		} elseif ( $localFile->size < 2048 * 1024 ) {
-			$fsize /= 1024;
-			$fsize = round( $fsize, 2 );
-			$funits = 'KiB';
-		} else {
-			$fsize /= 1024 * 1024;
-			$fsize = round( $fsize, 2 );
-			$funits = 'MiB';
-		}
-
+		$lang = RequestContext::getMain()->getLanguage();
 		$user = RequestContext::getMain()->getUser();
 
 		$message = self::msg( 'discordnotifications-file-uploaded',
@@ -445,7 +430,7 @@ class Hooks implements
 			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $localFile->getTitle() ),
 			$localFile->getTitle(),
 			$localFile->getMimeType(),
-			$fsize, $funits,
+			$lang->formatSize( $localFile->getSize() ),
 			$localFile->getDescription()
 		);
 
