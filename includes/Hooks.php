@@ -120,6 +120,8 @@ class Hooks implements
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
+		$userName = str_replace( '>', '\>', $userName );
+
 		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
 				'%s (%s | %s | %s | %s)',
