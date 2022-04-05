@@ -443,7 +443,8 @@ class Hooks implements
 			self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $localFile->getTitle() ),
 			$localFile->getTitle(),
 			$localFile->getMimeType(),
-			$fsize, $funits,
+			sprintf( '%d', $fsize ),
+			$funits,
 			$localFile->getDescription()
 		);
 
