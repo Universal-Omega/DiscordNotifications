@@ -241,7 +241,7 @@ class Hooks implements
 			$message = self::msg( 'discordnotifications-article-created',
 				$this->getDiscordUserText( $user ),
 				$this->getDiscordArticleText( $wikiPage ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
@@ -262,7 +262,7 @@ class Hooks implements
 				$this->getDiscordUserText( $user ),
 				$isMinor ? self::msg( 'discordnotifications-article-saved-minor-edits' ) : self::msg( 'discordnotifications-article-saved-edit' ),
 				$this->getDiscordArticleText( $wikiPage, true ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if (
@@ -757,10 +757,10 @@ class Hooks implements
 
 	/**
 	 * @param string $key
-	 * @param mixed ...$params
+	 * @param string ...$params
 	 * @return string
 	 */
-	private static function msg( string $key, ...$params ): string {
+	private static function msg( string $key, string ...$params ): string {
 		if ( $params ) {
 			return wfMessage( $key, ...$params )->inContentLanguage()->text();
 		} else {
