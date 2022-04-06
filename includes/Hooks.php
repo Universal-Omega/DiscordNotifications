@@ -178,13 +178,14 @@ class Hooks implements
 	 * and also into edit, delete and article history pages.
 	 *
 	 * @param Title $title
+	 * @param bool $pageUrls
 	 * @return string
 	 */
-	private function getDiscordTitleText( Title $title ): string {
+	private function getDiscordTitleText( Title $title, bool $pageUrls = true ): string {
 		$titleName = $title->getFullText();
 		$title_url = str_replace( '&', '%26', $titleName );
 
-		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
+		if ( $pageUrls && $this->config->get( 'DiscordIncludePageUrls' ) ) {
 			return sprintf(
 				'%s (%s | %s | %s)',
 				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
@@ -417,7 +418,7 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
-		$this->pushDiscordNotify( htmlspecialchars_decode( $this->getDiscordUserText( $logEntry->getPerformerIdentity() ) . ' ' . preg_replace( '/\[\[(.*?)\]\]/', $this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage() ), LogFormatter::newFromEntry( $logEntry )->getIRCActionComment() ) ), null, '' );
+		$this->pushDiscordNotify( htmlspecialchars_decode( $this->getDiscordUserText( $logEntry->getPerformerIdentity() ) . ' ' . preg_replace( '/\[\[(.*?)\]\]/', $this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage(), false ), LogFormatter::newFromEntry( $logEntry )->getIRCActionComment() ) ), null, '' );
 	}
 
 	/**
