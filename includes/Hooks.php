@@ -123,8 +123,6 @@ class Hooks implements
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
-		$userName = str_replace( '>', '\>', $userName );
-
 		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
 				'%s (%s | %s | %s | %s)',
@@ -622,15 +620,15 @@ class Hooks implements
 			}
 		}
 
-		// Convert " to ' in the message to be sent as otherwise JSON formatting would break.
-		$message = str_replace( '"', "'", $message );
+		// Convert &quot; to " in the message to be sent
+		$message = str_replace( '&quot;', '"', $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '$2$3' ), $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
 		switch ( $action ) {
