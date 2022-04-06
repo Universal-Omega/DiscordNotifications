@@ -65,6 +65,9 @@
 		},
 		"PageSaveComplete": {
 			"handler": "main"
+		},
+		"LogLine": {
+			"handler": "main"
 		}
 	},
 	"config": {
