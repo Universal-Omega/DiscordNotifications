@@ -620,8 +620,11 @@ class Hooks implements
 			}
 		}
 
-		// Convert &quot; to " in the message to be sent
+		// Convert &quot; to " in the message to be sent.
 		$message = str_replace( '&quot;', '"', $message );
+
+		// Escape " in message to be sent as otherwise JSON formatting would break.
+		$message = str_replace( '"', '\"', $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
