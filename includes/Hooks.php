@@ -15,6 +15,7 @@ use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
+use MediaWiki\Hook\LogLineHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
@@ -40,6 +41,7 @@ class Hooks implements
 	ArticleProtectCompleteHook,
 	BlockIpCompleteHook,
 	LocalUserCreatedHook,
+	LogLineHook,
 	PageDeleteCompleteHook,
 	PageMoveCompleteHook,
 	PageSaveCompleteHook,
@@ -410,6 +412,13 @@ class Hooks implements
 		);
 
 		$this->pushDiscordNotify( $message, $user, 'new_user_account' );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onLogLine( $log_type, $log_action, $title, $paramArray, &$comment, &$revert, $time ) {
+		$this->pushDiscordNotify( $comment, null, $log_type . '_' . $log_action );
 	}
 
 	/**
