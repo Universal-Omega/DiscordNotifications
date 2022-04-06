@@ -419,7 +419,7 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
-		$this->pushDiscordNotify( LogFormatter::newFromEntry( $logEntry )->getIRCActionComment(), null, '' );
+		$this->pushDiscordNotify( LogFormatter::newFromEntry( $logEntry )->getActionText(), null, '' );
 	}
 
 	/**
