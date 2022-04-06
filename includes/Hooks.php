@@ -417,7 +417,7 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
-		$this->pushDiscordNotify( htmlspecialchars_decode( $this->getDiscordUserText( $logEntry->getPerformerIdentity() ) . ' ' . preg_replace( '/\[\[(.*?)\]\]/', $this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ), LogFormatter::newFromEntry( $logEntry )->getIRCActionComment() ) ), null, '' );
+		$this->pushDiscordNotify( htmlspecialchars_decode( $this->getDiscordUserText( $logEntry->getPerformerIdentity() ) . ' ' . preg_replace( '/\[\[(.*?)\]\]/', $this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage() ), LogFormatter::newFromEntry( $logEntry )->getIRCActionComment() ) ), null, '' );
 	}
 
 	/**
@@ -620,15 +620,15 @@ class Hooks implements
 			}
 		}
 
-		// Convert " to ' in the message to be sent as otherwise JSON formatting would break.
-		$message = str_replace( '"', "'", $message );
+		// Escape " in the message to be sent as otherwise JSON formatting would break.
+		// $message = str_replace( '"', '\"', $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '$2$3' ), $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '($2$3)' ), $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
 		switch ( $action ) {
