@@ -11,6 +11,7 @@ use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
+use LogFormatter;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
@@ -418,7 +419,7 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
-		$this->pushDiscordNotify( $logEntry->getComment(), null, '' );
+		$this->pushDiscordNotify( LogFormatter::newFromEntry( $logEntry )->getIRCActionText(), null, '' );
 	}
 
 	/**
