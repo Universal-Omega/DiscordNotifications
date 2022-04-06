@@ -621,15 +621,15 @@ class Hooks implements
 		}
 
 		// Escape " in the message to be sent as otherwise JSON formatting would break.
-		// $message = str_replace( '"', '\"', $message );
+		$message = str_replace( '"', '\"', $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '($2$3)' ), $message );
-		$message = str_replace( [ "\r", "\n" ], '', $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
+		$message = str_replace( [ "\r", "\n" ], ' ', $message );
 
 		switch ( $action ) {
 			case 'article_saved':
