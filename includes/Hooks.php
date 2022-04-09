@@ -641,7 +641,7 @@ class Hooks implements
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '($2$3)' ), $message );
 		$message = str_replace( [ "\r", "\n" ], ' ', $message );
 
 		switch ( $action ) {
