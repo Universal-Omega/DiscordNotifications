@@ -418,7 +418,19 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
-		$this->pushDiscordNotify( htmlspecialchars_decode( $this->getDiscordUserText( $logEntry->getPerformerIdentity() ) . ' ' . preg_replace( '/\[\[(.*?)\]\]/', $this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage(), false ), LogFormatter::newFromEntry( $logEntry )->getIRCActionComment() ) ), null, '' );
+		$performer = $logEntry->getPerformerIdentity();
+
+		$this->pushDiscordNotify(
+			htmlspecialchars_decode(
+				$this->getDiscordUserText( $performer ) . ' ' . $logEntry->getFullType() . ' ' . preg_replace(
+					'/\[\[(.*?)\]\]/',
+					$this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage(), false ),
+					LogFormatter::newFromEntry( $logEntry )->getIRCActionComment()
+				)
+			),
+			$performer,
+			$logEntry->getType()
+		);
 	}
 
 	/**
