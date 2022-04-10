@@ -5,12 +5,14 @@ declare( strict_types = 1 );
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use APIBase;
+use BlockLogFormatter;
 use Config;
 use ConfigFactory;
 use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
+use Language;
 use LogEntry;
 use LogFormatter;
 use ManualLogEntry;
@@ -56,6 +58,9 @@ class Hooks implements
 	/** @var Config */
 	private $config;
 
+	/** @var Language */
+	private $contentLanguage;
+
 	/** @var PermissionManager */
 	private $permissionManager;
 
@@ -74,6 +79,7 @@ class Hooks implements
 	/**
 	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
+	 * @param Language $contentLanguage
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
@@ -83,6 +89,7 @@ class Hooks implements
 	public function __construct(
 		ActorStore $actorStore,
 		ConfigFactory $configFactory,
+		Language $contentLanguage,
 		PermissionManager $permissionManager,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
@@ -92,6 +99,7 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
 		$this->actorStore = $actorStore;
+		$this->contentLanguage = $contentLanguage;
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -421,17 +429,7 @@ class Hooks implements
 	public function onManualLogEntryBeforePublish( $logEntry ): void {
 		$performer = $logEntry->getPerformerIdentity();
 
-		$this->pushDiscordNotify(
-			htmlspecialchars_decode(
-				$this->getDiscordUserText( $performer ) . ' ' . $logEntry->getFullType() . ' ' . preg_replace(
-					'/\[\[(.*?)\]\]/',
-					'[$1](' . $this->titleFactory->newFromText( '$1' )->getFullURL() . ')', false ),
-					LogFormatter::newFromEntry( $logEntry )->getIRCActionComment()
-				)
-			),
-			$performer,
-			$logEntry->getType()
-		);
+		$this->pushDiscordNotify( $this->getDiscordActionComment( $logEntry ), $performer, $logEntry->getType() );
 	}
 
 	/**
@@ -439,14 +437,14 @@ class Hooks implements
 	 * @return string
 	 */
 	public function getDiscordActionComment( LogEntry $logEntry ): string {
-		$actionComment = $this->getDiscordActionText( LogEntry $logEntry );
+		$actionComment = $this->getDiscordActionText( $logEntry );
 		$comment = $logEntry->getComment();
 
 		if ( $comment != '' ) {
 			if ( $actionComment == '' ) {
 				$actionComment = $comment;
 			} else {
-				$actionComment .= wfMessage( 'colon-separator' )->inContentLanguage()->text() . $comment;
+				$actionComment .= self::msg( 'colon-separator' ) . $comment;
 			}
 		}
 
@@ -461,22 +459,23 @@ class Hooks implements
 		$parameters = $logEntry->getParameters();
 
 		$target = $logEntry->getTarget()->getPrefixedText();
-		$text = '';
 
-		$contLang = MediaWikiServices::getInstance()->getContentLanguage();
+		$performer = $logEntry->getPerformerIdentity();
 
+		$linkedUser = $this->getDiscordUserText( $performer );
+		$userText = $performer->getName();
+
+		$text = null;
 		switch ( $logEntry->getType() ) {
 			case 'move':
 				switch ( $logEntry->getSubtype() ) {
 					case 'move':
 						$movesource = $parameters['4::target'];
-						$text = wfMessage( '1movedto2' )
-							->rawParams( $target, $movesource )->inContentLanguage()->escaped();
+						$text = self::msg( 'logentry-move-move', $linkedUser, $userText, $target, $movesource );
 						break;
 					case 'move_redir':
 						$movesource = $parameters['4::target'];
-						$text = wfMessage( '1movedto2_redir' )
-							->rawParams( $target, $movesource )->inContentLanguage()->escaped();
+						$text = self::msg( 'logentry-move-move_redir', $linkedUser, $userText, $target, $movesource );
 						break;
 					case 'move-noredirect':
 						break;
@@ -486,7 +485,7 @@ class Hooks implements
 				break;
 
 			case 'delete':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'delete':
 						$text = wfMessage( 'deletedarticle' )
 							->rawParams( $target )->inContentLanguage()->escaped();
@@ -499,21 +498,17 @@ class Hooks implements
 				break;
 
 			case 'patrol':
-				// https://github.com/wikimedia/mediawiki/commit/1a05f8faf78675dc85984f27f355b8825b43efff
-				// Create a diff link to the patrolled revision
-				if ( $entry->getSubtype() === 'patrol' ) {
+				if ( $logEntry->getSubtype() === 'patrol' ) {
 					$diffLink = htmlspecialchars(
 						wfMessage( 'patrol-log-diff', $parameters['4::curid'] )
 							->inContentLanguage()->text() );
 					$text = wfMessage( 'patrol-log-line', $diffLink, "[[$target]]", "" )
 						->inContentLanguage()->text();
-				} else {
-					// broken??
 				}
 				break;
 
 			case 'protect':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'protect':
 						$text = wfMessage( 'protectedarticle' )
 							->rawParams( $target . ' ' . $parameters['4::description'] )
@@ -538,7 +533,7 @@ class Hooks implements
 				break;
 
 			case 'newusers':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'newusers':
 					case 'create':
 						$text = wfMessage( 'newuserlog-create-entry' )
@@ -557,7 +552,7 @@ class Hooks implements
 				break;
 
 			case 'upload':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'upload':
 						$text = wfMessage( 'uploadedimage' )
 							->rawParams( $target )->inContentLanguage()->escaped();
@@ -576,12 +571,14 @@ class Hooks implements
 				} else {
 					$oldgroups = wfMessage( 'rightsnone' )->inContentLanguage()->escaped();
 				}
+
 				if ( count( $parameters['5::newgroups'] ) ) {
 					$newgroups = implode( ', ', $parameters['5::newgroups'] );
 				} else {
 					$newgroups = wfMessage( 'rightsnone' )->inContentLanguage()->escaped();
 				}
-				switch ( $entry->getSubtype() ) {
+
+				switch ( $logEntry->getSubtype() ) {
 					case 'rights':
 						$text = wfMessage( 'rightslogentry' )
 							->rawParams( $target, $oldgroups, $newgroups )->inContentLanguage()->escaped();
@@ -600,23 +597,23 @@ class Hooks implements
 				break;
 
 			case 'block':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'block':
-						// Keep compatibility with extensions by checking for
-						// new key (5::duration/6::flags) or old key (0/optional 1)
-						if ( $entry->isLegacy() ) {
+						if ( $logEntry->isLegacy() ) {
 							$rawDuration = $parameters[0];
 							$rawFlags = $parameters[1] ?? '';
 						} else {
 							$rawDuration = $parameters['5::duration'];
 							$rawFlags = $parameters['6::flags'];
 						}
-						$duration = $contLang->translateBlockExpiry(
+
+						$duration = $this->contentLanguage->translateBlockExpiry(
 							$rawDuration,
 							null,
-							(int)wfTimestamp( TS_UNIX, $entry->getTimestamp() )
+							(int)wfTimestamp( TS_UNIX, $logEntry->getTimestamp() )
 						);
-						$flags = BlockLogFormatter::formatBlockFlags( $rawFlags, $contLang );
+
+						$flags = BlockLogFormatter::formatBlockFlags( $rawFlags, $this->contentLanguage );
 						$text = wfMessage( 'blocklogentry' )
 							->rawParams( $target, $duration, $flags )->inContentLanguage()->escaped();
 						break;
@@ -625,13 +622,13 @@ class Hooks implements
 							->rawParams( $target )->inContentLanguage()->escaped();
 						break;
 					case 'reblock':
-						$duration = $contLang->translateBlockExpiry(
+						$duration = $this->contentLanguage->translateBlockExpiry(
 							$parameters['5::duration'],
 							null,
-							(int)wfTimestamp( TS_UNIX, $entry->getTimestamp() )
+							(int)wfTimestamp( TS_UNIX, $logEntry->getTimestamp() )
 						);
 						$flags = BlockLogFormatter::formatBlockFlags( $parameters['6::flags'],
-							$contLang );
+							$this->contentLanguage );
 						$text = wfMessage( 'reblock-logentry' )
 							->rawParams( $target, $duration, $flags )->inContentLanguage()->escaped();
 						break;
@@ -639,7 +636,7 @@ class Hooks implements
 				break;
 
 			case 'import':
-				switch ( $entry->getSubtype() ) {
+				switch ( $logEntry->getSubtype() ) {
 					case 'upload':
 						$text = wfMessage( 'import-logentry-upload' )
 							->rawParams( $target )->inContentLanguage()->escaped();
@@ -650,6 +647,10 @@ class Hooks implements
 						break;
 				}
 				break;
+		}
+
+		if ( $text === null ) {
+			$text = LogFormatter::newFromEntry( $logEntry )->getPlainActionText();
 		}
 
 		return $text;
