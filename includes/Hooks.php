@@ -459,7 +459,7 @@ class Hooks implements
 		$target = $logEntry->getTarget()->getPrefixedText();
 
 		$linkedTarget = $this->getDiscordTitleText( $logEntry->getTarget() );
-		$linkedText = $logEntry->getTarget()->getPrefixedText();
+		$targetText = $logEntry->getTarget()->getPrefixedText();
 
 		$performer = $logEntry->getPerformerIdentity();
 
