@@ -488,10 +488,21 @@ class Hooks implements
 			case 'delete':
 				switch ( $logEntry->getSubtype() ) {
 					case 'delete':
-						$text = self::msg( 'deletedarticle', $target );
+						$text = self::msg( 'logentry-delete-delete', $linkedUser, $userText, $linkedTarget );
 						break;
 					case 'restore':
-						$text = self::msg( 'undeletedarticle', $target );
+						$rawParams = $logEntry->getParameters();
+						$list = [];
+
+						foreach ( $rawParams[':assoc:count'] as $type => $count ) {
+							if ( $count ) {
+								$list[] = wfMessage( 'restore-count-' . $type )->numParams( $count )->plain();
+							}
+						}
+
+						$num = RequestContext::getMain()->getLanguage()->listToText( $list );
+
+						$text = self::msg( 'logentry-delete-restore', $linkedUser, $userText, $linkedTarget, $num );
 						break;
 				}
 				break;
