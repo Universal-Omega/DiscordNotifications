@@ -472,11 +472,11 @@ class Hooks implements
 				switch ( $logEntry->getSubtype() ) {
 					case 'move':
 						$movesource = $parameters['4::target'];
-						$text = self::msg( 'logentry-move-move', $linkedUser, $userText, $target, $movesource );
+						$text = self::msg( 'logentry-move-move', $linkedUser, $userText, $linkedTarget, $movesource );
 						break;
 					case 'move_redir':
 						$movesource = $parameters['4::target'];
-						$text = self::msg( 'logentry-move-move_redir', $linkedUser, $userText, $target, $movesource );
+						$text = self::msg( 'logentry-move-move_redir', $linkedUser, $userText, $linkedTarget, $movesource );
 						break;
 					case 'move-noredirect':
 						break;
@@ -545,21 +545,13 @@ class Hooks implements
 						$text = self::msg( 'logentry-newusers-create2', $linkedUser, $userText, $linkedTarget );
 						break;
 					case 'autocreate':
-						$text = self::msg( 'newuserlog-autocreate-entry' );
+						$text = self::msg( 'logentry-newusers-autocreate', $targetText, $targetText );
 						break;
 				}
 				break;
 
 			case 'upload':
-				switch ( $logEntry->getSubtype() ) {
-					case 'upload':
-						$text = self::msg( 'uploadedimage', $target );
-						break;
-					case 'overwrite':
-					case 'revert':
-						$text = self::msg( 'overwroteimage', $target );
-						break;
-				}
+				$text = self::msg( 'logentry-upload-' . $logEntry->getSubtype(), $linkedUser, $userText, $linkedTarget );
 				break;
 
 			case 'rights':
