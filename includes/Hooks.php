@@ -13,7 +13,6 @@ use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use Language;
-use LogEntry;
 use LogFormatter;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
@@ -432,10 +431,10 @@ class Hooks implements
 	}
 
 	/**
-	 * @param LogEntry $logEntry
+	 * @param ManualLogEntry $logEntry
 	 * @return string
 	 */
-	public function getDiscordActionComment( LogEntry $logEntry ): string {
+	public function getDiscordActionComment( ManualLogEntry $logEntry ): string {
 		$actionComment = $this->getDiscordActionText( $logEntry );
 		$comment = $logEntry->getComment();
 
@@ -451,10 +450,10 @@ class Hooks implements
 	}
 
 	/**
-	 * @param LogEntry $logEntry
+	 * @param ManualLogEntry $logEntry
 	 * @return string
 	 */
-	public function getDiscordActionText( LogEntry $logEntry ): string {
+	public function getDiscordActionText( ManualLogEntry $logEntry ): string {
 		$parameters = $logEntry->getParameters();
 
 		$target = $logEntry->getTarget()->getPrefixedText();
@@ -486,12 +485,10 @@ class Hooks implements
 			case 'delete':
 				switch ( $logEntry->getSubtype() ) {
 					case 'delete':
-						$text = wfMessage( 'deletedarticle' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'deletedarticle', $target );
 						break;
 					case 'restore':
-						$text = wfMessage( 'undeletedarticle' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'undeletedarticle', $target );
 						break;
 				}
 				break;
@@ -499,34 +496,26 @@ class Hooks implements
 			case 'patrol':
 				if ( $logEntry->getSubtype() === 'patrol' ) {
 					$diffLink = htmlspecialchars(
-						wfMessage( 'patrol-log-diff', $parameters['4::curid'] )
-							->inContentLanguage()->text() );
-					$text = wfMessage( 'patrol-log-line', $diffLink, "[[$target]]", "" )
-						->inContentLanguage()->text();
+						self::msg( 'patrol-log-diff', $parameters['4::curid'] )
+					);
+
+					$text = self::msg( 'patrol-log-line', $diffLink, $target, '' );
 				}
 				break;
 
 			case 'protect':
 				switch ( $logEntry->getSubtype() ) {
 					case 'protect':
-						$text = wfMessage( 'protectedarticle' )
-							->rawParams( $target . ' ' . $parameters['4::description'] )
-							->inContentLanguage()
-							->escaped();
+						$text = self::msg( 'protectedarticle', $target . ' ' . $parameters['4::description'] );
 						break;
 					case 'unprotect':
-						$text = wfMessage( 'unprotectedarticle' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'unprotectedarticle', $target );
 						break;
 					case 'modify':
-						$text = wfMessage( 'modifiedarticleprotection' )
-							->rawParams( $target . ' ' . $parameters['4::description'] )
-							->inContentLanguage()
-							->escaped();
+						$text = self::msg( 'modifiedarticleprotection', $target . ' ' . $parameters['4::description'] );
 						break;
 					case 'move_prot':
-						$text = wfMessage( 'movedarticleprotection' )
-							->rawParams( $target, $parameters['4::oldtitle'] )->inContentLanguage()->escaped();
+						$text = self::msg( 'movedarticleprotection', $target, $parameters['4::oldtitle'] );
 						break;
 				}
 				break;
@@ -535,17 +524,14 @@ class Hooks implements
 				switch ( $logEntry->getSubtype() ) {
 					case 'newusers':
 					case 'create':
-						$text = wfMessage( 'newuserlog-create-entry' )
-							->inContentLanguage()->escaped();
+						$text = self::msg( 'newuserlog-create-entry' );
 						break;
 					case 'create2':
 					case 'byemail':
-						$text = wfMessage( 'newuserlog-create2-entry' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'newuserlog-create2-entry', $target );
 						break;
 					case 'autocreate':
-						$text = wfMessage( 'newuserlog-autocreate-entry' )
-							->inContentLanguage()->escaped();
+						$text = self::msg( 'newuserlog-autocreate-entry' );
 						break;
 				}
 				break;
@@ -553,13 +539,11 @@ class Hooks implements
 			case 'upload':
 				switch ( $logEntry->getSubtype() ) {
 					case 'upload':
-						$text = wfMessage( 'uploadedimage' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'uploadedimage', $target );
 						break;
 					case 'overwrite':
 					case 'revert':
-						$text = wfMessage( 'overwroteimage' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'overwroteimage', $target );
 						break;
 				}
 				break;
@@ -568,31 +552,27 @@ class Hooks implements
 				if ( count( $parameters['4::oldgroups'] ) ) {
 					$oldgroups = implode( ', ', $parameters['4::oldgroups'] );
 				} else {
-					$oldgroups = wfMessage( 'rightsnone' )->inContentLanguage()->escaped();
+					$oldgroups = self::msg( 'rightsnone' );
 				}
 
 				if ( count( $parameters['5::newgroups'] ) ) {
 					$newgroups = implode( ', ', $parameters['5::newgroups'] );
 				} else {
-					$newgroups = wfMessage( 'rightsnone' )->inContentLanguage()->escaped();
+					$newgroups = self::msg( 'rightsnone' );
 				}
 
 				switch ( $logEntry->getSubtype() ) {
 					case 'rights':
-						$text = wfMessage( 'rightslogentry' )
-							->rawParams( $target, $oldgroups, $newgroups )->inContentLanguage()->escaped();
+						$text = self::msg( 'rightslogentry', $target, $oldgroups, $newgroups );
 						break;
 					case 'autopromote':
-						$text = wfMessage( 'rightslogentry-autopromote' )
-							->rawParams( $target, $oldgroups, $newgroups )->inContentLanguage()->escaped();
+						$text = self::msg( 'rightslogentry-autopromote', $target, $oldgroups, $newgroups );
 						break;
 				}
 				break;
 
 			case 'merge':
-				$text = wfMessage( 'pagemerge-logentry' )
-					->rawParams( $target, $parameters['4::dest'], $parameters['5::mergepoint'] )
-					->inContentLanguage()->escaped();
+				$text = self::msg( 'pagemerge-logentry', $target, $parameters['4::dest'], $parameters['5::mergepoint'] );
 				break;
 
 			case 'block':
@@ -613,12 +593,10 @@ class Hooks implements
 						);
 
 						$flags = BlockLogFormatter::formatBlockFlags( $rawFlags, $this->contentLanguage );
-						$text = wfMessage( 'blocklogentry' )
-							->rawParams( $target, $duration, $flags )->inContentLanguage()->escaped();
+						$text = self::msg( 'blocklogentry', $target, $duration, $flags );
 						break;
 					case 'unblock':
-						$text = wfMessage( 'unblocklogentry' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'unblocklogentry', $target );
 						break;
 					case 'reblock':
 						$duration = $this->contentLanguage->translateBlockExpiry(
@@ -626,10 +604,11 @@ class Hooks implements
 							null,
 							(int)wfTimestamp( TS_UNIX, $logEntry->getTimestamp() )
 						);
+
 						$flags = BlockLogFormatter::formatBlockFlags( $parameters['6::flags'],
 							$this->contentLanguage );
-						$text = wfMessage( 'reblock-logentry' )
-							->rawParams( $target, $duration, $flags )->inContentLanguage()->escaped();
+
+						$text = self::msg( 'reblock-logentry', $target, $duration, $flags );
 						break;
 				}
 				break;
@@ -637,12 +616,10 @@ class Hooks implements
 			case 'import':
 				switch ( $logEntry->getSubtype() ) {
 					case 'upload':
-						$text = wfMessage( 'import-logentry-upload' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'import-logentry-upload', $target );
 						break;
 					case 'interwiki':
-						$text = wfMessage( 'import-logentry-interwiki' )
-							->rawParams( $target )->inContentLanguage()->escaped();
+						$text = self::msg( 'import-logentry-interwiki', $target );
 						break;
 				}
 				break;
