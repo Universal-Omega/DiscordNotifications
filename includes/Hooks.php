@@ -424,7 +424,7 @@ class Hooks implements
 			htmlspecialchars_decode(
 				$this->getDiscordUserText( $performer ) . ' ' . $logEntry->getFullType() . ' ' . preg_replace(
 					'/\[\[(.*?)\]\]/',
-					$this->getDiscordTitleText( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage(), false ),
+					'[$1](' . ( $this->titleFactory->newFromText( '$1' ) ?? Title::newMainPage() )->getFullURL() . ')', false ),
 					LogFormatter::newFromEntry( $logEntry )->getIRCActionComment()
 				)
 			),
