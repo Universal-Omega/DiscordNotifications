@@ -105,8 +105,7 @@ class Hooks implements
 	 * @return string
 	 */
 	private static function parseurl( string $url ): string {
-		$url = str_replace( ' ', '_', $url );
-
+		$url = str_replace( ' ', '%20', $url );
 		$url = str_replace( '(', '%28', $url );
 		$url = str_replace( ')', '%29', $url );
 
@@ -642,7 +641,7 @@ class Hooks implements
 			$discordFromName = $this->config->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]' . str_replace( ' ', '_', '($2$3)' ), $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
 		$message = str_replace( [ "\r", "\n" ], ' ', $message );
 
 		switch ( $action ) {
