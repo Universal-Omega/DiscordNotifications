@@ -27,6 +27,7 @@
 			"services": [
 				"ActorStore",
 				"ConfigFactory",
+				"ContentLanguage",
 				"PermissionManager",
 				"RevisionLookup",
 				"TitleFactory",
