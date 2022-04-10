@@ -458,6 +458,9 @@ class Hooks implements
 
 		$target = $logEntry->getTarget()->getPrefixedText();
 
+		$linkedTarget = $this->getDiscordTitleText( $logEntry->getTarget() );
+		$linkedText = $logEntry->getTarget()->getPrefixedText();
+
 		$performer = $logEntry->getPerformerIdentity();
 
 		$linkedUser = $this->getDiscordUserText( $performer );
@@ -524,11 +527,11 @@ class Hooks implements
 				switch ( $logEntry->getSubtype() ) {
 					case 'newusers':
 					case 'create':
-						$text = self::msg( 'newuserlog-create-entry' );
+						$text = self::msg( 'logentry-newusers-create', $linkedTarget, $targetText );
 						break;
 					case 'create2':
 					case 'byemail':
-						$text = self::msg( 'newuserlog-create2-entry', $target );
+						$text = self::msg( 'logentry-newusers-create2', $linkedUser, $userText, $linkedTarget );
 						break;
 					case 'autocreate':
 						$text = self::msg( 'newuserlog-autocreate-entry' );
