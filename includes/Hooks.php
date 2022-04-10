@@ -187,14 +187,13 @@ class Hooks implements
 	 * and also into edit, delete and article history pages.
 	 *
 	 * @param Title $title
-	 * @param bool $pageUrls
 	 * @return string
 	 */
-	private function getDiscordTitleText( Title $title, bool $pageUrls = true ): string {
+	private function getDiscordTitleText( Title $title ): string {
 		$titleName = $title->getFullText();
 		$title_url = str_replace( '&', '%26', $titleName );
 
-		if ( $pageUrls && $this->config->get( 'DiscordIncludePageUrls' ) ) {
+		if ( $this->config->get( 'DiscordIncludePageUrls' ) ) {
 			return sprintf(
 				'%s (%s | %s | %s)',
 				'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
