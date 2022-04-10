@@ -27,6 +27,7 @@
 			"services": [
 				"ActorStore",
 				"ConfigFactory",
+				"ContentLanguage",
 				"PermissionManager",
 				"RevisionLookup",
 				"TitleFactory",
@@ -64,6 +65,9 @@
 			"handler": "main"
 		},
 		"PageSaveComplete": {
+			"handler": "main"
+		},
+		"ManualLogEntryBeforePublish": {
 			"handler": "main"
 		}
 	},

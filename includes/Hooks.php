@@ -5,16 +5,20 @@ declare( strict_types = 1 );
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use APIBase;
+use BlockLogFormatter;
 use Config;
 use ConfigFactory;
 use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
+use Language;
+use LogFormatter;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
+use MediaWiki\Hook\ManualLogEntryBeforePublishHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
@@ -40,6 +44,7 @@ class Hooks implements
 	ArticleProtectCompleteHook,
 	BlockIpCompleteHook,
 	LocalUserCreatedHook,
+	ManualLogEntryBeforePublishHook,
 	PageDeleteCompleteHook,
 	PageMoveCompleteHook,
 	PageSaveCompleteHook,
@@ -51,6 +56,9 @@ class Hooks implements
 
 	/** @var Config */
 	private $config;
+
+	/** @var Language */
+	private $contentLanguage;
 
 	/** @var PermissionManager */
 	private $permissionManager;
@@ -70,6 +78,7 @@ class Hooks implements
 	/**
 	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
+	 * @param Language $contentLanguage
 	 * @param PermissionManager $permissionManager
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
@@ -79,6 +88,7 @@ class Hooks implements
 	public function __construct(
 		ActorStore $actorStore,
 		ConfigFactory $configFactory,
+		Language $contentLanguage,
 		PermissionManager $permissionManager,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
@@ -88,6 +98,7 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
 		$this->actorStore = $actorStore;
+		$this->contentLanguage = $contentLanguage;
 		$this->permissionManager = $permissionManager;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -119,8 +130,6 @@ class Hooks implements
 	private function getDiscordUserText( UserIdentity $user ): string {
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
-
-		$userName = str_replace( '>', '\>', $userName );
 
 		if ( $this->config->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
@@ -415,6 +424,223 @@ class Hooks implements
 	/**
 	 * @inheritDoc
 	 */
+	public function onManualLogEntryBeforePublish( $logEntry ): void {
+		$performer = $logEntry->getPerformerIdentity();
+
+		$this->pushDiscordNotify( $this->getDiscordActionComment( $logEntry ), $performer, $logEntry->getType() );
+	}
+
+	/**
+	 * @param ManualLogEntry $logEntry
+	 * @return string
+	 */
+	public function getDiscordActionComment( ManualLogEntry $logEntry ): string {
+		$actionComment = $this->getDiscordActionText( $logEntry );
+		$comment = $logEntry->getComment();
+
+		if ( $comment != '' ) {
+			if ( $actionComment == '' ) {
+				$actionComment = $comment;
+			} else {
+				$actionComment .= self::msg( 'colon-separator' ) . $comment;
+			}
+		}
+
+		return $actionComment;
+	}
+
+	/**
+	 * @param ManualLogEntry $logEntry
+	 * @return string
+	 */
+	public function getDiscordActionText( ManualLogEntry $logEntry ): string {
+		$parameters = $logEntry->getParameters();
+
+		$target = $logEntry->getTarget()->getPrefixedText();
+
+		$linkedTarget = $this->getDiscordTitleText( $logEntry->getTarget() );
+		$targetText = $logEntry->getTarget()->getPrefixedText();
+
+		$performer = $logEntry->getPerformerIdentity();
+
+		$linkedUser = $this->getDiscordUserText( $performer );
+		$userText = $performer->getName();
+
+		$text = null;
+		switch ( $logEntry->getType() ) {
+			case 'move':
+				switch ( $logEntry->getSubtype() ) {
+					case 'move':
+						$movesource = $parameters['4::target'];
+						$text = self::msg( 'logentry-move-move', $linkedUser, $userText, $linkedTarget, $movesource );
+						break;
+					case 'move_redir':
+						$movesource = $parameters['4::target'];
+						$text = self::msg( 'logentry-move-move_redir', $linkedUser, $userText, $linkedTarget, $movesource );
+						break;
+					case 'move-noredirect':
+						break;
+					case 'move_redir-noredirect':
+						break;
+				}
+				break;
+
+			case 'delete':
+				switch ( $logEntry->getSubtype() ) {
+					case 'delete':
+						$text = self::msg( 'logentry-delete-delete', $linkedUser, $userText, $linkedTarget );
+						break;
+					case 'restore':
+						$rawParams = $logEntry->getParameters();
+						$list = [];
+
+						foreach ( $rawParams[':assoc:count'] as $type => $count ) {
+							if ( $count ) {
+								$list[] = wfMessage( 'restore-count-' . $type )->numParams( $count )->plain();
+							}
+						}
+
+						$num = RequestContext::getMain()->getLanguage()->listToText( $list );
+
+						$text = self::msg( 'logentry-delete-restore', $linkedUser, $userText, $linkedTarget, $num );
+						break;
+				}
+				break;
+
+			case 'patrol':
+				if ( $logEntry->getSubtype() === 'patrol' ) {
+					$diffLink = htmlspecialchars(
+						self::msg( 'patrol-log-diff', $parameters['4::curid'] )
+					);
+
+					$text = self::msg( 'patrol-log-line', $diffLink, $target, '' );
+				}
+				break;
+
+			case 'protect':
+				switch ( $logEntry->getSubtype() ) {
+					case 'protect':
+						$text = self::msg( 'protectedarticle', $target . ' ' . $parameters['4::description'] );
+						break;
+					case 'unprotect':
+						$text = self::msg( 'unprotectedarticle', $target );
+						break;
+					case 'modify':
+						$text = self::msg( 'modifiedarticleprotection', $target . ' ' . $parameters['4::description'] );
+						break;
+					case 'move_prot':
+						$text = self::msg( 'movedarticleprotection', $target, $parameters['4::oldtitle'] );
+						break;
+				}
+				break;
+
+			case 'newusers':
+				switch ( $logEntry->getSubtype() ) {
+					case 'newusers':
+					case 'create':
+						$text = self::msg( 'logentry-newusers-create', $linkedTarget, $targetText );
+						break;
+					case 'create2':
+					case 'byemail':
+						$text = self::msg( 'logentry-newusers-create2', $linkedUser, $userText, $linkedTarget );
+						break;
+					case 'autocreate':
+						$text = self::msg( 'logentry-newusers-autocreate', $targetText, $targetText );
+						break;
+				}
+				break;
+
+			case 'upload':
+				$text = self::msg( 'logentry-upload-' . $logEntry->getSubtype(), $linkedUser, $userText, $linkedTarget );
+				break;
+
+			case 'rights':
+				if ( count( $parameters['4::oldgroups'] ) ) {
+					$oldgroups = implode( ', ', $parameters['4::oldgroups'] );
+				} else {
+					$oldgroups = self::msg( 'rightsnone' );
+				}
+
+				if ( count( $parameters['5::newgroups'] ) ) {
+					$newgroups = implode( ', ', $parameters['5::newgroups'] );
+				} else {
+					$newgroups = self::msg( 'rightsnone' );
+				}
+
+				switch ( $logEntry->getSubtype() ) {
+					case 'rights':
+						$text = self::msg( 'rightslogentry', $target, $oldgroups, $newgroups );
+						break;
+					case 'autopromote':
+						$text = self::msg( 'rightslogentry-autopromote', $target, $oldgroups, $newgroups );
+						break;
+				}
+				break;
+
+			case 'merge':
+				$text = self::msg( 'pagemerge-logentry', $target, $parameters['4::dest'], $parameters['5::mergepoint'] );
+				break;
+
+			case 'block':
+				switch ( $logEntry->getSubtype() ) {
+					case 'block':
+						if ( $logEntry->isLegacy() ) {
+							$rawDuration = $parameters[0];
+							$rawFlags = $parameters[1] ?? '';
+						} else {
+							$rawDuration = $parameters['5::duration'];
+							$rawFlags = $parameters['6::flags'];
+						}
+
+						$duration = $this->contentLanguage->translateBlockExpiry(
+							$rawDuration,
+							null,
+							(int)wfTimestamp( TS_UNIX, $logEntry->getTimestamp() )
+						);
+
+						$flags = BlockLogFormatter::formatBlockFlags( $rawFlags, $this->contentLanguage );
+						$text = self::msg( 'blocklogentry', $target, $duration, $flags );
+						break;
+					case 'unblock':
+						$text = self::msg( 'unblocklogentry', $target );
+						break;
+					case 'reblock':
+						$duration = $this->contentLanguage->translateBlockExpiry(
+							$parameters['5::duration'],
+							null,
+							(int)wfTimestamp( TS_UNIX, $logEntry->getTimestamp() )
+						);
+
+						$flags = BlockLogFormatter::formatBlockFlags( $parameters['6::flags'],
+							$this->contentLanguage );
+
+						$text = self::msg( 'reblock-logentry', $target, $duration, $flags );
+						break;
+				}
+				break;
+
+			case 'import':
+				switch ( $logEntry->getSubtype() ) {
+					case 'upload':
+						$text = self::msg( 'import-logentry-upload', $target );
+						break;
+					case 'interwiki':
+						$text = self::msg( 'import-logentry-interwiki', $target );
+						break;
+				}
+				break;
+		}
+
+		if ( $text === null ) {
+			$text = LogFormatter::newFromEntry( $logEntry )->getPlainActionText();
+		}
+
+		return $text;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function onUploadComplete( $uploadBase ) {
 		if ( !$this->config->get( 'DiscordNotificationFileUpload' ) ) {
 			return;
@@ -612,8 +838,8 @@ class Hooks implements
 			}
 		}
 
-		// Convert " to ' in the message to be sent as otherwise JSON formatting would break.
-		$message = str_replace( '"', "'", $message );
+		// Escape " in the message to be sent as otherwise JSON formatting would break.
+		$message = str_replace( '"', '\"', $message );
 
 		$discordFromName = $this->config->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
@@ -621,7 +847,7 @@ class Hooks implements
 		}
 
 		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
-		$message = str_replace( [ "\r", "\n" ], '', $message );
+		$message = str_replace( [ "\r", "\n" ], ' ', $message );
 
 		switch ( $action ) {
 			case 'article_saved':
