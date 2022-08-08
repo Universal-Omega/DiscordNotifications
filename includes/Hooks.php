@@ -124,10 +124,10 @@ class Hooks implements
 	 * Gets nice HTML text for user containing the link to user page
 	 * and also links to user site, groups editing, talk and contribs pages.
 	 *
-	 * @param UserIdentity $user
+	 * @param $user UserIdentity or if CentralAuth is installed, CentralAuthGroupMembershipProxy
 	 * @return string
 	 */
-	private function getDiscordUserText( UserIdentity $user ): string {
+	private function getDiscordUserText( $user ): string {
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
