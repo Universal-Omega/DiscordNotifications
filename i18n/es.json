@@ -3,6 +3,7 @@
 		"authors": [
 			"Ajeje Brazorf",
 			"Ciencia Al Poder",
+			"Csbotero",
 			"Fitoschido",
 			"Giovanni Garciliano Díaz",
 			"Ihojose",
@@ -48,5 +49,6 @@
 	"discordnotifications-flow-moderate-hide": "oculto",
 	"discordnotifications-flow-moderate-delete": "eliminado",
 	"discordnotifications-flow-moderate-undelete": "restaurado",
+	"discordnotifications-flow-new-topic": "💬 $1 ha creado el tema $2 en $3$1",
 	"discordnotifications-import-complete": "⤵️ Se importó el artículo $1."
 }

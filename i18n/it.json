@@ -11,6 +11,7 @@
 	"discordnotifications-edit": "modifica",
 	"discordnotifications-delete": "cancella",
 	"discordnotifications-history": "cronologia",
+	"discordnotifications-diff": "diff",
 	"discordnotifications-bytes": "$1 {{PLURAL:$1|byte}}",
 	"discordnotifications-article-saved": "📝 $1 ha $2 la voce $3 $4",
 	"discordnotifications-article-saved-edit": "modificato",
@@ -23,8 +24,12 @@
 	"discordnotifications-article-protected-remove": "rimosso la protezione di",
 	"discordnotifications-change-user-groups": "%s ha modificato i gruppi utente per %s. Nuovi gruppi: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 ha modificato i gruppi utente per $2. Vecchi gruppi: $3. Nuovi gruppi: $4",
+	"discordnotifications-flow-edit-post": "💬 $1 ha modificato un post su $2",
+	"discordnotifications-flow-edit-topic-summary": "💬 $1 ha modificato il riepilogo dell'argomento su $2",
 	"discordnotifications-flow-lock-topic-lock": "risolto",
+	"discordnotifications-flow-lock-topic-unlock": "riaperto",
 	"discordnotifications-flow-moderate-topic": "💬 $1 ha $2 l'argomento $3",
 	"discordnotifications-flow-moderate-hide": "nascosto",
-	"discordnotifications-flow-moderate-delete": "cancellato"
+	"discordnotifications-flow-moderate-delete": "cancellato",
+	"discordnotifications-flow-new-topic": "💬 $1 ha creato l'argomento $2 su $3"
 }

@@ -5,6 +5,7 @@
 		]
 	},
 	"discordnotifications-desc": "Испраќа известувања преку Discord за избрани дејства случени на вашите викија на МедијаВики.",
+	"discordnotifications-extensionname": "Известувања од Discord",
 	"discordnotifications-block": "блокирај",
 	"discordnotifications-groups": "групи",
 	"discordnotifications-talk": "разговор",

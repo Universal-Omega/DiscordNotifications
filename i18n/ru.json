@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Pacha Tchernof"
+			"Pacha Tchernof",
+			"Vlad5250"
 		]
 	},
 	"discordnotifications-desc": "Присылает уведомления в Discord для выбранных действий, который случаются на ваших сайтах с MediaWiki.",
@@ -23,7 +24,7 @@
 	"discordnotifications-article-moved": "➡ $1 {{gender:$1|переименовал|переименовала|переименовал-а}} $2 to $3. Reason: $4",
 	"discordnotifications-article-protected": "🔒 $1 {{gender:$1|$2|$2а|$2-а}} защиту статьи «$3». Причина: $4",
 	"discordnotifications-article-protected-change": "изменил",
-	"discordnotifications-article-protected-remove": "убрал",
+	"discordnotifications-article-protected-remove": "снял защиту с",
 	"discordnotifications-new-user": "👥 Новая учётная запись $1 была только что создана $2",
 	"discordnotifications-file-uploaded": "📤 $1 {{gender:$1|загрузил|загрузила|загрузил-а}} файл <$2|$3> (формат: $4, размер: $5 $6, комментарий: $7)",
 	"discordnotifications-block-user": "🚫 $1 {{gender:$1|заблокировал|заблокировала|заблокировал-а}} $2 $3 Истекает: $4. $5",
