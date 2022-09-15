@@ -2,11 +2,13 @@
 	"@metadata": {
 		"authors": [
 			"BaRaN6161 TURK",
+			"Hedda",
 			"MuratTheTurkish",
 			"Uncitoyen"
 		]
 	},
 	"discordnotifications-desc": "MediaWiki sitelerinizde gerçekleşen seçili eylemler için Discord bildirimleri gönderir.",
+	"discordnotifications-extensionname": "DiscordBildirimleri",
 	"discordnotifications-block": "engelle",
 	"discordnotifications-groups": "gruplar",
 	"discordnotifications-talk": "mesaj",
@@ -15,7 +17,7 @@
 	"discordnotifications-delete": "sil",
 	"discordnotifications-history": "geçmiş",
 	"discordnotifications-diff": "fark",
-	"discordnotifications-bytes": "$1 bayt",
+	"discordnotifications-bytes": "$1 {{PLURAL:$1|bayt}}",
 	"discordnotifications-article-saved": "📝 $1 kullanıcısı $3 maddesi $2 $4",
 	"discordnotifications-article-saved-minor-edits": "küçük düzenleme yapıldı",
 	"discordnotifications-article-saved-edit": "düzenlendi",
