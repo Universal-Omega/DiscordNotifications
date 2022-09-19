@@ -6,6 +6,7 @@
 		]
 	},
 	"discordnotifications-desc": "在您的MediaWiki網站當選擇的動作發生時傳送Discord通知。",
+	"discordnotifications-extensionname": "DiscordNotifications",
 	"discordnotifications-block": "封鎖",
 	"discordnotifications-groups": "群組",
 	"discordnotifications-talk": "討論",

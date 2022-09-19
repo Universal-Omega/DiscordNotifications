@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"JohanahoJ",
 			"Sabelöga",
 			"WikiPhoenix"
 		]
@@ -20,7 +21,7 @@
 	"discordnotifications-article-saved-edit": "redigerat",
 	"discordnotifications-article-created": "📄 $1 skapade artikeln $2 $3",
 	"discordnotifications-file-namespace": "Fil",
-	"discordnotifications-article-deleted": "❌ $1 raderade artikeln $2 Orsak: $3",
+	"discordnotifications-article-deleted": "❌ $1 raderade artikeln $2 Anledning: $3",
 	"discordnotifications-article-moved": "➡ $1 flyttade artikeln $2 till $3. Orsak: $4",
 	"discordnotifications-article-protected": "🔒 $1 har $2 artikeln $3. Orsak: $4",
 	"discordnotifications-article-protected-change": "ändrat skyddet för",
