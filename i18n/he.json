@@ -37,7 +37,7 @@
 	"discordnotifications-flow-edit-topic-summary": "💬 $1 {{GENDER:$1|ערך|ערכה}} כותרת נושא ב{{GRAMMAR:תחילית|$2}}",
 	"discordnotifications-flow-lock-topic-lock": "פתור",
 	"discordnotifications-flow-lock-topic-unlock": "נפתח מחדש",
-	"discordnotifications-flow-moderate-post": "💬 $1 $2 פוסט בנושא בנושא {{GRAMMAR:תחילית|$3}}",
+	"discordnotifications-flow-moderate-post": "💬 $1 $2 רשומה בנושא בנושא {{GRAMMAR:תחילית|$3}}",
 	"discordnotifications-flow-moderate-topic": "💬 $1 $2 את הנושא $3",
 	"discordnotifications-flow-moderate-hide": "הסתרה",
 	"discordnotifications-flow-moderate-unhide": "לא מוסתר",
