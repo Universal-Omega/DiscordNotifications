@@ -7,6 +7,7 @@
 		]
 	},
 	"discordnotifications-desc": "Skickar Discord-aviseringar för utvalda åtgärder som förekommer på dina MediaWiki-webbplatser.",
+	"discordnotifications-extensionname": "Discord-aviseringar",
 	"discordnotifications-block": "blockera",
 	"discordnotifications-groups": "grupper",
 	"discordnotifications-talk": "diskussion",
