@@ -1,11 +1,13 @@
 {
 	"@metadata": {
 		"authors": [
+			"Meno25",
 			"Shbib Al-Subaie",
 			"ديفيد"
 		]
 	},
 	"discordnotifications-desc": "يرسل إخطارات Discord عن الإجراءات المحددة التي حدثت في مواقع ميدياويكي الخاصة بك.",
+	"discordnotifications-extensionname": "إخطارات Discord",
 	"discordnotifications-block": "منع",
 	"discordnotifications-groups": "المجموعات",
 	"discordnotifications-talk": "نقاش",
