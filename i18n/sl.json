@@ -35,6 +35,6 @@
 	"discordnotifications-flow-moderate-suppress": "je ukinil_a",
 	"discordnotifications-flow-moderate-unsuppress": "je odukinil_a",
 	"discordnotifications-flow-moderate-delete": "je izbrisal_a",
-	"discordnotifications-flow-moderate-undelete": "je obnovil_a",
+	"discordnotifications-flow-moderate-undelete": "je odizbrisal_a",
 	"discordnotifications-import-complete": "⤵️ Članek $1 je uvožen."
 }
