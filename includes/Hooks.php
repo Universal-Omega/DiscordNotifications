@@ -118,7 +118,7 @@ class Hooks implements
 
 		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 		if ( $content ) {
-			$content = $content->serialize();
+			$content = strip_tags( $content->serialize() );
 		}
 
 		if ( $isNew ) {
@@ -141,7 +141,7 @@ class Hooks implements
 				->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 
 			if ( $oldContent ) {
-				$oldContent = $oldContent->serialize();
+				$oldContent = strip_tags( $oldContent->serialize() );
 			}
 
 			$isMinor = (bool)( $flags & EDIT_MINOR );
@@ -513,7 +513,7 @@ class Hooks implements
 		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
 
 		return str_replace( array_keys( $replacements ), array_values( $replacements ),
-			trim( strip_tags( $diff ), "\n" ) );
+			strip_tags( $diff ) );
 	}
 
 	/**
