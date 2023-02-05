@@ -136,6 +136,13 @@ class Hooks implements
 				'Content:' => $content,
 			] );
 		} else {
+			$oldContent = $this->revisionLookup->getPreviousRevision( $revisionRecord )
+				->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC );
+
+			if ( $oldContent ) {
+				$oldContent = $oldContent->serialize();
+			}
+
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
 			// Skip minor edits if user wanted to ignore them
@@ -162,7 +169,7 @@ class Hooks implements
 
 			$this->discordNotifier->notify( $message, $user, 'article_saved', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => $content,
+				'Content:' => xdiff_string_diff( $oldContent, $content ),
 			] );
 		}
 	}
