@@ -171,7 +171,7 @@ class Hooks implements
 			$textSlotDiffRenderer = new TextSlotDiffRenderer();
 			$this->discordNotifier->notify( $message, $user, 'article_saved', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => $textSlotDiffRenderer->getTextDiff( $oldContent, $content ),
+				'Content:' => $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ),
 			] );
 		}
 	}
@@ -493,6 +493,27 @@ class Hooks implements
 		}
 
 		$this->discordNotifier->notify( $message, $user, 'flow' );
+	}
+
+	/**
+	 * Convert the HTML diff to a human-readable format so it can be in the Discord embed
+	 *
+	 * @param string $diff
+	 * @return string
+	 */
+	private function getPlainDiff( string $diff ): string {
+		$replacements = [
+			html_entity_decode( '&nbsp;' ) => ' ',
+			html_entity_decode( '&minus;' ) => '-',
+		];
+
+		// Preserve markers when stripping tags
+		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
+		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', ' ', $diff );
+		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
+
+		return str_replace( array_keys( $replacements ), array_values( $replacements ),
+			trim( strip_tags( $diff ), "\n" ) );
 	}
 
 	/**
