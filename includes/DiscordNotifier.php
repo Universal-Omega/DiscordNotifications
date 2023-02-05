@@ -54,9 +54,10 @@ class DiscordNotifier {
 	 * @param string $message
 	 * @param ?UserIdentity $user
 	 * @param string $action
+	 * @param array $embedFields
 	 * @param ?string $webhook
 	 */
-	public function notify( string $message, ?UserIdentity $user, string $action, ?string $webhook = null ) {
+	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
 		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
@@ -131,6 +132,10 @@ class DiscordNotifier {
 
 		if ( $this->options->get( 'DiscordAvatarUrl' ) ) {
 			$embed->setAvatarUrl( $this->options->get( 'DiscordAvatarUrl' ) );
+		}
+
+		foreach ( $embedFields as $name => $value ) {
+			$embed->addField( $name, $value );
 		}
 
 		$post = $embed->build();
