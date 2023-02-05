@@ -9,8 +9,10 @@ return [
 	'DiscordEmbedBuilder' => static function ( MediaWikiServices $services ): DiscordEmbedBuilder {
 		return new DiscordEmbedBuilder();
 	},
+
 	'DiscordNotifier' => static function ( MediaWikiServices $services ): DiscordNotifier {
 		return new DiscordNotifier(
+			$services->getService( 'DiscordEmbedBuilder' ),
 			new ServiceOptions(
 				DiscordNotifier::CONSTRUCTOR_OPTIONS,
 				$services->getConfigFactory()->makeConfig( 'DiscordNotifications' )
