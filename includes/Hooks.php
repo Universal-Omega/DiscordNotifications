@@ -114,7 +114,7 @@ class Hooks implements
 			return;
 		}
 
-		$summeryField = $summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text();
+		$summaryField = $summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text();
 
 		if ( $isNew ) {
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
@@ -127,7 +127,7 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted', [ 'summary' => $summaryField ] );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
