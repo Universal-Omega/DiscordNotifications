@@ -24,6 +24,7 @@ use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
@@ -114,17 +115,23 @@ class Hooks implements
 			return;
 		}
 
+		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC );
+
 		if ( $isNew ) {
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 				$this->discordNotifier->getDiscordUserText( $user ),
-				$this->discordNotifier->getDiscordArticleText( $wikiPage )
+				$this->discordNotifier->getDiscordArticleText( $wikiPage ),
+				''
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted', [ $this->discordNotifier->getMessage( 'discordnotifications-summary' ) => $summary ] );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted', [
+				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+				'Content:' => $content,
+			] );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -137,7 +144,8 @@ class Hooks implements
 				'discordnotifications-article-saved',
 				$this->discordNotifier->getDiscordUserText( $user ),
 				$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
-				$this->discordNotifier->getDiscordArticleText( $wikiPage, true )
+				$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
+				''
 			);
 
 			if (
@@ -149,7 +157,10 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved', [ $this->discordNotifier->getMessage( 'discordnotifications-summary' ) => $summary ] );
+			$this->discordNotifier->notify( $message, $user, 'article_saved', [
+				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+				'Content:' => $content,
+			] );
 		}
 	}
 
