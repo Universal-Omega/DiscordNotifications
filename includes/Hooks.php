@@ -116,6 +116,9 @@ class Hooks implements
 		}
 
 		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC );
+		if ( $content ) {
+			$content = $content->serialize();
+		}
 
 		if ( $isNew ) {
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
