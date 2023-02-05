@@ -474,7 +474,6 @@ class Hooks implements
 		$this->discordNotifier->notify( $message, $user, 'flow' );
 	}
 
-
 	/**
 	 * @param string $UUID
 	 * @return string
