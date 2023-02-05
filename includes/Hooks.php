@@ -114,6 +114,8 @@ class Hooks implements
 			return;
 		}
 
+		$summeryField = $summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text();
+
 		if ( $isNew ) {
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 				$this->discordNotifier->getDiscordUserText( $user ),
@@ -151,7 +153,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			$this->discordNotifier->notify( $message, $user, 'article_saved', [ 'summary' => $summaryField ] );
 		}
 	}
 
