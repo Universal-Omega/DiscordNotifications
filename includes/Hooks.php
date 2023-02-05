@@ -137,8 +137,9 @@ class Hooks implements
 				'Content:' => $content,
 			] );
 		} else {
-			$oldContent = $this->revisionLookup->getPreviousRevision( $revisionRecord )
-				->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
+			$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
+				$this->revisionLookup->getPreviousRevision( $revisionRecord )
+					->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
 
 			if ( $oldContent ) {
 				$oldContent = strip_tags( $oldContent->serialize() );
