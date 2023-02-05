@@ -147,7 +147,7 @@ class DiscordNotifier {
 				$colour = 11777212;
 		}
 
-		$embed = $this->discordEmbedBuilder
+		$embed = ( new DiscordEmbedBuilder() )
 			->setColor( (string)$colour )
 			->setDescription( $message )
 			->setUsername( $discordFromName );
