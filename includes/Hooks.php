@@ -115,7 +115,7 @@ class Hooks implements
 			return;
 		}
 
-		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC );
+		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 		if ( $content ) {
 			$content = $content->serialize();
 		}
@@ -137,7 +137,7 @@ class Hooks implements
 			] );
 		} else {
 			$oldContent = $this->revisionLookup->getPreviousRevision( $revisionRecord )
-				->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC );
+				->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 
 			if ( $oldContent ) {
 				$oldContent = $oldContent->serialize();
