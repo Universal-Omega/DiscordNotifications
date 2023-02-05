@@ -1,15 +1,15 @@
 <?php
 
 use MediaWiki\Config\ServiceOptions;
-use MediaWiki\Extension\DiscordNotifications\DiscordNotificationsSender;
+use MediaWiki\Extension\DiscordNotifications\DiscordSender;
 use MediaWiki\MediaWikiServices;
 
 return [
-	'DiscordNotificationsSender' => static function ( MediaWikiServices $services ): ImportDumpRequestManager {
-		return new DiscordNotificationsSender(
+	'DiscordSender' => static function ( MediaWikiServices $services ): DiscordSender {
+		return new DiscordSender(
 			RequestContext::getMain(),
 			new ServiceOptions(
-				DiscordNotificationsSender::CONSTRUCTOR_OPTIONS,
+				DiscordSender::CONSTRUCTOR_OPTIONS,
 				$services->getConfigFactory()->makeConfig( 'DiscordNotifications' )
 			),
 			$services->getPermissionManager()
