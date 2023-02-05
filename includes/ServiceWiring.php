@@ -1,7 +1,6 @@
 <?php
 
 use MediaWiki\Config\ServiceOptions;
-use MediaWiki\Extension\DiscordNotifications\DiscordEmbedBuilder;
 use MediaWiki\Extension\DiscordNotifications\DiscordNotifier;
 use MediaWiki\MediaWikiServices;
 
