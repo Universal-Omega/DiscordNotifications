@@ -4,11 +4,11 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
-use IContextSource;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\User\UserIdentity;
 
-class DiscordSender {
+class DiscordNotifier {
 
 	public const CONSTRUCTOR_OPTIONS = [
 		'DiscordAdditionalIncomingWebhookUrls',
@@ -21,9 +21,6 @@ class DiscordSender {
 		'Sitename',
 	];
 
-	/** @var IContextSource */
-	private $context;
-
 	/** @var ServiceOptions */
 	private $options;
 
@@ -31,18 +28,15 @@ class DiscordSender {
 	private $permissionManager;
 
 	/**
-	 * @param IContextSource $context
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
-		IContextSource $context,
 		ServiceOptions $options,
 		PermissionManager $permissionManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
-		$this->context = $context;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
 	}
@@ -52,11 +46,11 @@ class DiscordSender {
 	 *
 	 * @param string $message
 	 * @param string $action
+	 * @param ?UserIdentity $user
 	 * @param ?string $webhook
 	 */
-	public function pushDiscordNotify( string $message, string $action, ?string $webhook = null ) {
+	public function notify( string $message, string $action, ?UserIdentity $user, ?string $webhook = null ) {
 		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
-			$user = $this->context->getUser();
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
 				return;
@@ -136,11 +130,11 @@ class DiscordSender {
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
-			self::sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+			$this->sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
 
 			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					self::sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
+					$this->sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
 				}
 			}
 		} else {
@@ -193,7 +187,7 @@ class DiscordSender {
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private static function sendHttpRequest( string $url, string $postData ) {
+	private function sendHttpRequest( string $url, string $postData ) {
 		$extraData = [
 			'http' => [
 				'header'  => 'Content-type: application/json',
