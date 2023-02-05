@@ -30,6 +30,7 @@ use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
 use RequestContext;
+use TextSlotDiffRenderer;
 use TitleFactory;
 
 class Hooks implements
@@ -167,9 +168,10 @@ class Hooks implements
 				) . ')';
 			}
 
+			$textSlotDiffRenderer = new TextSlotDiffRenderer();
 			$this->discordNotifier->notify( $message, $user, 'article_saved', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => xdiff_string_diff( $oldContent, $content ),
+				'Content:' => $textSlotDiffRenderer->getTextDiff( $oldContent, $content ),
 			] );
 		}
 	}
