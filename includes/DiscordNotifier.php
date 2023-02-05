@@ -45,11 +45,11 @@ class DiscordNotifier {
 	 * Sends the message into Discord.
 	 *
 	 * @param string $message
-	 * @param string $action
 	 * @param ?UserIdentity $user
+	 * @param string $action
 	 * @param ?string $webhook
 	 */
-	public function notify( string $message, string $action, ?UserIdentity $user, ?string $webhook = null ) {
+	public function notify( string $message, ?UserIdentity $user, string $action, ?string $webhook = null ) {
 		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
