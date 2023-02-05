@@ -172,7 +172,7 @@ class Hooks implements
 			$textSlotDiffRenderer = new TextSlotDiffRenderer();
 			$this->discordNotifier->notify( $message, $user, 'article_saved', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => "```\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
+				'Content:' => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 			] );
 		}
 	}
@@ -506,12 +506,13 @@ class Hooks implements
 		$replacements = [
 			html_entity_decode( '&nbsp;' ) => ' ',
 			html_entity_decode( '&minus;' ) => '-',
+			'+' => "\n+",
 		];
 
 		// Preserve markers when stripping tags
-		$diff = str_replace( '<td class="diff-marker"></td>', " \n\n", $diff );
+		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
 		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', "\n\n", $diff );
-		$diff = preg_replace( '/data-marker="([^"]*)">/', ">$1\n\n", $diff );
+		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
 
 		return str_replace( array_keys( $replacements ), array_values( $replacements ),
 			strip_tags( $diff ) );
