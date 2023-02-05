@@ -510,7 +510,7 @@ class Hooks implements
 
 		// Preserve markers when stripping tags
 		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
-		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', ' ', $diff );
+		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', "\n", $diff );
 		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
 
 		return str_replace( array_keys( $replacements ), array_values( $replacements ),
