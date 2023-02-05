@@ -22,7 +22,6 @@ use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\Authority;
-use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
@@ -52,8 +51,8 @@ class Hooks implements
 	/** @var Config */
 	private $config;
 
-	/** @var PermissionManager */
-	private $permissionManager;
+	/** @var DiscordNotifier */
+	private $discordNotifier;
 
 	/** @var RevisionLookup */
 	private $revisionLookup;
@@ -70,7 +69,7 @@ class Hooks implements
 	/**
 	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
-	 * @param PermissionManager $permissionManager
+	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
 	 * @param UserGroupManager $userGroupManager
@@ -79,7 +78,7 @@ class Hooks implements
 	public function __construct(
 		ActorStore $actorStore,
 		ConfigFactory $configFactory,
-		PermissionManager $permissionManager,
+		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
 		UserGroupManager $userGroupManager,
@@ -88,7 +87,7 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
 		$this->actorStore = $actorStore;
-		$this->permissionManager = $permissionManager;
+		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
 		$this->userGroupManager = $userGroupManager;
@@ -248,7 +247,7 @@ class Hooks implements
 				$message .= ' (' . self::msg( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->pushDiscordNotify( $message, $user, 'article_inserted' );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -274,7 +273,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->pushDiscordNotify( $message, $user, 'article_saved' );
+			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 		}
 	}
 
@@ -302,7 +301,7 @@ class Hooks implements
 			$reason
 		)->inContentLanguage()->text();
 
-		$this->pushDiscordNotify( $message, $deleter->getUser(), 'article_deleted' );
+		$this->discordNotifier->notify( $message, $deleter->getUser(), 'article_deleted' );
 	}
 
 	/**
@@ -320,7 +319,7 @@ class Hooks implements
 			$reason
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'article_moved' );
+		$this->discordNotifier->notify( $message, $user, 'article_moved' );
 	}
 
 	/**
@@ -338,7 +337,7 @@ class Hooks implements
 			$reason
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'article_protected' );
+		$this->discordNotifier->notify( $message, $user, 'article_protected' );
 	}
 
 	/**
@@ -353,7 +352,7 @@ class Hooks implements
 			$this->getDiscordTitleText( $title )
 		);
 
-		$this->pushDiscordNotify( $message, null, 'import_complete' );
+		$this->discordNotifier->notify( $message, null, 'import_complete' );
 	}
 
 	/**
@@ -409,7 +408,7 @@ class Hooks implements
 			$messageExtra
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'new_user_account' );
+		$this->discordNotifier->notify( $message, $user, 'new_user_account' );
 	}
 
 	/**
@@ -435,7 +434,7 @@ class Hooks implements
 			$localFile->getDescription()
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'file_uploaded' );
+		$this->discordNotifier->notify( $message, $user, 'file_uploaded' );
 	}
 
 	/**
@@ -458,7 +457,7 @@ class Hooks implements
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . self::msg( 'discordnotifications-block-user-list' ) . '>.'
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'user_blocked' );
+		$this->discordNotifier->notify( $message, $user, 'user_blocked' );
 	}
 
 	/**
@@ -477,7 +476,7 @@ class Hooks implements
 			'<' . self::parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $this->getDiscordUserText( $performer ) ) . '|' . self::msg( 'discordnotifications-view-user-rights' ) . '>.'
 		);
 
-		$this->pushDiscordNotify( $message, $user, 'user_groups_changed' );
+		$this->discordNotifier->notify( $message, $user, 'user_groups_changed' );
 	}
 
 	/**
@@ -594,58 +593,7 @@ class Hooks implements
 				return;
 		}
 
-		$this->pushDiscordNotify( $message, $user, 'flow' );
-	}
-
-	/**
-	 * @param string $url
-	 * @param string $postData
-	 */
-	private function sendCurlRequest( string $url, string $postData ) {
-		$h = curl_init();
-		curl_setopt( $h, CURLOPT_URL, $url );
-
-		if ( $this->config->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->config->get( 'DiscordCurlProxy' ) );
-		}
-
-		curl_setopt( $h, CURLOPT_POST, 1 );
-		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
-		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-
-		// Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
-
-		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
-
-		// Set Content-Type to application/json
-		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
-		] );
-
-		// Execute the curl script
-		$curl_output = curl_exec( $h );
-
-		curl_close( $h );
-	}
-
-	/**
-	 * @param string $url
-	 * @param string $postData
-	 */
-	private static function sendHttpRequest( string $url, string $postData ) {
-		$extraData = [
-			'http' => [
-				'header'  => 'Content-type: application/json',
-				'method'  => 'POST',
-				'content' => $postData,
-			],
-		];
-
-		$context = stream_context_create( $extraData );
-		$result = file_get_contents( $url, false, $context );
+		$this->discordNotifier->notify( $message, $user, 'flow' );
 	}
 
 	/**
