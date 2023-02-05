@@ -134,7 +134,7 @@ class Hooks implements
 
 			$this->discordNotifier->notify( $message, $user, 'article_inserted', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => $content,
+				'Content:' => "```\n$content\n```",
 			] );
 		} else {
 			$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
@@ -172,7 +172,7 @@ class Hooks implements
 			$textSlotDiffRenderer = new TextSlotDiffRenderer();
 			$this->discordNotifier->notify( $message, $user, 'article_saved', [
 				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ),
+				'Content:' => "```\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 			] );
 		}
 	}
@@ -509,9 +509,9 @@ class Hooks implements
 		];
 
 		// Preserve markers when stripping tags
-		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
+		$diff = str_replace( '<td class="diff-marker"></td>', " \n\n", $diff );
 		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', "\n\n", $diff );
-		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
+		$diff = preg_replace( '/data-marker="([^"]*)">/', ">$1\n\n", $diff );
 
 		return str_replace( array_keys( $replacements ), array_values( $replacements ),
 			strip_tags( $diff ) );
