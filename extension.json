@@ -11,7 +11,7 @@
 	"license-name": "MIT",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.37.0"
+		"MediaWiki": ">= 1.39.0"
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\DiscordNotifications\\": "includes/"
@@ -27,7 +27,7 @@
 			"services": [
 				"ActorStore",
 				"ConfigFactory",
-				"DiscordSender",
+				"DiscordNotifier",
 				"RevisionLookup",
 				"TitleFactory",
 				"UserGroupManager",
