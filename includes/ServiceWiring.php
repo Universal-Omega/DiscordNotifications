@@ -1,10 +1,14 @@
 <?php
 
 use MediaWiki\Config\ServiceOptions;
+use MediaWiki\Extension\DiscordNotifications\DiscordEmbedBuilder;
 use MediaWiki\Extension\DiscordNotifications\DiscordNotifier;
 use MediaWiki\MediaWikiServices;
 
 return [
+	'DiscordEmbedBuilder' => static function ( MediaWikiServices $services ): DiscordEmbedBuilder {
+		return new DiscordEmbedBuilder();
+	},
 	'DiscordNotifier' => static function ( MediaWikiServices $services ): DiscordNotifier {
 		return new DiscordNotifier(
 			new ServiceOptions(
