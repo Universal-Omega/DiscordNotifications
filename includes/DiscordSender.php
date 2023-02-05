@@ -8,7 +8,7 @@ use IContextSource;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 
-class DiscordNotificationsSender {
+class DiscordSender {
 
 	public const CONSTRUCTOR_OPTIONS = [
 		'DiscordAdditionalIncomingWebhookUrls',
