@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
+use IContextSource;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
-use MediaWiki\User\UserIdentity;
 
 class DiscordNotificationsSender {
 
@@ -21,6 +21,9 @@ class DiscordNotificationsSender {
 		'Sitename',
 	];
 
+	/** @var IContextSource */
+	private $context;
+
 	/** @var ServiceOptions */
 	private $options;
 
@@ -28,15 +31,18 @@ class DiscordNotificationsSender {
 	private $permissionManager;
 
 	/**
+	 * @param IContextSource $context
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
+		IContextSource $context,
 		ServiceOptions $options,
 		PermissionManager $permissionManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
+		$this->context = $context;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
 	}
@@ -45,12 +51,12 @@ class DiscordNotificationsSender {
 	 * Sends the message into Discord.
 	 *
 	 * @param string $message
-	 * @param ?UserIdentity $user
 	 * @param string $action
 	 * @param ?string $webhook
 	 */
-	public function pushDiscordNotify( string $message, ?UserIdentity $user, string $action, ?string $webhook = null ) {
+	public function pushDiscordNotify( string $message, string $action, ?string $webhook = null ) {
 		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
+			$user = $this->context->getUser();
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
 				return;
