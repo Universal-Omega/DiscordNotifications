@@ -38,9 +38,6 @@ class DiscordNotifier {
 		'Sitename',
 	];
 
-	/** @var DiscordEmbedBuilder */
-	private $discordEmbedBuilder;
-
 	/** @var MessageLocalizer */
 	private $messageLocalizer;
 
@@ -51,20 +48,17 @@ class DiscordNotifier {
 	private $permissionManager;
 
 	/**
-	 * @param DiscordEmbedBuilder $discordEmbedBuilder
 	 * @param MessageLocalizer $messageLocalizer
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
-		DiscordEmbedBuilder $discordEmbedBuilder,
 		MessageLocalizer $messageLocalizer,
 		ServiceOptions $options,
 		PermissionManager $permissionManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
-		$this->discordEmbedBuilder = $discordEmbedBuilder;
 		$this->messageLocalizer = $messageLocalizer;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
