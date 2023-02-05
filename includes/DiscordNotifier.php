@@ -21,6 +21,9 @@ class DiscordNotifier {
 		'Sitename',
 	];
 
+	/** @var DiscordEmbedBuilder */
+	private $discordEmbedBuilder;
+
 	/** @var ServiceOptions */
 	private $options;
 
@@ -28,14 +31,18 @@ class DiscordNotifier {
 	private $permissionManager;
 
 	/**
+	 * @param DiscordEmbedBuilder $discordEmbedBuilder
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
+		DiscordEmbedBuilder $discordEmbedBuilder,
 		ServiceOptions $options,
 		PermissionManager $permissionManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
+
+		$this->discordEmbedBuilder = $discordEmbedBuilder;
 
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
@@ -117,16 +124,16 @@ class DiscordNotifier {
 				$colour = 11777212;
 		}
 
-		$post = sprintf( '{"embeds": [{ "color" : "' . $colour . '" ,"description" : "%s"}], "username": "%s"',
-			$message,
-			$discordFromName
-		);
+		$embed = $this->discordEmbedBuilder
+			->setColor( $colour )
+			->setDescription( $message )
+			->setUsername( $discordFromName );
 
 		if ( $this->options->get( 'DiscordAvatarUrl' ) ) {
-			$post .= ', "avatar_url": "' . $this->options->get( 'DiscordAvatarUrl' ) . '"';
+			$embed->setAvatarUrl( $this->options->get( 'DiscordAvatarUrl' ) );
 		}
 
-		$post .= '}';
+		$post = $embed->build();
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
