@@ -27,7 +27,7 @@
 			"services": [
 				"ActorStore",
 				"ConfigFactory",
-				"PermissionManager",
+				"DiscordSender",
 				"RevisionLookup",
 				"TitleFactory",
 				"UserGroupManager",
@@ -189,5 +189,8 @@
 	"ConfigRegistry": {
 		"DiscordNotifications": "GlobalVarConfig::newInstance"
 	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
 	"manifest_version": 2
 }
