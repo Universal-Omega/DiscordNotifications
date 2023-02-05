@@ -151,6 +151,11 @@ class DiscordNotifier {
 		}
 
 		foreach ( $embedFields as $name => $value ) {
+			if ( !$value ) {
+				// Don't add empty fields
+				continue;
+			}
+
 			$embed->addField( $name, $value );
 		}
 
