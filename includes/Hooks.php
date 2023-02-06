@@ -157,7 +157,7 @@ class Hooks implements
 						$content = substr( $content, $start, $length );
 					}
 
-					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
+					$this->discordNotifier->newInstance()->notify( $message, $user, 'article_inserted', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
@@ -174,7 +174,7 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			$this->discordNotifier->newInstance()->notify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -225,7 +225,7 @@ class Hooks implements
 					}
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
-					$this->discordNotifier->notify( $message, $user, 'article_saved', [
+					$this->discordNotifier->newInstance()->notify( $message, $user, 'article_saved', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
@@ -249,7 +249,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			$this->discordNotifier->newInstance()->notify( $message, $user, 'article_saved' );
 		}
 	}
 
