@@ -157,7 +157,7 @@ class Hooks implements
 						$content = substr( $content, $start, $length );
 					}
 
-					$this->discordNotifier->addMessage( $message, $user, 'article_inserted', [
+					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
@@ -174,8 +174,7 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->addMessage( $message, $user, 'article_inserted' );
-			$this->discordNotifier->notify();
+			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -226,7 +225,7 @@ class Hooks implements
 					}
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
-					$this->discordNotifier->addMessage( $message, $user, 'article_saved', [
+					$this->discordNotifier->notify( $message, $user, 'article_saved', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
@@ -250,8 +249,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->addMessage( $message, $user, 'article_saved' );
-			$this->discordNotifier->notify();
+			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 		}
 	}
 
@@ -279,8 +277,7 @@ class Hooks implements
 			$reason
 		)->inContentLanguage()->text();
 
-		$this->discordNotifier->addMessage( $message, $deleter->getUser(), 'article_deleted' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $deleter->getUser(), 'article_deleted' );
 	}
 
 	/**
@@ -298,8 +295,7 @@ class Hooks implements
 			$reason
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'article_moved' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'article_moved' );
 	}
 
 	/**
@@ -317,8 +313,7 @@ class Hooks implements
 			$reason
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'article_protected' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'article_protected' );
 	}
 
 	/**
@@ -333,8 +328,7 @@ class Hooks implements
 			$this->discordNotifier->getDiscordTitleText( $title )
 		);
 
-		$this->discordNotifier->addMessage( $message, null, 'import_complete' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, null, 'import_complete' );
 	}
 
 	/**
@@ -390,8 +384,7 @@ class Hooks implements
 			$messageExtra
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'new_user_account' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'new_user_account' );
 	}
 
 	/**
@@ -417,8 +410,7 @@ class Hooks implements
 			$localFile->getDescription()
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'file_uploaded' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'file_uploaded' );
 	}
 
 	/**
@@ -441,8 +433,7 @@ class Hooks implements
 			'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . $this->discordNotifier->getMessage( 'discordnotifications-block-user-list' ) . '>.'
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'user_blocked' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'user_blocked' );
 	}
 
 	/**
@@ -461,8 +452,7 @@ class Hooks implements
 			'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $this->discordNotifier->getDiscordUserText( $performer ) ) . '|' . $this->discordNotifier->getMessage( 'discordnotifications-view-user-rights' ) . '>.'
 		);
 
-		$this->discordNotifier->addMessage( $message, $user, 'user_groups_changed' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'user_groups_changed' );
 	}
 
 	/**
@@ -579,8 +569,7 @@ class Hooks implements
 				return;
 		}
 
-		$this->discordNotifier->addMessage( $message, $user, 'flow' );
-		$this->discordNotifier->notify();
+		$this->discordNotifier->notify( $message, $user, 'flow' );
 	}
 
 	/**
