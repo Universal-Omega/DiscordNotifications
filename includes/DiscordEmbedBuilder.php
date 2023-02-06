@@ -180,7 +180,7 @@ class DiscordEmbedBuilder {
 					'timestamp' => $this->timestamp,
 					'fields' => $this->fields,
 					'footer' => [
-						'text' => 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues',
+						'text' => 'DiscordNotifications version 3 — Let CosmicAlpha#3274 know of any issues.',
 					],
 				] ),
 			],
