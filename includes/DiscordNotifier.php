@@ -190,6 +190,8 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendCurlRequest( string $url, string $postData ) {
+		$user_agent = 'DiscordNotifications/3.0 (github.com/Universal-Omega)';
+
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -197,8 +199,10 @@ class DiscordNotifier {
 			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
 		}
 
-		curl_setopt( $h, CURLOPT_POST, 1 );
+		curl_setopt( $h, CURLOPT_POST, true );
 		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
+		curl_setopt( $h, CURLOPT_FOLLOWLOCATION, true );
+		curl_setopt( $h, CURLOPT_HEADER, false );
 		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
 
 		// Set 10 second timeout to connection
@@ -207,14 +211,15 @@ class DiscordNotifier {
 		// Set global 10 second timeout to handle all data
 		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
 
+		curl_setopt( $h, CURLOPT_USERAGENT, $user_agent );
+
 		// Set Content-Type to application/json
 		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
+			'Content-Type: application/json'
 		] );
 
 		// Execute the curl script
-		$curl_output = curl_exec( $h );
+		curl_exec( $h );
 
 		curl_close( $h );
 	}
