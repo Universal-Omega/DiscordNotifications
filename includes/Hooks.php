@@ -136,7 +136,7 @@ class Hooks implements
 				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
-				if ( $matches || ( !$matches && $shouldSendToCVTFeed ) ) {
+				if ( $matches || $shouldSendToCVTFeed ) {
 					$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 						$this->discordNotifier->getDiscordUserText( $user ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage ),
@@ -188,7 +188,7 @@ class Hooks implements
 				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
-				if ( $matches || ( !$matches && $shouldSendToCVTFeed ) ) {
+				if ( $matches || $shouldSendToCVTFeed ) {
 					$message = $this->discordNotifier->getMessage(
 						'discordnotifications-article-saved',
 						$this->discordNotifier->getDiscordUserText( $user ),
