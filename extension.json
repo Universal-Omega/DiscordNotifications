@@ -184,6 +184,12 @@
 		},
 		"DiscordAvatarUrl": {
 			"value": ""
+		},
+		"DiscordEnableExperimentalCVTFeatures": {
+			"value": false
+		},
+		"DiscordExperimentalWebhook": {
+			"value": ""
 		}
 	},
 	"ConfigRegistry": {
