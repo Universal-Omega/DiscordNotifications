@@ -9,7 +9,6 @@ use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
 use MessageLocalizer;
-use PHPUnit\Framework\AssertionFailedError;
 use Title;
 use WikiPage;
 
