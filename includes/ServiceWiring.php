@@ -7,6 +7,7 @@ use MediaWiki\MediaWikiServices;
 return [
 	'DiscordNotifier' => static function ( MediaWikiServices $services ): DiscordNotifier {
 		return new DiscordNotifier(
+			$services->getHttpRequestFactory(),
 			RequestContext::getMain(),
 			new ServiceOptions(
 				DiscordNotifier::CONSTRUCTOR_OPTIONS,
