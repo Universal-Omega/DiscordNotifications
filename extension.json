@@ -192,7 +192,7 @@
 			"value": 250
 		},
 		"DiscordExperimentalCVTMatchFilter": {
-			"value": [ ".*" ]
+			"value": []
 		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
