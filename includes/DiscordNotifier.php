@@ -219,7 +219,7 @@ class DiscordNotifier {
 		] );
 
 		// Execute the curl script
-		curl_exec( $h );
+		$curl_output = curl_exec( $h );
 
 		curl_close( $h );
 	}
