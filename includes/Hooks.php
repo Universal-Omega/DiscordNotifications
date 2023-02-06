@@ -7,6 +7,7 @@ namespace MediaWiki\Extension\DiscordNotifications;
 use APIBase;
 use Config;
 use ConfigFactory;
+usd DeferredUpdates;
 use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
@@ -251,6 +252,8 @@ class Hooks implements
 
 			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 		}
+
+		DeferredUpdates::doUpdates();
 	}
 
 	/**
