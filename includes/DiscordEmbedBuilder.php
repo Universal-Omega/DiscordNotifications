@@ -179,6 +179,9 @@ class DiscordEmbedBuilder {
 					'color' => $this->color,
 					'timestamp' => $this->timestamp,
 					'fields' => $this->fields,
+					'footer' => [
+						'text' => 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.',
+					],
 				] ),
 			],
 			'username' => $this->username,
