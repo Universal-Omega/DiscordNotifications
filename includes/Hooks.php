@@ -179,36 +179,50 @@ class Hooks implements
 			}
 
 			if ( $enableExperimentalCVTFeatures ) {
-				$message = $this->discordNotifier->getMessage(
-					'discordnotifications-article-saved',
-					$this->discordNotifier->getDiscordUserText( $user ),
-					$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
-					$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
-					''
-				);
+				$regex = '/' . implode( '|', $this->config->get( 'DiscordExperimentalCVTMatchFilter' ) ) . '/';
 
-				if (
-					$this->config->get( 'DiscordIncludeDiffSize' ) &&
-					$this->revisionLookup->getPreviousRevision( $revisionRecord )
-				) {
-					$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
-						sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
-					) . ')';
+				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
+				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
+
+				if ( $matches ) {
+					$message = $this->discordNotifier->getMessage(
+						'discordnotifications-article-saved',
+						$this->discordNotifier->getDiscordUserText( $user ),
+						$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
+						$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
+						''
+					);
+
+					if (
+						$this->config->get( 'DiscordIncludeDiffSize' ) &&
+						$this->revisionLookup->getPreviousRevision( $revisionRecord )
+					) {
+						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
+							sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
+						) . ')';
+					}
+
+					$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
+						$this->revisionLookup->getPreviousRevision( $revisionRecord )
+							->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
+
+					if ( $oldContent ) {
+						$oldContent = strip_tags( $oldContent->serialize() );
+					}
+
+					// The number of characters to show before and after the match
+					$limit = $this->config->get( 'DiscordExperimentalCVTMatchLimit' );
+
+					$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
+					$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
+					$content = substr( $content, $start, $length );
+
+					$textSlotDiffRenderer = new TextSlotDiffRenderer();
+					$this->discordNotifier->notify( $message, $user, 'article_saved', [
+						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
+					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
-
-				$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
-					$this->revisionLookup->getPreviousRevision( $revisionRecord )
-						->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
-
-				if ( $oldContent ) {
-					$oldContent = strip_tags( $oldContent->serialize() );
-				}
-
-				$textSlotDiffRenderer = new TextSlotDiffRenderer();
-				$this->discordNotifier->notify( $message, $user, 'article_saved', [
-					$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-					$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
-				], $this->config->get( 'DiscordExperimentalWebhook' ) );
 			}
 
 			$message = $this->discordNotifier->getMessage(
