@@ -181,21 +181,20 @@ class DiscordNotifier {
 			$channels = [];
 			$mh = curl_multi_init();
 
-			foreach ( $webhooks as $index => $webhook ) {
-				$channels[$index] = curl_init();
-				curl_setopt( $channels[$index], CURLOPT_URL, $webhook );
-				curl_setopt( $channels[$index], CURLOPT_POST, true );
-				curl_setopt( $channels[$index], CURLOPT_HTTPHEADER, [ 'Content-Type: application/json' ] );
-				curl_setopt( $channels[$index], CURLOPT_RETURNTRANSFER, true );
-				curl_setopt( $channels[$index], CURLOPT_POSTFIELDS,
+			foreach ( $webhooks as $index => &$webhook ) {
+				$channels[$webhook] = curl_init( $webhook );
+				curl_setopt( $channels[$webhook], CURLOPT_POST, true );
+				curl_setopt( $channels[$webhook], CURLOPT_HTTPHEADER, [ 'Content-Type: application/json' ] );
+				curl_setopt( $channels[$webhook], CURLOPT_RETURNTRANSFER, true );
+				curl_setopt( $channels[$webhook], CURLOPT_POSTFIELDS,
 					$messages[$index] ?? $messages[ array_flip( $webhooks )[ $this->options->get( 'DiscordIncomingWebhookUrl' ) ] ]
 				);
 
 				if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-					curl_setopt( $channels[$index], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+					curl_setopt( $channels[$webhook], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
 				}
 
-				curl_multi_add_handle( $mh, $channels[$index] );
+				curl_multi_add_handle( $mh, $channels[$webhook] );
 			}
 
 			$running = null;
