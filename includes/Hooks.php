@@ -116,35 +116,46 @@ class Hooks implements
 			return;
 		}
 
-		$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
-		if ( $content ) {
-			$content = strip_tags( $content->serialize() );
+		$enableExperimentalCVTFeatures = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
+				$this->config->get( 'DiscordExperimentalWebhook' );
+
+		if ( $enableExperimentalCVTFeatures ) {
+			$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
+			if ( $content ) {
+				$content = strip_tags( $content->serialize() );
+			}
 		}
 
 		if ( $isNew ) {
+			if ( $enableExperimentalCVTFeatures ) {
+				$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
+					$this->discordNotifier->getDiscordUserText( $user ),
+					$this->discordNotifier->getDiscordArticleText( $wikiPage ),
+					''
+				);
+
+				if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
+					$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+				}
+
+				$this->discordNotifier->notify( $message, $user, 'article_inserted', [
+					$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+					'Content:' => "```\n$content\n```",
+				], $this->config->get( 'DiscordExperimentalWebhook' ) );
+			}
+
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 				$this->discordNotifier->getDiscordUserText( $user ),
 				$this->discordNotifier->getDiscordArticleText( $wikiPage ),
-				''
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted', [
-				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => "```\n$content\n```",
-			] );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
 		} else {
-			$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
-				$this->revisionLookup->getPreviousRevision( $revisionRecord )
-					->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
-
-			if ( $oldContent ) {
-				$oldContent = strip_tags( $oldContent->serialize() );
-			}
-
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
 			// Skip minor edits if user wanted to ignore them
@@ -152,12 +163,45 @@ class Hooks implements
 				return;
 			}
 
+			if ( $enableExperimentalCVTFeatures ) {
+				$message = $this->discordNotifier->getMessage(
+					'discordnotifications-article-saved',
+					$this->discordNotifier->getDiscordUserText( $user ),
+					$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
+					$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
+					''
+				);
+
+				if (
+					$this->config->get( 'DiscordIncludeDiffSize' ) &&
+					$this->revisionLookup->getPreviousRevision( $revisionRecord )
+				) {
+					$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
+						sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
+					) . ')';
+				}
+
+				$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
+					$this->revisionLookup->getPreviousRevision( $revisionRecord )
+						->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
+
+				if ( $oldContent ) {
+					$oldContent = strip_tags( $oldContent->serialize() );
+				}
+
+				$textSlotDiffRenderer = new TextSlotDiffRenderer();
+				$this->discordNotifier->notify( $message, $user, 'article_saved', [
+					$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+					'Content:' => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
+				], $this->config->get( 'DiscordExperimentalWebhook' ) );
+			}
+
 			$message = $this->discordNotifier->getMessage(
 				'discordnotifications-article-saved',
 				$this->discordNotifier->getDiscordUserText( $user ),
 				$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
 				$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
-				''
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
 			);
 
 			if (
@@ -169,11 +213,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$textSlotDiffRenderer = new TextSlotDiffRenderer();
-			$this->discordNotifier->notify( $message, $user, 'article_saved', [
-				$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-				'Content:' => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
-			] );
+			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 		}
 	}
 
