@@ -51,7 +51,7 @@ class DiscordNotifier {
 	private $permissionManager;
 
 	/**
-	 * HttpRequestFactory $httpRequestFactory
+	 * @param HttpRequestFactory $httpRequestFactory
 	 * @param MessageLocalizer $messageLocalizer
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
@@ -182,13 +182,17 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendRequest( string $url, string $postData ) {
-		$req = $this->httpRequestFactory->create(
-			$url,
-			[
+		$req = $this->httpRequestFactory->createMultiClient()
+			->run( [
+				'url' => $url,
 				'method' => 'POST',
-				'postData' => $postData
-			],
-			__METHOD__
+				'postData' => $postData,
+				'headers' => [ 
+					'user-agent' => 'DiscordNotifications (v3), MediaWiki extension (https://github.com/Universal-Omega/DiscordNotifications)',
+				]
+			], [
+				'reqTimeout' => 10
+			]
 		);
 
 		$req->setHeader( 'Content-Type', 'application/json' );
