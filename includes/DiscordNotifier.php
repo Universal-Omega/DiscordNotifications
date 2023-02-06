@@ -179,7 +179,7 @@ class DiscordNotifier {
 		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
 
 		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
+		// curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
 
 		// Set Content-Type to application/json
 		curl_setopt( $h, CURLOPT_HTTPHEADER, [
