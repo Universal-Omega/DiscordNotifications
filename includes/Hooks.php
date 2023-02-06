@@ -129,28 +129,31 @@ class Hooks implements
 
 		if ( $isNew ) {
 			if ( $enableExperimentalCVTFeatures ) {
-				$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
-					$this->discordNotifier->getDiscordUserText( $user ),
-					$this->discordNotifier->getDiscordArticleText( $wikiPage ),
-					''
-				);
-
-				if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-					$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
-				}
-
 				$regex = '/test/';
 				$limit = 20;
 
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
-				$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
-				$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
-				$content = substr( $content, $start, $length );
 
-				$this->discordNotifier->notify( $message, $user, 'article_inserted', [
-					$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-					$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
-				], $this->config->get( 'DiscordExperimentalWebhook' ) );
+				if ( $matches ) {
+					$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
+						$this->discordNotifier->getDiscordUserText( $user ),
+						$this->discordNotifier->getDiscordArticleText( $wikiPage ),
+						''
+					);
+
+					if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
+						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+					}
+
+					$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
+					$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
+					$content = substr( $content, $start, $length );
+
+					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
+						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
+						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
+					], $this->config->get( 'DiscordExperimentalWebhook' ) );
+				}
 			}
 
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
