@@ -125,6 +125,8 @@ class Hooks implements
 			if ( $content ) {
 				$content = strip_tags( $content->serialize() );
 			}
+
+			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) && !$user->isRegistered();
 		}
 
 		if ( $isNew ) {
@@ -134,7 +136,7 @@ class Hooks implements
 				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
-				if ( $matches ) {
+				if ( $matches || ( !$matches && $shouldSendToCVTFeed ) ) {
 					$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 						$this->discordNotifier->getDiscordUserText( $user ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage ),
@@ -145,12 +147,14 @@ class Hooks implements
 						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 					}
 
-					// The number of characters to show before and after the match
-					$limit = $this->config->get( 'DiscordExperimentalCVTMatchLimit' );
+					if ( $matches ) {
+						// The number of characters to show before and after the match
+						$limit = $this->config->get( 'DiscordExperimentalCVTMatchLimit' );
 
-					$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
-					$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
-					$content = substr( $content, $start, $length );
+						$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
+						$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
+						$content = substr( $content, $start, $length );
+					}
 
 					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
@@ -184,7 +188,7 @@ class Hooks implements
 				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
-				if ( $matches ) {
+				if ( $matches || ( !$matches && $shouldSendToCVTFeed ) ) {
 					$message = $this->discordNotifier->getMessage(
 						'discordnotifications-article-saved',
 						$this->discordNotifier->getDiscordUserText( $user ),
@@ -210,12 +214,14 @@ class Hooks implements
 						$oldContent = strip_tags( $oldContent->serialize() );
 					}
 
-					// The number of characters to show before and after the match
-					$limit = $this->config->get( 'DiscordExperimentalCVTMatchLimit' );
+					if ( $matches ) {
+						// The number of characters to show before and after the match
+						$limit = $this->config->get( 'DiscordExperimentalCVTMatchLimit' );
 
-					$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
-					$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
-					$content = substr( $content, $start, $length );
+						$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
+						$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
+						$content = substr( $content, $start, $length );
+					}
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
