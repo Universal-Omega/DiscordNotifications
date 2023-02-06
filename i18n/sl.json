@@ -31,6 +31,7 @@
 	"discordnotifications-block-user-reason": "z razlogom",
 	"discordnotifications-block-user-list": "Seznam vseh blokiranj",
 	"discordnotifications-summary": "Povzetek: $1",
+	"discordnotifications-content": "Vsebina:",
 	"discordnotifications-view-user-rights": "ogled ali upravljanje uporabniških pravic",
 	"discordnotifications-change-user-groups": "%s je spremenil_a uporabniške skupine za %s. Nove skupine: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 je spremenil_a uporabniške skupine za $2. Stare skupine: $3. Nove skupine: $4.",

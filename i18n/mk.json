@@ -31,6 +31,7 @@
 	"discordnotifications-block-user-reason": "со причината",
 	"discordnotifications-block-user-list": "Список на сите блокови",
 	"discordnotifications-summary": "Опис: $1",
+	"discordnotifications-content": "Содржина:",
 	"discordnotifications-view-user-rights": "Погл. или раков. со кориснички права",
 	"discordnotifications-change-user-groups": "%s ги измени корисничките групи за %s. Нови групи: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 ги измени корисничките групи за $2. Стари групи: $3. Нови групи: $4",

@@ -32,9 +32,13 @@
 	"discordnotifications-block-user-list": "רשימת כל החסימות",
 	"discordnotifications-summary": "תקציר: $1",
 	"discordnotifications-view-user-rights": "הצגה או שינוי של הרשאות משתמש",
+	"discordnotifications-change-user-groups": "%s שינה קבוצות משתמש עבור %s. קבוצות חדשות: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 {{GENDER:$1|שינה|שינתה}} את קבוצות המשתמש של $2. קבוצות ישנות: $3. קבוצות חדשות: $4.",
+	"discordnotifications-flow-edit-header": "💬 $1 ערך תיאור של לוח $2",
 	"discordnotifications-flow-edit-post": "💬 $1 {{GENDER:$1|ערך|ערכה}} רשומה ב{{GRAMMAR:תחילית|$2}}",
+	"discordnotifications-flow-edit-title": "💬 $1 שינה את כותרת הנושא לשם $2 בדף השיחה $3",
 	"discordnotifications-flow-edit-topic-summary": "💬 $1 {{GENDER:$1|ערך|ערכה}} כותרת נושא ב{{GRAMMAR:תחילית|$2}}",
+	"discordnotifications-flow-lock-topic": "💬 $1 $2 את הנושא $3",
 	"discordnotifications-flow-lock-topic-lock": "פתור",
 	"discordnotifications-flow-lock-topic-unlock": "נפתח מחדש",
 	"discordnotifications-flow-moderate-post": "💬 $1 $2 רשומה בנושא {{GRAMMAR:תחילית|$3}}",
@@ -46,5 +50,6 @@
 	"discordnotifications-flow-moderate-delete": "מחיקה",
 	"discordnotifications-flow-moderate-undelete": "ביטול מחיקה",
 	"discordnotifications-flow-new-topic": "💬 $1 {{GENDER:$1|יצר|יצרה}} את הנושא $2 ב{{GRAMMAR:תחילית|$3}}",
+	"discordnotifications-flow-reply": "💬 $1 השיב בנושא $2",
 	"discordnotifications-import-complete": "⤵️ הערך $1 יובא."
 }
