@@ -130,8 +130,6 @@ class Hooks implements
 		if ( $isNew ) {
 			if ( $enableExperimentalCVTFeatures ) {
 				$regex = '/test/';
-				$limit = 20;
-
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
 				if ( $matches ) {
@@ -144,6 +142,8 @@ class Hooks implements
 					if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
 						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 					}
+
+					$limit = 20;
 
 					$start = ( $matches[0][1] - $limit > 0 ) ? $matches[0][1] - $limit : 0;
 					$length = ( $matches[0][1] - $start ) + strlen( $matches[0][0] ) + $limit;
