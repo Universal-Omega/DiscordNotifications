@@ -163,20 +163,20 @@ class DiscordNotifier {
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
-			$this->sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+			self::sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
 
 			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					$this->sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
+					self::sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
 				}
 			}
 		} else {
 			// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
-			$this->sendCurlRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+			self::sendCurlRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post, $this->options->get( 'DiscordCurlProxy' ) );
 
 			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					$this->sendCurlRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
+					self::sendCurlRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post, $this->options->get( 'DiscordCurlProxy' ) );
 				}
 			}
 		}
@@ -185,13 +185,14 @@ class DiscordNotifier {
 	/**
 	 * @param string $url
 	 * @param string $postData
+	 * @param string $proxy
 	 */
-	private function sendCurlRequest( string $url, string $postData ) {
+	private static function sendCurlRequest( string $url, string $postData, string $proxy ) {
 		$h = curl_init();
 		curl_setopt( $h, CURLOPT_URL, $url );
 
-		if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+		if ( $proxy ) {
+			curl_setopt( $h, CURLOPT_PROXY, $proxy );
 		}
 
 		curl_setopt( $h, CURLOPT_POST, 1 );
@@ -220,7 +221,7 @@ class DiscordNotifier {
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private function sendHttpRequest( string $url, string $postData ) {
+	private static function sendHttpRequest( string $url, string $postData ) {
 		$extraData = [
 			'http' => [
 				'header'  => 'Content-type: application/json',
