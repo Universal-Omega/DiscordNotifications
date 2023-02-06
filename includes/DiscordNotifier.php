@@ -94,55 +94,32 @@ class DiscordNotifier {
 
 		switch ( $action ) {
 			case 'article_saved':
-				$colour = 2993970;
-
-				break;
+			case 'flow':
 			case 'import_complete':
-				$colour = 2993970;
-
-				break;
 			case 'user_groups_changed':
-				$colour = 2993970;
-
+				$color = '2993970';
 				break;
 			case 'article_inserted':
-				$colour = 3580392;
-
+			case 'file_uploaded':
+			case 'new_user_account':
+				$color = '3580392';
 				break;
 			case 'article_deleted':
-				$colour = 15217973;
-
+			case 'user_blocked':
+				$color = '15217973';
 				break;
 			case 'article_moved':
-				$colour = 14038504;
-
+				$color = '14038504';
 				break;
 			case 'article_protected':
-				$colour = 3493864;
-
-				break;
-			case 'new_user_account':
-				$colour = 3580392;
-
-				break;
-			case 'file_uploaded':
-				$colour = 3580392;
-
-				break;
-			case 'user_blocked':
-				$colour = 15217973;
-
-				break;
-			case 'flow':
-				$colour = 2993970;
-
+				$color = '3493864';
 				break;
 			default:
-				$colour = 11777212;
+				$color = '11777212';
 		}
 
 		$embed = ( new DiscordEmbedBuilder() )
-			->setColor( (string)$colour )
+			->setColor( $color )
 			->setDescription( $message )
 			->setUsername( $discordFromName );
 
