@@ -35,7 +35,6 @@ class DiscordNotifier {
 		'DiscordNotificationWikiUrlEndingUserPage',
 		'DiscordNotificationWikiUrlEndingUserRights',
 		'DiscordNotificationWikiUrlEndingUserTalkPage',
-		'DiscordSendMethod',
 		'Sitename',
 	];
 
@@ -168,23 +167,12 @@ class DiscordNotifier {
 
 		$post = $embed->build();
 
-		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
-		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
-			$this->sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+		// Call the Discord API.
+		$this->sendRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
 
-			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
-				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					$this->sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
-				}
-			}
-		} else {
-			// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
-			$this->sendCurlRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
-
-			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
-				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					$this->sendCurlRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
-				}
+		if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
+			for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
+				$this->sendRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
 			}
 		}
 	}
@@ -193,7 +181,7 @@ class DiscordNotifier {
 	 * @param string $url
 	 * @param string $postData
 	 */
-	private function sendCurlRequest( string $url, string $postData ) {
+	private function sendRequest( string $url, string $postData ) {
 		$req = $this->httpRequestFactory->create(
 			$url,
 			[
@@ -204,23 +192,8 @@ class DiscordNotifier {
 		);
 
 		$req->setHeader( 'Content-Type', 'application/json' );
-	}
 
-	/**
-	 * @param string $url
-	 * @param string $postData
-	 */
-	private function sendHttpRequest( string $url, string $postData ) {
-		$extraData = [
-			'http' => [
-				'header'  => 'Content-type: application/json',
-				'method'  => 'POST',
-				'content' => $postData,
-			],
-		];
-
-		$context = stream_context_create( $extraData );
-		$result = file_get_contents( $url, false, $context );
+		$status = $req->execute();
 	}
 
 	/**
