@@ -187,33 +187,43 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendCurlRequest( string $url, string $postData ) {
-		$h = curl_init();
-		curl_setopt( $h, CURLOPT_URL, $url );
+		$retries = 0;
 
-		if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+		while ( $retries < 3 ) {
+			$h = curl_init();
+			curl_setopt( $h, CURLOPT_URL, $url );
+
+			if ( $this->options->get( 'DiscordCurlProxy' ) ) {
+				curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+			}
+
+			curl_setopt( $h, CURLOPT_POST, 1 );
+			curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
+			curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
+
+			// Set 10 second timeout to connection
+			curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
+
+			// Set global 10 second timeout to handle all data
+			curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
+
+			// Set Content-Type to application/json
+			curl_setopt( $h, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen( $postData )
+			] );
+
+			// Execute the curl script
+			$curl_output = curl_exec( $h );
+
+			if ( $curl_output === false ) {
+				$retries++;
+			} else {
+				break;
+			}
+
+			curl_close( $h );
 		}
-
-		curl_setopt( $h, CURLOPT_POST, 1 );
-		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
-		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-
-		// Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
-
-		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
-
-		// Set Content-Type to application/json
-		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
-		] );
-
-		// Execute the curl script
-		$curl_output = curl_exec( $h );
-
-		curl_close( $h );
 	}
 
 	/**
