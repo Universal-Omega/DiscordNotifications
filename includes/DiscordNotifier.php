@@ -64,7 +64,6 @@ class DiscordNotifier {
 		$this->permissionManager = $permissionManager;
 	}
 
-
 	/**
 	 * @return self
 	 */
