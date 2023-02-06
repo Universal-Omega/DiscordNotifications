@@ -194,6 +194,9 @@
 		"DiscordExperimentalCVTMatchFilter": {
 			"value": []
 		},
+		"DiscordExperimentalCVTSendAllIPEdits": {
+			"value": true
+		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
 		}
