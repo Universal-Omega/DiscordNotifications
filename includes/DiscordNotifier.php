@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
+use DeferredUpdates;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
@@ -199,37 +200,39 @@ class DiscordNotifier {
 	 * @param array $messages
 	 */
 	private function sendCurlMultiRequest( array $webhooks, array $messages ) {
-		$channels = [];
-		$mh = curl_multi_init();
+		DeferredUpdates::addCallableUpdate( function () use ( $webhooks, $messages ) {
+			$channels = [];
+			$mh = curl_multi_init();
 
-		foreach ( $webhooks as $index => $webhook ) {
-			$channels[$index] = curl_init();
-			curl_setopt( $channels[$index], CURLOPT_URL, $webhook );
-			curl_setopt( $channels[$index], CURLOPT_POST, true );
-			curl_setopt( $channels[$index], CURLOPT_HTTPHEADER, [ 'Content-Type: application/json' ] );
-			curl_setopt( $channels[$index], CURLOPT_RETURNTRANSFER, true );
-			curl_setopt( $channels[$index], CURLOPT_POSTFIELDS,
-				$messages[$index] ?? $messages[ array_flip( $webhooks )[ $this->options->get( 'DiscordIncomingWebhookUrl' ) ] ]
-			);
+			foreach ( $webhooks as $index => $webhook ) {
+				$channels[$index] = curl_init();
+				curl_setopt( $channels[$index], CURLOPT_URL, $webhook );
+				curl_setopt( $channels[$index], CURLOPT_POST, true );
+				curl_setopt( $channels[$index], CURLOPT_HTTPHEADER, [ 'Content-Type: application/json' ] );
+				curl_setopt( $channels[$index], CURLOPT_RETURNTRANSFER, true );
+				curl_setopt( $channels[$index], CURLOPT_POSTFIELDS,
+					$messages[$index] ?? $messages[ array_flip( $webhooks )[ $this->options->get( 'DiscordIncomingWebhookUrl' ) ] ]
+				);
 
-			if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-				curl_setopt( $channels[$index], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+				if ( $this->options->get( 'DiscordCurlProxy' ) ) {
+					curl_setopt( $channels[$index], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+				}
+
+				curl_multi_add_handle( $mh, $channels[$index] );
 			}
 
-			curl_multi_add_handle( $mh, $channels[$index] );
-		}
+			$running = null;
+			do {
+				curl_multi_exec( $mh, $running );
+			} while ( $running > 0 );
 
-		$running = null;
-		do {
-			curl_multi_exec( $mh, $running );
-		} while ( $running > 0 );
+			foreach ( $channels as $channel ) {
+				curl_multi_remove_handle( $mh, $channel );
+				curl_close( $channel );
+			}
 
-		foreach ( $channels as $channel ) {
-			curl_multi_remove_handle( $mh, $channel );
-			curl_close( $channel );
-		}
-
-		curl_multi_close( $mh );
+			curl_multi_close( $mh );
+		} );
 	}
 
 	/**
