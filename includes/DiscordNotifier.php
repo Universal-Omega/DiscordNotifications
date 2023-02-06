@@ -143,7 +143,7 @@ class DiscordNotifier {
 			$embed->addField( $name, $value );
 		}
 
-		$post = $embed->build();
+		$postData = $embed->build();
 
 		$webhooks = [];
 		$webhooks[] = $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' );
@@ -156,98 +156,56 @@ class DiscordNotifier {
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
-			/* $this->sendHttpRequest( $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+			/* $this->sendHttpRequest( $this->options->get( 'DiscordIncomingWebhookUrl' ), $postData );
 
 			if ( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
-					$this->sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $post );
+					$this->sendHttpRequest( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' )[$i], $postData );
 				}
 			} */
 		} else {
 			// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
-			$this->sendCurlMultiRequest( $webhooks, $post );
-		}
-	}
+			DeferredUpdates::addCallableUpdate( function () use ( $webhooks, $postData ) {
+				$channels = [];
+				$mh = curl_multi_init();
 
-	/**
-	 * @param array $webhooks
-	 * @param string $postData
-	 */
-	private function sendCurlMultiRequest( array $webhooks, string $postData ) {
-		DeferredUpdates::addCallableUpdate( function () use ( $webhooks, $postData ) {
-			$channels = [];
-			$mh = curl_multi_init();
+				foreach ( $webhooks as &$value ) {
+					$c_handlers[$value] = curl_init( $value );
+					curl_setopt( $c_handlers[$value], CURLOPT_POST, 1 );
+					curl_setopt( $c_handlers[$value], CURLOPT_POSTFIELDS, $postData );
+					curl_setopt( $c_handlers[$value], CURLOPT_FOLLOWLOCATION, 1 );
+					curl_setopt( $c_handlers[$value], CURLOPT_HEADER, 0 );
+					curl_setopt( $c_handlers[$value], CURLOPT_RETURNTRANSFER, 1 );
+					curl_setopt( $c_handlers[$value], CURLOPT_CONNECTTIMEOUT, 10 );
+					curl_setopt( $c_handlers[$value], CURLOPT_TIMEOUT, 10 );
 
-			foreach ( $webhooks as &$value ) {
-				$c_handlers[$value] = curl_init( $value );
-				curl_setopt( $c_handlers[$value], CURLOPT_POST, 1 );
-				curl_setopt( $c_handlers[$value], CURLOPT_POSTFIELDS, $postData );
-				curl_setopt( $c_handlers[$value], CURLOPT_FOLLOWLOCATION, 1 );
-				curl_setopt( $c_handlers[$value], CURLOPT_HEADER, 0 );
-				curl_setopt( $c_handlers[$value], CURLOPT_RETURNTRANSFER, 1 );
-				curl_setopt( $c_handlers[$value], CURLOPT_CONNECTTIMEOUT, 10 );
-				curl_setopt( $c_handlers[$value], CURLOPT_TIMEOUT, 10 );
+					curl_setopt( $c_handlers[$value], CURLOPT_USERAGENT,
+						'MediaWiki DiscordNotifications/3.0 (github.com/Universal-Omega)'
+					);
 
-				curl_setopt( $c_handlers[$value], CURLOPT_USERAGENT,
-					'MediaWiki DiscordNotifications/3.0 (github.com/Universal-Omega)'
-				);
+					curl_setopt( $c_handlers[$value], CURLOPT_HTTPHEADER, [
+						'Content-Type: application/json'
+					] );
 
-				curl_setopt( $c_handlers[$value], CURLOPT_HTTPHEADER, [
-					'Content-Type: application/json'
-				] );
+					if ( $this->options->get( 'DiscordCurlProxy' ) ) {
+						curl_setopt( $c_handlers[$value], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+					}
 
-				if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-					curl_setopt( $c_handlers[$value], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+					curl_multi_add_handle( $mh, $c_handlers[$value] );
 				}
 
-				curl_multi_add_handle( $mh, $c_handlers[$value] );
-			}
+				$running = null;
+				do {
+					curl_multi_exec( $mh, $running );
+				} while ( $running );
 
-			$running = null;
-			do {
-				curl_multi_exec( $mh, $running );
-			} while ( $running );
+				foreach ( $c_handlers as $k => $ch ) {
+					curl_multi_remove_handle( $mh, $ch );
+				}
 
-			foreach ( $c_handlers as $k => $ch ) {
-				curl_multi_remove_handle( $mh, $ch );
-			}
-
-			curl_multi_close( $mh );
-		} );
-	}
-
-	/**
-	 * @param string $url
-	 * @param string $postData
-	 */
-	private function sendCurlRequest( string $url, string $postData ) {
-		$h = curl_init();
-		curl_setopt( $h, CURLOPT_URL, $url );
-
-		if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+				curl_multi_close( $mh );
+			} );
 		}
-
-		curl_setopt( $h, CURLOPT_POST, 1 );
-		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
-		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-
-		// Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
-
-		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
-
-		// Set Content-Type to application/json
-		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
-		] );
-
-		// Execute the curl script
-		$curl_output = curl_exec( $h );
-
-		curl_close( $h );
 	}
 
 	/**
