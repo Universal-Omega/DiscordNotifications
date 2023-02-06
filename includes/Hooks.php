@@ -130,6 +130,8 @@ class Hooks implements
 		if ( $isNew ) {
 			if ( $enableExperimentalCVTFeatures ) {
 				$regex = '/(' . implode( '|', $this->config->get( 'DiscordExperimentalCVTMatchFilter' ) ) . ')/';
+
+				// @phan-suppress-next-line SecurityCheck-LikelyFalsePositive
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
 				if ( $matches ) {
