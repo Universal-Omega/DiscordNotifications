@@ -64,6 +64,18 @@ class DiscordNotifier {
 		$this->permissionManager = $permissionManager;
 	}
 
+
+	/**
+	 * @return self
+	 */
+	public function newInstance() {
+		return new DiscordNotifier(
+			$this->messageLocalizer,
+			$this->options,
+			$this->permissionManager
+		);
+	}
+
 	/**
 	 * Sends the message into Discord.
 	 *
