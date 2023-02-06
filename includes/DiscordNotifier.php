@@ -165,7 +165,7 @@ class DiscordNotifier {
 		DeferredUpdates::addCallableUpdate( function () use ( $post, $webhook ) {
 			// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 			if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
-				$this->sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+				$this->sendHttpRequest( $webhook ?: $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
 
 				if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 					for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
@@ -174,7 +174,7 @@ class DiscordNotifier {
 				}
 			} else {
 				// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
-				$this->sendCurlRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+				$this->sendCurlRequest( $webhook ?: $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
 
 				if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 					for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
