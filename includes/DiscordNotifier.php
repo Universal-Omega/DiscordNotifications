@@ -183,25 +183,16 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendRequest( string $url, string $postData ) {
-		try {
-			$req = $this->httpRequestFactory->createMultiClient()
-				->run( [
-					'url' => $url,
-					'method' => 'POST',
-					'postData' => $postData,
-					'headers' => [
-						'user-agent' => 'DiscordNotifications (v3), MediaWiki extension (https://github.com/Universal-Omega/DiscordNotifications)',
-					]
-				], [
-					'reqTimeout' => 10
-				]
-			);
-		} catch ( AssertionFailedError $e ) {
-			// Don't fail in tests
-		}
+		$req = $this->httpRequestFactory->create(
+			$url,
+			[
+				'method' => 'POST',
+				'postData' => $postData
+			],
+			__METHOD__
+		);
 
 		$req->setHeader( 'Content-Type', 'application/json' );
-
 		$status = $req->execute();
 	}
 
