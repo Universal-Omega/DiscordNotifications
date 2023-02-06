@@ -191,6 +191,6 @@ class DiscordEmbedBuilder {
 			$embed['avatar_url'] = $this->avatarUrl;
 		}
 
-		return json_encode( $embed );
+		return json_encode( $embed, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 	}
 }
