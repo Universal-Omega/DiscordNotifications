@@ -256,11 +256,7 @@ class DiscordNotifier {
 	 */
 	public function getDiscordUserText( $user ): string {
 		$userName = $user->getName();
-
 		$user_url = str_replace( '&', '%26', $userName );
-		$user_url = str_replace( '>', '%3E', $userName );
-
-		$userName = str_replace( '>', '\>', $userName );
 
 		if ( $this->options->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
