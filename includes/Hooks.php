@@ -120,6 +120,7 @@ class Hooks implements
 				$this->config->get( 'DiscordExperimentalWebhook' );
 
 		$content = '';
+		$shouldSendToCVTFeed = false;
 		if ( $enableExperimentalCVTFeatures ) {
 			$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 			if ( $content ) {
