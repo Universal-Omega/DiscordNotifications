@@ -80,7 +80,7 @@ class DiscordNotifier {
 	 * @param array $embedFields
 	 * @param ?string $webhook
 	 */
-	public function addMessage( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
+	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
 		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
 			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
 				// Users with the permission suppress notifications
@@ -143,17 +143,17 @@ class DiscordNotifier {
 			$embed->addField( $name, $value );
 		}
 
-		$this->messages[] = $embed->build();
-		$this->webhooks[] = $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' );
+		$post = $embed->build();
+
+		$webhooks = [];
+		$webhooks[] = $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' );
 
 		if ( !$webhook && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 			foreach ( array_flip( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) as $webhook ) {
-				$this->webhooks[] = $webhook;
+				$webhooks[] = $webhook;
 			}
 		}
-	}
 
-	public function notify() {
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 		if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
 			/* $this->sendHttpRequest( $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
@@ -165,46 +165,51 @@ class DiscordNotifier {
 			} */
 		} else {
 			// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
-			$this->sendCurlMultiRequest( $this->webhooks, $this->messages );
+			$this->sendCurlMultiRequest( $webhooks, $post );
 		}
-
-		$this->messages = [];
-		$this->webhooks = [];
 	}
 
 	/**
 	 * @param array $webhooks
-	 * @param array $messages
+	 * @param string $postData
 	 */
-	private function sendCurlMultiRequest( array $webhooks, array $messages ) {
-		DeferredUpdates::addCallableUpdate( function () use ( $webhooks, $messages ) {
+	private function sendCurlMultiRequest( array $webhooks, string $postData ) {
+		DeferredUpdates::addCallableUpdate( function () use ( $webhooks, $postData ) {
 			$channels = [];
 			$mh = curl_multi_init();
 
-			foreach ( $webhooks as $index => &$webhook ) {
-				$channels[$webhook] = curl_init( $webhook );
-				curl_setopt( $channels[$webhook], CURLOPT_POST, true );
-				curl_setopt( $channels[$webhook], CURLOPT_HTTPHEADER, [ 'Content-Type: application/json' ] );
-				curl_setopt( $channels[$webhook], CURLOPT_RETURNTRANSFER, true );
-				curl_setopt( $channels[$webhook], CURLOPT_POSTFIELDS,
-					$messages[$index] ?? $messages[ array_flip( $webhooks )[ $this->options->get( 'DiscordIncomingWebhookUrl' ) ] ]
+			foreach ( $webhooks as &$value ) {
+				$c_handlers[$value] = curl_init( $value );
+				curl_setopt( $c_handlers[$value], CURLOPT_POST, 1 );
+				curl_setopt( $c_handlers[$value], CURLOPT_POSTFIELDS, $postData );
+				curl_setopt( $c_handlers[$value], CURLOPT_FOLLOWLOCATION, 1 );
+				curl_setopt( $c_handlers[$value], CURLOPT_HEADER, 0 );
+				curl_setopt( $c_handlers[$value], CURLOPT_RETURNTRANSFER, 1 );
+				curl_setopt( $c_handlers[$value], CURLOPT_CONNECTTIMEOUT, 10 );
+				curl_setopt( $c_handlers[$value], CURLOPT_TIMEOUT, 10 );
+
+				curl_setopt( $c_handlers[$value], CURLOPT_USERAGENT,
+					'MediaWiki DiscordNotifications/3.0 (github.com/Universal-Omega)'
 				);
 
+				curl_setopt( $c_handlers[$value], CURLOPT_HTTPHEADER, [
+					'Content-Type: application/json'
+				] );
+
 				if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-					curl_setopt( $channels[$webhook], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+					curl_setopt( $c_handlers[$value], CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
 				}
 
-				curl_multi_add_handle( $mh, $channels[$webhook] );
+				curl_multi_add_handle( $mh, $c_handlers[$value] );
 			}
 
 			$running = null;
 			do {
 				curl_multi_exec( $mh, $running );
-			} while ( $running > 0 );
+			} while ( $running );
 
-			foreach ( $channels as $channel ) {
-				curl_multi_remove_handle( $mh, $channel );
-				curl_close( $channel );
+			foreach ( $c_handlers as $k => $ch ) {
+				curl_multi_remove_handle( $mh, $ch );
 			}
 
 			curl_multi_close( $mh );
