@@ -175,7 +175,9 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			DeferredUpdates::addCallableUpdate( function () use ( $message, $user ) {
+				$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			} );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -250,10 +252,10 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			DeferredUpdates::addCallableUpdate( function () use ( $message, $user ) {
+				$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			} );
 		}
-
-		DeferredUpdates::doUpdates();
 	}
 
 	/**
