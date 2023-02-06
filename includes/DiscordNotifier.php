@@ -187,7 +187,7 @@ class DiscordNotifier {
 				'url' => $url,
 				'method' => 'POST',
 				'postData' => $postData,
-				'headers' => [ 
+				'headers' => [
 					'user-agent' => 'DiscordNotifications (v3), MediaWiki extension (https://github.com/Universal-Omega/DiscordNotifications)',
 				]
 			], [
