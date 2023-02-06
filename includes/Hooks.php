@@ -7,7 +7,7 @@ namespace MediaWiki\Extension\DiscordNotifications;
 use APIBase;
 use Config;
 use ConfigFactory;
-usd DeferredUpdates;
+use DeferredUpdates;
 use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
