@@ -188,6 +188,12 @@
 		"DiscordEnableExperimentalCVTFeatures": {
 			"value": false
 		},
+		"DiscordExperimentalCVTMatchLimit": {
+			"value": 250
+		},
+		"DiscordExperimentalCVTMatchFilter": {
+			"value": [ ".*" ]
+		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
 		}
