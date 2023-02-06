@@ -162,7 +162,7 @@ class DiscordNotifier {
 
 		$post = $embed->build();
 
-		DeferredUpdates::addCallableUpdate( function() use ( $post, $webhook ) {
+		DeferredUpdates::addCallableUpdate( function () use ( $post, $webhook ) {
 			// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
 			if ( $this->options->get( 'DiscordSendMethod' ) == 'file_get_contents' ) {
 				$this->sendHttpRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
