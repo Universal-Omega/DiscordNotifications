@@ -174,7 +174,7 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted', [], null );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -249,7 +249,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			$this->discordNotifier->notify( $message, $user, 'article_saved', [], null );
 		}
 	}
 
