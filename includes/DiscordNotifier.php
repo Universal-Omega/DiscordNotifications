@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use MediaWiki\Config\ServiceOptions;
+use MediaWiki\Http\HttpRequestFactory;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
 use MessageLocalizer;
@@ -38,6 +39,9 @@ class DiscordNotifier {
 		'Sitename',
 	];
 
+	/** @var HttpRequestFactory */
+	private $httpRequestFactory;
+
 	/** @var MessageLocalizer */
 	private $messageLocalizer;
 
@@ -48,17 +52,20 @@ class DiscordNotifier {
 	private $permissionManager;
 
 	/**
+	 * HttpRequestFactory $httpRequestFactory
 	 * @param MessageLocalizer $messageLocalizer
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
 	 */
 	public function __construct(
+		HttpRequestFactory $httpRequestFactory,
 		MessageLocalizer $messageLocalizer,
 		ServiceOptions $options,
 		PermissionManager $permissionManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
+		$this->httpRequestFactory = $httpRequestFactory;
 		$this->messageLocalizer = $messageLocalizer;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
@@ -187,33 +194,16 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendCurlRequest( string $url, string $postData ) {
-		$h = curl_init();
-		curl_setopt( $h, CURLOPT_URL, $url );
+		$req = $this->httpRequestFactory->create(
+			$url,
+			[
+				'method' => 'POST',
+				'postData' => $postData
+			],
+			__METHOD__
+		);
 
-		if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
-		}
-
-		curl_setopt( $h, CURLOPT_POST, 1 );
-		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
-		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-
-		// Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
-
-		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
-
-		// Set Content-Type to application/json
-		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
-		] );
-
-		// Execute the curl script
-		$curl_output = curl_exec( $h );
-
-		curl_close( $h );
+		$req->setHeader( 'Content-Type', 'application/json' );
 	}
 
 	/**
