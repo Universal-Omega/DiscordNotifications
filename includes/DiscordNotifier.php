@@ -215,7 +215,7 @@ class DiscordNotifier {
 	 * @param string $text
 	 * @return string
 	 */
-	public function translate( string $text ) {
+	public function translate( string $text ): string {
 		$api_key = $this->options->get( 'DiscordExperimentalCVTGoogleTranslateAPIKey' );
 		if ( !$api_key ) {
 			return $text;
