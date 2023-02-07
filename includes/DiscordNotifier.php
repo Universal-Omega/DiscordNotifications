@@ -194,8 +194,14 @@ class DiscordNotifier {
 
 			curl_close( $h );
 
-			if ( $retries >= 10 && ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) ) {
-				throw new Exception( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code );
+			if ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) {
+				$embed = ( new DiscordEmbedBuilder() )
+					->setColor( '11777212' )
+					->setDescription( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code . ' failure #' . $retries )
+					->setUsername( 'Error' )
+					->build();
+
+				$this->sendCurlRequest( 'https://discord.com/api/webhooks/963568092053643275/1pRzRNfQVVCyzPqqfOcycyT7b87jES2wbDpuNspsRDbmXTU-fSpDegxPFl1jK-YWu1Wf', $embed );
 			}
 
 			if ( !isset( $response['retry_after'] ) ) {
