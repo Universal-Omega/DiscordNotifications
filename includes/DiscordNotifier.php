@@ -60,6 +60,7 @@ class DiscordNotifier {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->messageLocalizer = $messageLocalizer;
+
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
 	}
