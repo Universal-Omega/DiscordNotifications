@@ -165,38 +165,47 @@ class DiscordNotifier {
 	 * @param string $postData
 	 */
 	private function sendCurlRequest( string $url, string $postData ) {
-		$h = curl_init();
-		curl_setopt( $h, CURLOPT_URL, $url );
+		$response = null;
+		$retries = 0;
 
-		if ( $this->options->get( 'DiscordCurlProxy' ) ) {
-			curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+		// retry up to 3 times
+		while ( $retries < 3 ) {
+			$h = curl_init();
+			curl_setopt( $h, CURLOPT_URL, $url );
+
+			if ( $this->options->get( 'DiscordCurlProxy' ) ) {
+				curl_setopt( $h, CURLOPT_PROXY, $this->options->get( 'DiscordCurlProxy' ) );
+			}
+
+			curl_setopt( $h, CURLOPT_POST, 1 );
+			curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
+			curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
+			curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
+			curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
+
+			curl_setopt( $h, CURLOPT_HTTPHEADER, [
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen( $postData )
+			] );
+
+			$curl_output = curl_exec( $h );
+			$response = json_decode( $curl_output, true );
+
+			curl_close( $h );
+
+			$status_code = curl_getinfo( $h, CURLINFO_HTTP_CODE );
+			if ( $response === false || $status_code !== 200 ) {
+				throw new Exception( 'cURL request failed with error: ' . $response . ' and status code: ' . $status_code );
+			}
+
+			if ( !isset( $response['retry_after'] ) ) {
+				// if retry_after is not set, no need to retry
+				break;
+			}
+
+			sleep( $response['retry_after'] );
+			$retries++;
 		}
-
-		curl_setopt( $h, CURLOPT_POST, 1 );
-		curl_setopt( $h, CURLOPT_POSTFIELDS, $postData );
-		curl_setopt( $h, CURLOPT_RETURNTRANSFER, true );
-
-		// Set 10 second timeout to connection
-		curl_setopt( $h, CURLOPT_CONNECTTIMEOUT, 10 );
-
-		// Set global 10 second timeout to handle all data
-		curl_setopt( $h, CURLOPT_TIMEOUT, 10 );
-
-		// Set Content-Type to application/json
-		curl_setopt( $h, CURLOPT_HTTPHEADER, [
-			'Content-Type: application/json',
-			'Content-Length: ' . strlen( $postData )
-		] );
-
-		// Execute the curl script
-		$curl_output = curl_exec( $h );
-
-		$status_code = curl_getinfo( $h, CURLINFO_HTTP_CODE );
-		if ( $curl_output === false || $status_code !== 200 ) {
-			throw new Exception( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code );
-		}
-
-		curl_close( $h );
 	}
 
 	/**
