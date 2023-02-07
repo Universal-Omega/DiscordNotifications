@@ -63,7 +63,7 @@
 		"AfterImportPage": {
 			"handler": "main"
 		},
-		"PageSaveComplete": {
+		"RevisionFromEditComplete": {
 			"handler": "main"
 		}
 	},
