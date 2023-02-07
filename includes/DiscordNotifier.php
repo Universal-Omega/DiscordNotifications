@@ -168,7 +168,7 @@ class DiscordNotifier {
 		$retries = 0;
 
 		// Retry up to 10 times if hitting rate limit
-		while ( $retries <= 100 ) {
+		while ( true ) {
 			$h = curl_init();
 			curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -193,7 +193,7 @@ class DiscordNotifier {
 
 			curl_close( $h );
 
-			if ( $retries === 100 && ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) ) {
+			if ( $retries === 1000 && ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) ) {
 				$embed = ( new DiscordEmbedBuilder() )
 					->setColor( '11777212' )
 					->setDescription( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code . ' failure #' . $retries )
