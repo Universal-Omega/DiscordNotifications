@@ -211,7 +211,6 @@ class DiscordNotifier {
 		$result = file_get_contents( $url, false, $context );
 	}
 
-
 	/**
 	 * @param string $text
 	 * @return string
