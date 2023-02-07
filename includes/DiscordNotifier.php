@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
+use ExtensionRegistry;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
@@ -23,6 +24,7 @@ class DiscordNotifier {
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
 		'DiscordIncomingWebhookUrl',
+		'DiscordNotificationCentralAuthWikiUrl',
 		'DiscordNotificationWikiUrl',
 		'DiscordNotificationWikiUrlEnding',
 		'DiscordNotificationWikiUrlEndingBlockUser',
@@ -235,14 +237,25 @@ class DiscordNotifier {
 		$userName = str_replace( '>', '\>', $userName );
 
 		if ( $this->options->get( 'DiscordIncludeUserUrls' ) ) {
-			return sprintf(
-				'%s (%s | %s | %s | %s)',
+			$userUrls = sprintf(
+				'%s (%s | %s | %s | %s',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-block' ) . '>',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-groups' ) . '>',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-talk' ) . '>',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-contribs' ) . '>'
 			);
+
+			if (
+				ExtensionRegistry::getInstance()->isLoaded( 'CentralAuth' ) &&
+				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' )
+			) {
+				$userUrls .= ' | <' . $this->parseurl( $this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) . '/wiki/Special:CentralAuth/' . $user_url ) . '|' . $this->getMessage( 'discordnotifications-centralauth' ) . '>';
+			}
+
+			$userUrls .= ')';
+
+			return $userUrls;
 		} else {
 			return '<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>';
 		}
