@@ -257,7 +257,7 @@ class DiscordNotifier {
 
 		// Check if the request was successful
 		if ( $response === false ) {
-			$text;
+			return $text;
 		}
 
 		$data = json_decode( $response, true );
