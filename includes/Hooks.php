@@ -19,13 +19,13 @@ use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
+use MediaWiki\Page\Hook\RevisionFromEditCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
 use MediaWiki\Page\WikiPageFactory;
 use MediaWiki\Permissions\Authority;
 use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
@@ -40,7 +40,7 @@ class Hooks implements
 	LocalUserCreatedHook,
 	PageDeleteCompleteHook,
 	PageMoveCompleteHook,
-	PageSaveCompleteHook,
+	RevisionFromEditCompleteHook,
 	UploadCompleteHook,
 	UserGroupsChangedHook
 {
@@ -97,8 +97,8 @@ class Hooks implements
 	/**
 	 * @inheritDoc
 	 */
-	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
-		$isNew = (bool)( $flags & EDIT_NEW );
+	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
+		$isNew = (bool)$rev->getParentId();
 
 		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) {
 			return;
@@ -123,7 +123,7 @@ class Hooks implements
 		$content = '';
 		$shouldSendToCVTFeed = false;
 		if ( $enableExperimentalCVTFeatures ) {
-			$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
+			$content = $rev->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 			if ( $content ) {
 				$content = strip_tags( $content->serialize() );
 			}
@@ -139,7 +139,7 @@ class Hooks implements
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $rev->getSize() ) ) . ')';
 			}
 
 			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
@@ -158,7 +158,7 @@ class Hooks implements
 					);
 
 					if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $rev->getSize() ) ) . ')';
 					}
 
 					if ( $matches ) {
@@ -177,7 +177,7 @@ class Hooks implements
 				}
 			}
 		} else {
-			$isMinor = (bool)( $flags & EDIT_MINOR );
+			$isMinor = (bool)$rev->isMinor();
 
 			// Skip minor edits if user wanted to ignore them
 			if ( $isMinor && $this->config->get( 'DiscordIgnoreMinorEdits' ) ) {
@@ -194,10 +194,10 @@ class Hooks implements
 
 			if (
 				$this->config->get( 'DiscordIncludeDiffSize' ) &&
-				$this->revisionLookup->getPreviousRevision( $revisionRecord )
+				$this->revisionLookup->getPreviousRevision( $rev )
 			) {
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
-					sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
+					sprintf( '%+d', $rev->getSize() - $this->revisionLookup->getPreviousRevision( $rev )->getSize() )
 				) . ')';
 			}
 
@@ -220,15 +220,15 @@ class Hooks implements
 
 					if (
 						$this->config->get( 'DiscordIncludeDiffSize' ) &&
-						$this->revisionLookup->getPreviousRevision( $revisionRecord )
+						$this->revisionLookup->getPreviousRevision( $rev )
 					) {
 						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
-							sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
+							sprintf( '%+d', $rev->getSize() - $this->revisionLookup->getPreviousRevision( $rev )->getSize() )
 						) . ')';
 					}
 
-					$oldContent = ( $this->revisionLookup->getPreviousRevision( $revisionRecord ) ?
-						$this->revisionLookup->getPreviousRevision( $revisionRecord )
+					$oldContent = ( $this->revisionLookup->getPreviousRevision( $rev ) ?
+						$this->revisionLookup->getPreviousRevision( $rev )
 							->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
 
 					if ( $oldContent ) {
