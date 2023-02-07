@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
-use Exception;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
