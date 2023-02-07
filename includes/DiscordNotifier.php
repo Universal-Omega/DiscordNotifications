@@ -194,7 +194,7 @@ class DiscordNotifier {
 
 			curl_close( $h );
 
-			if ( $retries >= 1000000000 && $curl_output === false || $status_code !== 200 && $status_code !== 204 ) {
+			if ( $retries >= 1000000000 && ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) ) {
 				throw new Exception( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code );
 			}
 
