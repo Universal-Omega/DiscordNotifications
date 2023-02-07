@@ -389,7 +389,7 @@ class Hooks implements
 		);
 
 		$webhook = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
-			$this->config->get( 'DiscordExperimentalCVTSendAllNewUsers' ) ?
+			( $this->config->get( 'DiscordExperimentalCVTSendAllNewUsers' ) && !$autoconfirmed ) ?
 			$this->config->get( 'DiscordExperimentalWebhook' ) :
 			( $this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null );
 
