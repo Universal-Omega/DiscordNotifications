@@ -393,9 +393,11 @@ class Hooks implements
 			$this->config->get( 'DiscordExperimentalWebhook' ) :
 			( $this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null );
 
-		$this->discordNotifier->notify( $message, $user, 'new_user_account', [], $webhook );
+		if ( !$autocreated ) {
+			$this->discordNotifier->notify( $message, $user, 'new_user_account', [], $webhook );
+		}
 
-		if ( $webhook ) {
+		if ( $webhook || $autocreated ) {
 			$this->discordNotifier->notify( $message, $user, 'new_user_account' );
 		}
 	}
