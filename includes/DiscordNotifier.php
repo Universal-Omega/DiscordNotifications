@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
+use Exception;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
@@ -189,6 +190,12 @@ class DiscordNotifier {
 
 		// Execute the curl script
 		$curl_output = curl_exec( $h );
+
+		$http_status = curl_getinfo( $h, CURLINFO_HTTP_CODE );
+
+		if ( $curl_output === false || $http_status != 200 ) {
+			throw new Exception( 'Curl request failed with error: ' . curl_error( $ch ) );
+		}
 
 		curl_close( $h );
 	}
