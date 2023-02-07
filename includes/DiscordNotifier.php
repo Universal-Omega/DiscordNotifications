@@ -19,6 +19,7 @@ class DiscordNotifier {
 		'DiscordCurlProxy',
 		'DiscordExcludeNotificationsFrom',
 		'DiscordExcludedPermission',
+		'DiscordExperimentalCVTGoogleTranslateAPIKey',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -208,6 +209,71 @@ class DiscordNotifier {
 
 		$context = stream_context_create( $extraData );
 		$result = file_get_contents( $url, false, $context );
+	}
+
+
+	/**
+	 * @param string $text
+	 * @return string
+	 */
+	public function translate( string $text ) {
+		$api_key = $this->options->get( 'DiscordExperimentalCVTGoogleTranslateAPIKey' );
+		if ( !$api_key ) {
+			return $text;
+		}
+
+		$target = 'en';
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, 'https://translation.googleapis.com/language/translate/v2/detect?q=' . urlencode( $text ) . '&key=' . $api_key );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+
+		$response = curl_exec( $ch );
+
+		// Check if the request was successful,
+		// if not just return original text
+		if ( $response === false ) {
+			return $text;
+		}
+
+		$data = json_decode( $response, true );
+
+		// Check if the response contains a valid detection
+		if ( !isset( $data['data']['detections'][0][0]['language'] ) ) {
+			return $text;
+		}
+
+		// Get the detected source language
+		$source = $data['data']['detections'][0][0]['language'];
+
+		curl_close( $ch );
+
+		$ch = curl_init();
+
+		// Set the cURL options for translation
+		curl_setopt( $ch, CURLOPT_URL, 'https://translation.googleapis.com/language/translate/v2?target=' . $target . '&q=' . urlencode( $text ) . '&source=' . $source . '&format=text&key=' . $api_key );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+
+		$response = curl_exec( $ch );
+
+		// Check if the request was successful
+		if ( $response === false ) {
+			$text;
+		}
+
+		$data = json_decode( $response, true );
+
+		// Check if the response contains a valid translation
+		if ( !isset( $data['data']['translations'][0]['translatedText'] ) ) {
+			return $text;
+		}
+
+		// Get the translated text
+		$translatedText = $data['data']['translations'][0]['translatedText'];
+
+		curl_close( $ch );
+
+		return $translatedText;
 	}
 
 	/**
