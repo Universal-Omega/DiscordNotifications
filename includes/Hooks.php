@@ -124,7 +124,7 @@ class Hooks implements
 		if ( $enableExperimentalCVTFeatures ) {
 			$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 			if ( $content ) {
-				$content = strip_tags( $content->serialize() );
+				$content = $this->discordNotifier->translate( strip_tags( $content->serialize() ) );
 			}
 
 			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) && !$user->isRegistered();
@@ -159,7 +159,7 @@ class Hooks implements
 
 					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n" . $this->discordNotifier->translate( $content ) . "\n```" : '',
+						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
@@ -212,7 +212,7 @@ class Hooks implements
 							->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) : null ) ?? '';
 
 					if ( $oldContent ) {
-						$oldContent = strip_tags( $oldContent->serialize() );
+						$oldContent = $this->discordNotifier->translate( strip_tags( $oldContent->serialize() ) );
 					}
 
 					if ( $matches ) {
@@ -227,7 +227,7 @@ class Hooks implements
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->discordNotifier->translate( $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) ) . "\n```",
+						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
