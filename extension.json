@@ -201,7 +201,7 @@
 			"value": true
 		},
 		"DiscordExperimentalCVTSendAllNewUsers": {
-			"value": true
+			"value": false
 		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
