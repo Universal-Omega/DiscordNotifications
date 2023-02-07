@@ -98,7 +98,7 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onRevisionFromEditComplete( $wikiPage, $rev, $originalRevId, $user, &$tags ) {
-		$isNew = (bool)$rev->getParentId();
+		$isNew = $wikiPage->isNew();
 
 		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) {
 			return;
