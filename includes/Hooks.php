@@ -161,6 +161,7 @@ class Hooks implements
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
+					sleep( 1 );
 				}
 			}
 
@@ -229,6 +230,7 @@ class Hooks implements
 						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
 						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
+					sleep( 1 );
 				}
 			}
 
