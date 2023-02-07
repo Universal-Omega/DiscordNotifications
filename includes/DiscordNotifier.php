@@ -191,10 +191,11 @@ class DiscordNotifier {
 		// Execute the curl script
 		$curl_output = curl_exec( $h );
 
-		$http_status = curl_getinfo( $h, CURLINFO_HTTP_CODE );
-
-		if ( $curl_output === false || $http_status != 200 ) {
-			throw new Exception( 'Curl request failed with error: ' . curl_error( $h ) );
+		$status_code = curl_getinfo( $h, CURLINFO_HTTP_CODE );
+		if ( $curl_output === false || $status_code !== 200 ) {
+			$error = curl_error( $h );
+			curl_close( $h );
+			throw new Exception( 'Translate request failed with error: ' . $error . ' and status code: ' . $status_code );
 		}
 
 		curl_close( $h );
