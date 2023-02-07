@@ -85,7 +85,6 @@ class Hooks implements
 		WikiPageFactory $wikiPageFactory
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
-
 		$this->actorStore = $actorStore;
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
