@@ -197,6 +197,9 @@
 		"DiscordExperimentalCVTSendAllIPEdits": {
 			"value": true
 		},
+		"DiscordExperimentalCVTGoogleTranslateAPIKey": {
+			"value": ""
+		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
 		}
