@@ -170,6 +170,9 @@
 		"DiscordNotificationAfterImportPage": {
 			"value": true
 		},
+		"DiscordNotificationIncludeAutocreatedUsers": {
+			"value": true
+		},
 		"DiscordIncludeDiffSize": {
 			"value": true
 		},
@@ -197,7 +200,13 @@
 		"DiscordExperimentalCVTSendAllIPEdits": {
 			"value": true
 		},
+		"DiscordExperimentalCVTSendAllNewUsers": {
+			"value": true
+		},
 		"DiscordExperimentalWebhook": {
+			"value": ""
+		},
+		"DiscordExperimentalNewUsersWebhook": {
 			"value": ""
 		}
 	},
