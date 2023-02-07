@@ -194,7 +194,7 @@ class DiscordNotifier {
 		$http_status = curl_getinfo( $h, CURLINFO_HTTP_CODE );
 
 		if ( $curl_output === false || $http_status != 200 ) {
-			throw new Exception( 'Curl request failed with error: ' . curl_error( $ch ) );
+			throw new Exception( 'Curl request failed with error: ' . curl_error( $h ) );
 		}
 
 		curl_close( $h );
