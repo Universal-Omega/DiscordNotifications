@@ -169,7 +169,7 @@ class DiscordNotifier {
 		$retries = 0;
 
 		// retry up to 3 times
-		while ( $retries < 3 ) {
+		while ( $retries < 6 ) {
 			$h = curl_init();
 			curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -194,7 +194,7 @@ class DiscordNotifier {
 
 			curl_close( $h );
 
-			if ( $retries >= 2 && $curl_output === false || $status_code !== 200 && $status_code !== 204 ) {
+			if ( $retries >= 5 && $curl_output === false || $status_code !== 200 && $status_code !== 204 ) {
 				throw new Exception( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code );
 			}
 
