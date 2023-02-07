@@ -76,6 +76,7 @@ class Hooks implements
 	 */
 	public function __construct(
 		ActorStore $actorStore,
+
 		ConfigFactory $configFactory,
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
