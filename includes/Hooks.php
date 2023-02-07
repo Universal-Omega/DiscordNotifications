@@ -117,6 +117,8 @@ class Hooks implements
 			return;
 		}
 
+		$summary = $rev->getComment() ?: '';
+
 		$enableExperimentalCVTFeatures = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
 				$this->config->get( 'DiscordExperimentalWebhook' );
 
