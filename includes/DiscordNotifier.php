@@ -248,7 +248,8 @@ class DiscordNotifier {
 
 			if (
 				ExtensionRegistry::getInstance()->isLoaded( 'CentralAuth' ) &&
-				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' )
+				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) &&
+				$user->isRegistered()
 			) {
 				$userUrls .= ' | <' . $this->parseurl( $this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) . '/wiki/Special:CentralAuth/' . $user_url ) . '|' . $this->getMessage( 'discordnotifications-centralauth' ) . '>';
 			}
