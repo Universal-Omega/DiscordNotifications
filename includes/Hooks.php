@@ -339,6 +339,10 @@ class Hooks implements
 			return;
 		}
 
+		if ( !$this->config->get( 'DiscordNotificationIncludeAutocreatedUsers' ) && $autocreated ) {
+			return;
+		}
+
 		$email = '';
 		$realname = '';
 		$ipaddress = '';
@@ -384,7 +388,12 @@ class Hooks implements
 			$messageExtra
 		);
 
-		$this->discordNotifier->notify( $message, $user, 'new_user_account' );
+		$webhook = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
+			$this->config->get( 'DiscordExperimentalCVTSendAllNewUsers' ) ? 
+			$this->config->get( 'DiscordExperimentalWebhook' ) :
+			$this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null;
+
+		$this->discordNotifier->notify( $message, $user, 'new_user_account', [], $webhook );
 	}
 
 	/**
