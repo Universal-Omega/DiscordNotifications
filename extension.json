@@ -101,6 +101,9 @@
 		"DiscordNotificationWikiUrl": {
 			"value": ""
 		},
+		"DiscordNotificationCentralAuthWikiUrl": {
+			"value": ""
+		},
 		"DiscordNotificationWikiUrlEnding": {
 			"value": "index.php?title="
 		},
