@@ -81,9 +81,6 @@ class DiscordNotifier {
 			}
 		}
 
-		// Convert " to ' in the message to be sent as otherwise JSON formatting would break.
-		$message = str_replace( '"', "'", $message );
-
 		$discordFromName = $this->options->get( 'DiscordFromName' );
 		if ( $discordFromName == '' ) {
 			$discordFromName = $this->options->get( 'Sitename' );
