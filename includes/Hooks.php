@@ -131,6 +131,18 @@ class Hooks implements
 		}
 
 		if ( $isNew ) {
+			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
+				$this->discordNotifier->getDiscordUserText( $user ),
+				$this->discordNotifier->getDiscordArticleText( $wikiPage ),
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
+			);
+
+			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
+				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+			}
+
+			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+
 			if ( $enableExperimentalCVTFeatures ) {
 				$regex = '/' . implode( '|', $this->config->get( 'DiscordExperimentalCVTMatchFilter' ) ) . '/';
 
@@ -163,18 +175,6 @@ class Hooks implements
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
-
-			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
-				$this->discordNotifier->getDiscordUserText( $user ),
-				$this->discordNotifier->getDiscordArticleText( $wikiPage ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
-			);
-
-			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
-			}
-
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -182,6 +182,25 @@ class Hooks implements
 			if ( $isMinor && $this->config->get( 'DiscordIgnoreMinorEdits' ) ) {
 				return;
 			}
+
+			$message = $this->discordNotifier->getMessage(
+				'discordnotifications-article-saved',
+				$this->discordNotifier->getDiscordUserText( $user ),
+				$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
+				$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
+				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
+			);
+
+			if (
+				$this->config->get( 'DiscordIncludeDiffSize' ) &&
+				$this->revisionLookup->getPreviousRevision( $revisionRecord )
+			) {
+				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
+					sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
+				) . ')';
+			}
+
+			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 
 			if ( $enableExperimentalCVTFeatures ) {
 				$regex = '/' . implode( '|', $this->config->get( 'DiscordExperimentalCVTMatchFilter' ) ) . '/';
@@ -231,25 +250,6 @@ class Hooks implements
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
-
-			$message = $this->discordNotifier->getMessage(
-				'discordnotifications-article-saved',
-				$this->discordNotifier->getDiscordUserText( $user ),
-				$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
-				$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
-			);
-
-			if (
-				$this->config->get( 'DiscordIncludeDiffSize' ) &&
-				$this->revisionLookup->getPreviousRevision( $revisionRecord )
-			) {
-				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
-					sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
-				) . ')';
-			}
-
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
 		}
 	}
 
