@@ -11,6 +11,7 @@
 	"discordnotifications-groups": "groups",
 	"discordnotifications-talk": "talk",
 	"discordnotifications-contribs": "contribs",
+	"discordnotifications-centralauth": "CentralAuth",
 	"discordnotifications-edit": "edit",
 	"discordnotifications-delete": "delete",
 	"discordnotifications-history": "history",
