@@ -151,6 +151,7 @@ class DiscordNotifier {
 		} else {
 			// Call the Discord API through cURL (default way). Note that you will need to have cURL enabled for this to work.
 			$this->sendCurlRequest( $webhook ?? $this->options->get( 'DiscordIncomingWebhookUrl' ), $post );
+			sleep( 1 );
 
 			if ( !$webhook && $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) && is_array( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ) ) {
 				for ( $i = 0; $i < count( $this->options->get( 'DiscordAdditionalIncomingWebhookUrls' ) ); ++$i ) {
