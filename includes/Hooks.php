@@ -391,7 +391,7 @@ class Hooks implements
 		$webhook = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
 			$this->config->get( 'DiscordExperimentalCVTSendAllNewUsers' ) ?
 			$this->config->get( 'DiscordExperimentalWebhook' ) :
-			$this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null;
+			( $this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null );
 
 		$this->discordNotifier->notify( $message, $user, 'new_user_account', [], $webhook );
 
