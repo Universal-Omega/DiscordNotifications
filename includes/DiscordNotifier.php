@@ -360,6 +360,10 @@ class DiscordNotifier {
 	 * @return string
 	 */
 	public function getMessageInLanguage( string $key, string $languageCode, string ...$params ): string {
+		if ( !$languageCode ) {
+			return $this->getMessage( $key, ...$params );
+		}
+
 		if ( $params ) {
 			return $this->messageLocalizer->msg( $key, ...$params )->inLanguage( $languageCode )->text();
 		} else {
