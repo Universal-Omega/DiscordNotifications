@@ -255,7 +255,7 @@ class DiscordNotifier {
 				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) &&
 				$user->isRegistered()
 			) {
-				$userUrls .= ' | <' . $this->parseurl( $this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) . 'wiki/Special:CentralAuth/' . $user_url ) . '|' . $this->getMessage( 'discordnotifications-centralauth' ) . '>';
+				$userUrls .= ' | <' . $this->parseurl( $this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) . 'wiki/Special:CentralAuth/' . $user_url ) . '|' . $this->getMessageInLanguage( 'discordnotifications-centralauth', $languageCode ) . '>';
 			}
 
 			$userUrls .= ')';
