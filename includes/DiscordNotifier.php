@@ -231,9 +231,10 @@ class DiscordNotifier {
 	 * and also links to user site, groups editing, talk and contribs pages.
 	 *
 	 * @param UserIdentity $user UserIdentity or if CentralAuth is installed, CentralAuthGroupMembershipProxy
+	 * @param string $languageCode
 	 * @return string
 	 */
-	public function getDiscordUserText( $user ): string {
+	public function getDiscordUserText( $user, string $languageCode = '' ): string {
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
@@ -243,10 +244,10 @@ class DiscordNotifier {
 			$userUrls = sprintf(
 				'%s (%s | %s | %s | %s',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserPage' ) . $user_url ) . '|' . $userName . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-block' ) . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-groups' ) . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-talk' ) . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . $this->getMessage( 'discordnotifications-contribs' ) . '>'
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingBlockUser' ) . $user_url ) . '|' . $this->getMessageInLanguage( 'discordnotifications-block', $languageCode ) . '>',
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserRights' ) . $user_url ) . '|' . $this->getMessageInLanguage( 'discordnotifications-groups', $languageCode ) . '>',
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserTalkPage' ) . $user_url ) . '|' . $this->getMessageInLanguage( 'discordnotifications-talk', $languageCode ) . '>',
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $this->options->get( 'DiscordNotificationWikiUrlEndingUserContributions' ) . $user_url ) . '|' . $this->getMessageInLanguage( 'discordnotifications-contribs', $languageCode ) . '>'
 			);
 
 			if (
@@ -271,9 +272,10 @@ class DiscordNotifier {
 	 *
 	 * @param WikiPage $wikiPage
 	 * @param bool $diff
+	 * @param string $languageCode
 	 * @return string
 	 */
-	public function getDiscordArticleText( WikiPage $wikiPage, bool $diff = false ): string {
+	public function getDiscordArticleText( WikiPage $wikiPage, bool $diff = false, string $languageCode = '' ): string {
 		$title = $wikiPage->getTitle()->getFullText();
 		$title_url = str_replace( '&', '%26', $title );
 		$prefix = '<' . $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url;
@@ -282,15 +284,15 @@ class DiscordNotifier {
 			$out = sprintf(
 				'%s (%s | %s | %s',
 				$this->parseurl( $prefix ) . '|' . $title . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-edit' ) . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-delete' ) . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessage( 'discordnotifications-history' ) . '>'
+				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-edit', $languageCode ) . '>',
+				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-delete', $languageCode ) . '>',
+				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-history', $languageCode ) . '>'
 			);
 
 			if ( $diff ) {
 				$revisionId = $wikiPage->getRevisionRecord()->getId();
 
-				$out .= ' | ' . $this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . $this->getMessage( 'discordnotifications-diff' ) . '>)';
+				$out .= ' | ' . $this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . $this->getMessageInLanguage( 'discordnotifications-diff', $languageCode ) . '>)';
 			} else {
 				$out .= ')';
 			}
