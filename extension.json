@@ -206,6 +206,9 @@
 		"DiscordExperimentalCVTSendAllNewUsers": {
 			"value": true
 		},
+		"DiscordExperimentalFeedLanguageCode": {
+			"value": ""
+		},
 		"DiscordExperimentalWebhook": {
 			"value": ""
 		},
