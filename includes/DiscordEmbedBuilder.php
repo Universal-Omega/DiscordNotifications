@@ -56,6 +56,13 @@ class DiscordEmbedBuilder {
 	private $timestamp;
 
 	/**
+	 * The footer of the embed.
+	 *
+	 * @var array
+	 */
+	private $footer;
+
+	/**
 	 * The fields of the embed.
 	 *
 	 * @var array
@@ -147,6 +154,22 @@ class DiscordEmbedBuilder {
 	}
 
 	/**
+	 * Sets the footer text and icon URL (if supplied) of the embed.
+	 *
+	 * @param string $text The text of the footer to set.
+	 * @param string $iconUrl The URL of the footer icon to set.
+	 * @return self
+	 */
+	public function setFooter( string $text, string $iconUrl = '' ): self {
+		$this->footer = array_filter( [
+			'text' => $text,
+			'icon_url' => $iconUrl,
+		] );
+
+		return $this;
+	}
+
+	/**
 	 * Adds a field to the embed.
 	 *
 	 * @param string $name The name of the field.
@@ -179,9 +202,7 @@ class DiscordEmbedBuilder {
 					'color' => $this->color,
 					'timestamp' => $this->timestamp,
 					'fields' => $this->fields,
-					'footer' => [
-						'text' => 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.',
-					],
+					'footer' => $this->footer,
 				] ),
 			],
 			'username' => $this->username,
