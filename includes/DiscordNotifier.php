@@ -135,6 +135,9 @@ class DiscordNotifier {
 			$embed->addField( $name, $value );
 		}
 
+		// Temporary
+		$embed->setFooter( 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.' );
+
 		$post = $embed->build();
 
 		// Use file_get_contents to send the data. Note that you will need to have allow_url_fopen enabled in php.ini for this to work.
