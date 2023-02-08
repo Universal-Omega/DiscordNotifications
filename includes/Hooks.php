@@ -138,14 +138,14 @@ class Hooks implements
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
 				if ( $matches || $shouldSendToCVTFeed ) {
-					$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
+					$message = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-article-created', 'en',
 						$this->discordNotifier->getDiscordUserText( $user ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage ),
 						''
 					);
 
 					if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
-						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
+						$message .= ' (' . $this->discordNotifier->getMessageInLanguage( 'discordnotifications-bytes', 'en', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 					}
 
 					if ( $matches ) {
@@ -158,8 +158,8 @@ class Hooks implements
 					}
 
 					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
-						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => $content ? "```\n$content\n```" : '',
+						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', 'en', '' ) => $summary,
+						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-content', 'en' ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
@@ -190,8 +190,8 @@ class Hooks implements
 				preg_match( $regex, $content, $matches, PREG_OFFSET_CAPTURE );
 
 				if ( $matches || $shouldSendToCVTFeed ) {
-					$message = $this->discordNotifier->getMessage(
-						'discordnotifications-article-saved',
+					$message = $this->discordNotifier->getMessageInLanguage(
+						'discordnotifications-article-saved', 'en',
 						$this->discordNotifier->getDiscordUserText( $user ),
 						$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
@@ -202,7 +202,7 @@ class Hooks implements
 						$this->config->get( 'DiscordIncludeDiffSize' ) &&
 						$this->revisionLookup->getPreviousRevision( $revisionRecord )
 					) {
-						$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes',
+						$message .= ' (' . $this->discordNotifier->getMessageInLanguage( 'discordnotifications-bytes', 'en',
 							sprintf( '%+d', $revisionRecord->getSize() - $this->revisionLookup->getPreviousRevision( $revisionRecord )->getSize() )
 						) . ')';
 					}
@@ -226,8 +226,8 @@ class Hooks implements
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
-						$this->discordNotifier->getMessage( 'discordnotifications-summary', '' ) => $summary,
-						$this->discordNotifier->getMessage( 'discordnotifications-content' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
+						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', 'en', '' ) => $summary,
+						$this->discordNotifier->getMessage( 'discordnotifications-content', 'en' ) => "```diff\n" . $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) ) . "\n```",
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
 				}
 			}
@@ -394,6 +394,13 @@ class Hooks implements
 			( $this->config->get( 'DiscordExperimentalNewUsersWebhook' ) ?: null );
 
 		if ( !$autocreated ) {
+			if ( $webhook ) {
+				$message = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user', 'en',
+					$this->discordNotifier->getDiscordUserText( $user ),
+					$messageExtra
+				);
+			}
+
 			$this->discordNotifier->notify( $message, $user, 'new_user_account', [], $webhook );
 		}
 
