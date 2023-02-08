@@ -121,6 +121,7 @@ class Hooks implements
 
 		$content = '';
 		$shouldSendToCVTFeed = false;
+		$experimentalLanguageCode = '';
 		if ( $enableExperimentalCVTFeatures ) {
 			$content = $revisionRecord->getContent( SlotRecord::MAIN, RevisionRecord::FOR_PUBLIC ) ?? '';
 			if ( $content ) {
