@@ -402,7 +402,7 @@ class Hooks implements
 		if ( !$autocreated ) {
 			if ( $webhook && $this->config->get( 'DiscordExperimentalFeedLanguageCode' ) ) {
 				$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user', $this->config->get( 'DiscordExperimentalFeedLanguageCode' ),
-					$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode ),
+					$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ) ),
 					$messageExtra
 				);
 			}
