@@ -198,7 +198,7 @@ class DiscordNotifier {
 				break;
 			}
 
-			usleep( (int)( $response['retry_after'] * 1000 ) );
+			usleep( (int)( $response['retry_after'] * 1100 ) );
 			$retries++;
 		}
 	}
