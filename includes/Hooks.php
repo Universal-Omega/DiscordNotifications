@@ -504,7 +504,7 @@ class Hooks implements
 
 		$user = $recentChange->getPerformerIdentity();
 
-		$message = $recentChange->mExtra['actionCommentIRC'] ?? $recentChange->getAttribute( 'rc_comment' );
+		$message = $recentChange->mExtra['actionComment'];
 
 		$this->discordNotifier->notify( $message, $user, 'logging' );
 	}
