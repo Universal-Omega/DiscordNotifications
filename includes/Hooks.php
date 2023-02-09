@@ -49,9 +49,6 @@ class Hooks implements
 	/** @var ActorStore */
 	private $actorStore;
 
-	/** @var mixed */
-	private $commentStore;
-
 	/** @var Config */
 	private $config;
 
@@ -72,7 +69,6 @@ class Hooks implements
 
 	/**
 	 * @param ActorStore $actorStore
-	 * @param mixed $commentStore
 	 * @param ConfigFactory $configFactory
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
@@ -82,7 +78,6 @@ class Hooks implements
 	 */
 	public function __construct(
 		ActorStore $actorStore,
-		$commentStore,
 		ConfigFactory $configFactory,
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
@@ -93,7 +88,6 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
 		$this->actorStore = $actorStore;
-		$this->commentStore = $commentStore;
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
