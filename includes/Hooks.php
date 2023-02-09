@@ -504,11 +504,7 @@ class Hooks implements
 
 		$user = $recentChange->getPerformerIdentity();
 
-		$message = $this->discordNotifier->getMessage( 'discordnotifications-change-user-groups-with-old',
-			$this->discordNotifier->getDiscordUserText( $performer ),
-			$this->discordNotifier->getDiscordUserText( $user ),
-			$this->commentStore->getComment( 'rc_comment', $recentChange->getAttributes() )->text
-		);
+		$message = $this->commentStore->getComment( 'rc_comment', $recentChange->getAttributes() )->text;
 
 		$this->discordNotifier->notify( $message, $user, 'logging' );
 	}
