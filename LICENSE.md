@@ -1,7 +1,7 @@
 MIT License
 =====================
 
-Copyright © 2021 - 2023 Universal Omega<br />
+Copyright © 2022 - 2023 Universal Omega<br />
 Copyright © 2021 Aleksi Postari
 
 Permission is hereby granted, free of charge, to any person
