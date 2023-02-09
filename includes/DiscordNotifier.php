@@ -251,6 +251,7 @@ class DiscordNotifier {
 			);
 
 			if (
+				$languageCode &&
 				ExtensionRegistry::getInstance()->isLoaded( 'CentralAuth' ) &&
 				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) &&
 				$user->isRegistered()
