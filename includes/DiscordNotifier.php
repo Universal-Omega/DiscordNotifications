@@ -232,9 +232,10 @@ class DiscordNotifier {
 	 *
 	 * @param UserIdentity $user UserIdentity or if CentralAuth is installed, CentralAuthGroupMembershipProxy
 	 * @param string $languageCode
+	 * @param bool $includeCentralAuthUrl
 	 * @return string
 	 */
-	public function getDiscordUserText( $user, string $languageCode = '' ): string {
+	public function getDiscordUserText( $user, string $languageCode = '', bool $includeCentralAuthUrl = false ): string {
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
@@ -251,7 +252,7 @@ class DiscordNotifier {
 			);
 
 			if (
-				$languageCode &&
+				$includeCentralAuthUrl &&
 				ExtensionRegistry::getInstance()->isLoaded( 'CentralAuth' ) &&
 				$this->options->get( 'DiscordNotificationCentralAuthWikiUrl' ) &&
 				$user->isRegistered()
