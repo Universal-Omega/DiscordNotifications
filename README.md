@@ -15,9 +15,9 @@ This is a extension for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) th
 
 ## Language Support
 
-This extension supports language localisation. Notifications are being sent in the language set to your localSettings.php file in the variable wgLanguageCode.
+This extension supports language localisation. Notifications are being sent in the language set to your localSettings.php file in the variable `$wgLanguageCode`.
 
-Want to translate this extension to your language? Just visit [translatewiki.net](https://translatewiki.net/wiki/Special:Translate/mwgithub-discordnotifications) and follow the guides! :)
+Want to translate this extension to your language? Just visit [translatewiki.net](https://translatewiki.net/wiki/Special:Translate/mwgithub-mediawiki-universalomega-discordnotifications) and follow the guides! :)
 
 ## Upgrading extension
 
@@ -27,7 +27,7 @@ Upgrading from older version to 1.1.3 of this extension has one change that you 
 ## Requirements
 
 * [cURL](http://curl.haxx.se/) or ability to use PHP function `file_get_contents` for sending the data. Defaults to cURL. See the configuration parameter `$wgDiscordSendMethod` below to switch between cURL and file_get_contents.
-* MediaWiki 1.25+
+* MediaWiki 1.39+
 * Apache should have NE (NoEscape) flag on to prevent issues in URLs. By default you should have this enabled.
 
 ## How to install
@@ -162,6 +162,9 @@ MediaWiki actions that will be sent notifications of into Discord. Set desired o
 // New user added into MediaWiki
 $wgDiscordNotificationNewUser = true;
 
+// Autocreated users
+$wgDiscordNotificationIncludeAutocreatedUsers = true;
+
 // User or IP blocked in MediaWiki
 $wgDiscordNotificationBlockedUser = true;
 
@@ -210,7 +213,26 @@ $wgDiscordNotificationWikiUrlEndingHistory = 'action=history';
 $wgDiscordNotificationWikiUrlEndingDiff = 'diff=prev&oldid=';
 ```
 
-## License
+## Experimental CVT Feed
+
+As of version 3.0.0 of DiscordNotifications, it now supports experimental CVT (countervandalism) monitoring.
+You can use the below configuration options to configure it.
+
+**Note**: These experimental configuration variables may be removed, renamed, or modified without warning.
+
+| Configuration | Default | Description |
+|---------------|---------|-------------|
+| `$wgDiscordEnableExperimentalCVTFeatures`  | false | Set to true or none of the experimental CVT features will be enabled. |
+| `$wgDiscordExperimentalCVTMatchLimit`      | 250   | Configure the number of characters to display before and after the found match in the experimental CVT feed. |
+| `$wgDiscordExperimentalCVTMatchFilter`     | []    | An array of regexes to find matches for, for sending to the experimental CVT feed. |
+| `$wgDiscordExperimentalCVTSendAllIPEdits`  | true  | Sends all edits by unregistered users to the experimental CVT feed. |
+| `$wgDiscordExperimentalCVTSendAllNewUsers` | true  | Sends all new users account creations (not autocreations) to the experimental CVT feed. |
+| `$wgDiscordExperimentalFeedLanguageCode`   | ''    | The language code to force the experimental CVT feed localisation to. If an empty string, it will use the default content language of the wiki the notification is from. |
+| `$wgDiscordExperimentalWebhook`            | ''    | The Discord incoming webhook URL to use for the experimental CVT feed. If an empty string, the experimental CVT feed features will be disabled. |
+| `$wgDiscordExperimentalNewUsersWebhook`    | ''    | The Discord incoming webhook URL to use for an expermental new users feed (not including autocreations). If this is set, they will be sent here rather than the experimental CVT feed. |
+| `$wgDiscordNotificationCentralAuthWikiUrl` | ''    | The URL for the wiki to use in the CentralAuth URL. The CentralAuth URL will only appear in the experimental CVT feed. If set to an empty string, no CentralAuth link will appear. |
+
+## Licenses
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
 
