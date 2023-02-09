@@ -89,7 +89,7 @@ class DiscordNotifier {
 			$discordFromName = $this->options->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)\|([^\>\)]+)(>)~', '[$4]($2$3)', $message );
+		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\&\>]*)(&gt;|>)~', '[$5]($2$3)', $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
 		switch ( $action ) {
@@ -258,7 +258,7 @@ class DiscordNotifier {
 		$userName = $user->getName();
 		$user_url = str_replace( '&', '%26', $userName );
 
-		$userName = str_replace( '>', '\>', $userName );
+		$userName = str_replace( '>', '&gt;', $userName );
 
 		if ( $this->options->get( 'DiscordIncludeUserUrls' ) ) {
 			return sprintf(
