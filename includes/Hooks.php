@@ -13,9 +13,11 @@ use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use MediaWiki\CommentStore\CommentStore;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
+use MediaWiki\Hook\RecentChange_saveHook;
 use MediaWiki\Hook\UploadCompleteHook;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
@@ -41,11 +43,15 @@ class Hooks implements
 	PageDeleteCompleteHook,
 	PageMoveCompleteHook,
 	PageSaveCompleteHook,
+	RecentChange_saveHook,
 	UploadCompleteHook,
 	UserGroupsChangedHook
 {
 	/** @var ActorStore */
 	private $actorStore;
+
+	/** @var CommentStore */
+	private $commentStore;
 
 	/** @var Config */
 	private $config;
@@ -67,6 +73,7 @@ class Hooks implements
 
 	/**
 	 * @param ActorStore $actorStore
+	 * @param CommentStore $commentStore
 	 * @param ConfigFactory $configFactory
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
@@ -76,6 +83,7 @@ class Hooks implements
 	 */
 	public function __construct(
 		ActorStore $actorStore,
+		CommentStore $commentStore,
 		ConfigFactory $configFactory,
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
@@ -86,6 +94,7 @@ class Hooks implements
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
 		$this->actorStore = $actorStore;
+		$this->commentStore = $commentStore;
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -481,6 +490,28 @@ class Hooks implements
 		);
 
 		$this->discordNotifier->notify( $message, $user, 'user_groups_changed' );
+	}
+
+	// phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onRecentChange_save( $recentChange ) {
+		// phpcs:enable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
+		/* if ( !$this->config->get( 'DiscordNotifyOnLogTypes' ) ) {
+			return;
+		} */
+
+		$user = $recentChange->getPerformerIdentity();
+
+		$message = $this->discordNotifier->getMessage( 'discordnotifications-change-user-groups-with-old',
+			$this->discordNotifier->getDiscordUserText( $performer ),
+			$this->discordNotifier->getDiscordUserText( $user ),
+			$this->commentStore->getComment( 'rc_comment', $recentChange->getAttributes() )->text
+		);
+
+		$this->discordNotifier->notify( $message, $user, 'logging' );
 	}
 
 	/**
