@@ -227,11 +227,11 @@ You can use the below configuration options to configure it.
 | `$wgDiscordExperimentalNewUsersWebhook`    | ''    | The Discord incoming webhook URL to use for an experimental new users feed (not including autocreations). If this is set, they will be sent here rather than the experimental CVT feed. |
 | `$wgDiscordNotificationCentralAuthWikiUrl` | ''    | The URL for the wiki to use in the CentralAuth URL. The CentralAuth URL will only appear in the experimental CVT feed. If set to an empty string, no CentralAuth link will appear. |
 
-## Licenses
+## License
 
-[MIT License](http://en.wikipedia.org/wiki/MIT_License)
+[MIT License](LICENSE.md)
 
-## Issues / Ideas / Comments
+## Issues/Ideas/Comments
 
 * Feel free to use the [Issues](https://github.com/Universal-Omega/DiscordNotifications/issues) section on GitHub for this project to submit any issues/ideas/comments! :)
 * You can also contact CosmicAlpha#3274 on Discord for any issues you may encounter.
