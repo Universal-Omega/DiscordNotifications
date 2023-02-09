@@ -89,7 +89,7 @@ class DiscordNotifier {
 			$discordFromName = $this->options->get( 'Sitename' );
 		}
 
-		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\> ]*)( >|>)([^<]*)~', '[$5]($2$3)$6$7', $message );
+		$message = preg_replace( '~(<)(http)([^|>]*)(\|)([^>]+)(>)(.*)~', '[$5]($2$3)$7', $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
 		switch ( $action ) {
