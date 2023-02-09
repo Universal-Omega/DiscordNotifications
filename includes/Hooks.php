@@ -623,7 +623,7 @@ class Hooks implements
 
 	/**
 	 * Get machine readable data from recent change
-	 * 
+	 *
 	 * @param RecentChange $rc
 	 * @return array
 	 */
