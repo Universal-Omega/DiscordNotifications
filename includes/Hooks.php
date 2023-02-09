@@ -142,7 +142,7 @@ class Hooks implements
 				if ( $matches || $shouldSendToCVTFeed ) {
 					$message = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-article-created',
 						$experimentalLanguageCode,
-						$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode ),
+						$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode, true ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage, false, $experimentalLanguageCode ),
 						''
 					);
@@ -196,7 +196,7 @@ class Hooks implements
 					$message = $this->discordNotifier->getMessageInLanguage(
 						'discordnotifications-article-saved',
 						$experimentalLanguageCode,
-						$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode ),
+						$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode, true ),
 						$isMinor ? $this->discordNotifier->getMessageInLanguage( 'discordnotifications-article-saved-minor-edits', $experimentalLanguageCode ) : $this->discordNotifier->getMessageInLanguage( 'discordnotifications-article-saved-edit', $experimentalLanguageCode ),
 						$this->discordNotifier->getDiscordArticleText( $wikiPage, true, $experimentalLanguageCode ),
 						''
@@ -402,7 +402,7 @@ class Hooks implements
 		if ( !$autocreated ) {
 			if ( $webhook && $this->config->get( 'DiscordExperimentalFeedLanguageCode' ) ) {
 				$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user', $this->config->get( 'DiscordExperimentalFeedLanguageCode' ),
-					$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ) ),
+					$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
 					$messageExtra
 				);
 			}
