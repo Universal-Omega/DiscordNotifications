@@ -5,11 +5,11 @@
 		]
 	},
 	"discordnotifications-desc": "Pošilja obvestila Discord za izbrana dejanja, ki so se zgodila na vaših spletnih mestih MediaWiki.",
-	"discordnotifications-extensionname": "DiscordNotifications",
 	"discordnotifications-block": "blokiraj",
 	"discordnotifications-groups": "skupine",
 	"discordnotifications-talk": "pogovor",
 	"discordnotifications-contribs": "prispevki",
+	"discordnotifications-centralauth": "CentralAuth",
 	"discordnotifications-edit": "uredi",
 	"discordnotifications-delete": "izbriši",
 	"discordnotifications-history": "zgodovina",

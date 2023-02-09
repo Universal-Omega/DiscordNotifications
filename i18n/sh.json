@@ -23,6 +23,7 @@
 	"discordnotifications-new-user": "👥 Upravo je napravljen novi korisnički račun $1 $2",
 	"discordnotifications-block-user": "$1 blokirao/la je $2 $3. Istek bloka: $4. $5",
 	"discordnotifications-summary": "Sažetak: $1",
+	"discordnotifications-content": "Sadržaj:",
 	"discordnotifications-view-user-rights": "Prikaz. ili uprav. korisničkim pravima",
 	"discordnotifications-change-user-groups-with-old": "$1 je promijenio/la korisničke grupe za $2. Stare grupe: $3. Nove grupe: $4",
 	"discordnotifications-flow-moderate-delete": "obrisano",

@@ -4,6 +4,7 @@
 			"Aleksi Postari",
 			"Alliana",
 			"La",
+			"MathXplore",
 			"Omotecho",
 			"렌즈"
 		]
@@ -13,6 +14,7 @@
 	"discordnotifications-groups": "利用者権限",
 	"discordnotifications-talk": "トーク",
 	"discordnotifications-contribs": "投稿履歴",
+	"discordnotifications-centralauth": "CentralAuth",
 	"discordnotifications-edit": "編集",
 	"discordnotifications-delete": "消去",
 	"discordnotifications-history": "変更履歴",
@@ -34,6 +36,7 @@
 	"discordnotifications-block-user-reason": "理由",
 	"discordnotifications-block-user-list": "ブロックリストの一覧",
 	"discordnotifications-summary": "説明: $1",
+	"discordnotifications-content": "コンテンツ",
 	"discordnotifications-view-user-rights": "ユーザー権限の表示と管理",
 	"discordnotifications-change-user-groups": "%s が %s のユーザーグループを変更しました。 変更後グループ: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 が $2のユーザーグループを変更しました。 $3 から $4 へ",

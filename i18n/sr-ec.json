@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"BadDog"
+			"BadDog",
+			"Milicevic01"
 		]
 	},
 	"discordnotifications-desc": "Шаље обавештења на Дискорду за изабране радње које су се догодиле на вашим веб-сајтовима Медијавикија.",
@@ -30,6 +31,7 @@
 	"discordnotifications-block-user-reason": "наводећи разлог",
 	"discordnotifications-block-user-list": "Списак свих блокирања",
 	"discordnotifications-summary": "Опис измене: $1",
+	"discordnotifications-content": "Садржај:",
 	"discordnotifications-view-user-rights": "Прикажи корисничке групе или управљај њима",
 	"discordnotifications-change-user-groups": "%s је променио/ла корисничке групе корисника или IP адресе „%s”. Нове групе: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 је променио/ла корисничке групе корисника или IP адресе „$2”. Старе групе: $3. Нове: $4",

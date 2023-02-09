@@ -11,11 +11,11 @@
 		]
 	},
 	"discordnotifications-desc": "Envoie des notifications Discord pour les actions sélectionnées qui se sont produites sur vos sites MediaWiki.",
-	"discordnotifications-extensionname": "DiscordNotifications",
 	"discordnotifications-block": "blocage",
 	"discordnotifications-groups": "groupes",
 	"discordnotifications-talk": "discussion",
 	"discordnotifications-contribs": "contributions",
+	"discordnotifications-centralauth": "CentralAuth",
 	"discordnotifications-edit": "modifier",
 	"discordnotifications-delete": "suppression",
 	"discordnotifications-history": "historique",

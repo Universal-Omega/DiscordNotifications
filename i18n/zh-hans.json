@@ -6,7 +6,6 @@
 		]
 	},
 	"discordnotifications-desc": "为您所选的在指定MediaWiki站点发生的操作发送Discord通知。",
-	"discordnotifications-extensionname": "DiscordNotifications",
 	"discordnotifications-block": "封禁",
 	"discordnotifications-groups": "群组",
 	"discordnotifications-talk": "讨论",

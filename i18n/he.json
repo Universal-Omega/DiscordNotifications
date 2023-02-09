@@ -31,6 +31,7 @@
 	"discordnotifications-block-user-reason": "עם הסיבה",
 	"discordnotifications-block-user-list": "רשימת כל החסימות",
 	"discordnotifications-summary": "תקציר: $1",
+	"discordnotifications-content": "תוכן:",
 	"discordnotifications-view-user-rights": "הצגה או שינוי של הרשאות משתמש",
 	"discordnotifications-change-user-groups": "%s שינה קבוצות משתמש עבור %s. קבוצות חדשות: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 {{GENDER:$1|שינה|שינתה}} את קבוצות המשתמש של $2. קבוצות ישנות: $3. קבוצות חדשות: $4.",
