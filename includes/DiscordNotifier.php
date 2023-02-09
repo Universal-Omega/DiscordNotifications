@@ -167,8 +167,8 @@ class DiscordNotifier {
 		$response = null;
 		$retries = 0;
 
-		// Retry up to 10 times if hitting rate limit
-		while ( true ) {
+		// Retry up to 3 times if hitting rate limit
+		while ( $retries <= 3 ) {
 			$h = curl_init();
 			curl_setopt( $h, CURLOPT_URL, $url );
 
@@ -192,16 +192,6 @@ class DiscordNotifier {
 			$status_code = curl_getinfo( $h, CURLINFO_HTTP_CODE );
 
 			curl_close( $h );
-
-			if ( $retries === 1000 && ( $curl_output === false || $status_code !== 200 && $status_code !== 204 ) ) {
-				$embed = ( new DiscordEmbedBuilder() )
-					->setColor( '11777212' )
-					->setDescription( 'cURL request failed with error: ' . $curl_output . ' and status code: ' . $status_code . ' failure #' . $retries )
-					->setUsername( 'Error' )
-					->build();
-
-				$this->sendCurlRequest( 'https://discord.com/api/webhooks/963568092053643275/1pRzRNfQVVCyzPqqfOcycyT7b87jES2wbDpuNspsRDbmXTU-fSpDegxPFl1jK-YWu1Wf', $embed );
-			}
 
 			if ( !isset( $response['retry_after'] ) ) {
 				// if retry_after is not set, no need to retry
