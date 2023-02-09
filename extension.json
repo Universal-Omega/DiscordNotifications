@@ -26,7 +26,6 @@
 			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
 			"services": [
 				"ActorStore",
-				"CommentStore",
 				"ConfigFactory",
 				"DiscordNotifier",
 				"RevisionLookup",
