@@ -11,6 +11,7 @@ use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
+use FormatJson;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
@@ -30,9 +31,11 @@ use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
+use RecentChange;
 use RequestContext;
 use TextSlotDiffRenderer;
 use TitleFactory;
+use WikiMap;
 
 class Hooks implements
 	AfterImportPageHook,
@@ -496,11 +499,96 @@ class Hooks implements
 			return;
 		} */
 
-		$user = $recentChange->getPerformerIdentity();
+		$rc = $recentChange;
+		$canonicalServer = $this->config->get( 'CanonicalServer' );
+		$serverName = $this->config->get( 'ServerName' );
+		$scriptPath = $this->config->get( 'ScriptPath' );
+		$packet = [
+			// Usually, RC ID is exposed only for patrolling purposes,
+			// but there is no real reason not to expose it in other cases,
+			// and I can see how this may be potentially useful for clients.
+			'id' => $rc->getAttribute( 'rc_id' ),
+			'type' => RecentChange::parseFromRCType( $rc->getAttribute( 'rc_type' ) ),
+			'namespace' => $rc->getTitle()->getNamespace(),
+			'title' => $rc->getTitle()->getPrefixedText(),
+			'comment' => $rc->getAttribute( 'rc_comment' ),
+			'timestamp' => (int)wfTimestamp( TS_UNIX, $rc->getAttribute( 'rc_timestamp' ) ),
+			'user' => $rc->getAttribute( 'rc_user_text' ),
+			'bot' => (bool)$rc->getAttribute( 'rc_bot' ),
+		];
 
-		$message = $recentChange->mExtra['actionComment'];
+		if ( isset( $feed['channel'] ) ) {
+			$packet['channel'] = $feed['channel'];
+		}
 
-		$this->discordNotifier->notify( $message, $user, 'logging' );
+		$type = $rc->getAttribute( 'rc_type' );
+		if ( $type == RC_EDIT || $type == RC_NEW ) {
+			$useRCPatrol = $this->config->get( 'UseRCPatrol' );
+			$useNPPatrol = $this->config->get( 'UseNPPatrol' );
+			$packet['minor'] = (bool)$rc->getAttribute( 'rc_minor' );
+			if ( $useRCPatrol || ( $type == RC_NEW && $useNPPatrol ) ) {
+				$packet['patrolled'] = (bool)$rc->getAttribute( 'rc_patrolled' );
+			}
+		}
+
+		switch ( $type ) {
+			case RC_EDIT:
+				$packet['length'] = [
+					'old' => $rc->getAttribute( 'rc_old_len' ),
+					'new' => $rc->getAttribute( 'rc_new_len' )
+				];
+				$packet['revision'] = [
+					'old' => $rc->getAttribute( 'rc_last_oldid' ),
+					'new' => $rc->getAttribute( 'rc_this_oldid' )
+				];
+				break;
+
+			case RC_NEW:
+				$packet['length'] = [ 'old' => null, 'new' => $rc->getAttribute( 'rc_new_len' ) ];
+				$packet['revision'] = [ 'old' => null, 'new' => $rc->getAttribute( 'rc_this_oldid' ) ];
+				break;
+
+			case RC_LOG:
+				$packet['log_id'] = $rc->getAttribute( 'rc_logid' );
+				$packet['log_type'] = $rc->getAttribute( 'rc_log_type' );
+				$packet['log_action'] = $rc->getAttribute( 'rc_log_action' );
+				if ( $rc->getAttribute( 'rc_params' ) ) {
+					$params = $rc->parseParams();
+					if (
+						// If it's an actual serialised false...
+						$rc->getAttribute( 'rc_params' ) == serialize( false ) ||
+						// Or if we did not get false back when trying to unserialise
+						$params !== false
+					) {
+						// From ApiQueryLogEvents::addLogParams
+						$logParams = [];
+						// Keys like "4::paramname" can't be used for output so we change them to "paramname"
+						foreach ( $params as $key => $value ) {
+							if ( strpos( $key, ':' ) === false ) {
+								$logParams[$key] = $value;
+								continue;
+							}
+							$logParam = explode( ':', $key, 3 );
+							$logParams[$logParam[2]] = $value;
+						}
+						$packet['log_params'] = $logParams;
+					} else {
+						$packet['log_params'] = explode( "\n", $rc->getAttribute( 'rc_params' ) );
+					}
+				}
+				$packet['log_action_comment'] = $actionComment;
+				break;
+		}
+
+		$packet['server_url'] = $canonicalServer;
+		$packet['server_name'] = $serverName;
+
+		$packet['server_script_path'] = $scriptPath ?: '/';
+		$packet['wiki'] = WikiMap::getCurrentWikiId();
+
+		$message = FormatJson::encode( $packet );
+
+		$this->discordNotifier->notify( $message, $recentChange->getPerformerIdentity(), 'logging' );
 	}
 
 	/**
