@@ -19,11 +19,6 @@ This extension supports language localisation. Notifications are being sent in t
 
 Want to translate this extension to your language? Just visit [translatewiki.net](https://translatewiki.net/wiki/Special:Translate/mwgithub-mediawiki-universalomega-discordnotifications) and follow the guides! :)
 
-## Upgrading extension
-
-Upgrading from an older version to 1.1.3 of this extension has one change that you need to take into account:
-- All configuration parameters now use the format `$wgDiscord`. If you had configured any of the `$wgNotificationWikiUrlEnding` parameters, you need to change these to format: `$wgDiscordNotificationWikiUrlEnding`.
-
 ## Requirements
 
 * [cURL](http://curl.haxx.se/) or ability to use PHP function `file_get_contents` for sending the data. Defaults to cURL. See the configuration parameter `$wgDiscordSendMethod` below to switch between cURL and file_get_contents.
