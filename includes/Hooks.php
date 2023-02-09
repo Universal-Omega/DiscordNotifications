@@ -13,7 +13,6 @@ use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
-use MediaWiki\CommentStore\CommentStore;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
@@ -50,7 +49,7 @@ class Hooks implements
 	/** @var ActorStore */
 	private $actorStore;
 
-	/** @var CommentStore */
+	/** @var mixed */
 	private $commentStore;
 
 	/** @var Config */
@@ -73,7 +72,7 @@ class Hooks implements
 
 	/**
 	 * @param ActorStore $actorStore
-	 * @param CommentStore $commentStore
+	 * @param mixed $commentStore
 	 * @param ConfigFactory $configFactory
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
@@ -83,7 +82,7 @@ class Hooks implements
 	 */
 	public function __construct(
 		ActorStore $actorStore,
-		CommentStore $commentStore,
+		$commentStore,
 		ConfigFactory $configFactory,
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
