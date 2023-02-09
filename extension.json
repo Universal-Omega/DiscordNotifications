@@ -26,6 +26,7 @@
 			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
 			"services": [
 				"ActorStore",
+				"CommentStore",
 				"ConfigFactory",
 				"DiscordNotifier",
 				"RevisionLookup",
@@ -64,6 +65,9 @@
 			"handler": "main"
 		},
 		"PageSaveComplete": {
+			"handler": "main"
+		},
+		"RecentChange_save": {
 			"handler": "main"
 		}
 	},
