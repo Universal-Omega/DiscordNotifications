@@ -129,7 +129,7 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
-			$shouldSendToCVTFeed = $this->config->get('DiscordExperimentalCVTSendAllIPEdits') && 
+			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
 				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) );
 
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
