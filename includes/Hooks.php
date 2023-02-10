@@ -27,6 +27,7 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentityValue;
 use RequestContext;
@@ -58,6 +59,9 @@ class Hooks implements
 	/** @var TitleFactory */
 	private $titleFactory;
 
+	/** @var UserFactory */
+	private $userFactory;
+
 	/** @var UserGroupManager */
 	private $userGroupManager;
 
@@ -69,6 +73,7 @@ class Hooks implements
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
+	 * @param UserFactory $userFactory
 	 * @param UserGroupManager $userGroupManager
 	 * @param WikiPageFactory $wikiPageFactory
 	 */
@@ -77,6 +82,7 @@ class Hooks implements
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
+		UserFactory $userFactory,
 		UserGroupManager $userGroupManager,
 		WikiPageFactory $wikiPageFactory
 	) {
@@ -85,6 +91,7 @@ class Hooks implements
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
+		$this->userFactory = $userFactory;
 		$this->userGroupManager = $userGroupManager;
 		$this->wikiPageFactory = $wikiPageFactory;
 	}
@@ -352,17 +359,17 @@ class Hooks implements
 		$ipaddress = '';
 
 		try {
-			$email = $user->getEmail();
+			$email = $this->userFactory->newFromUserIdentity( $user )->getEmail();
 		} catch ( Exception $e ) {
 		}
 
 		try {
-			$realname = $user->getRealName();
+			$realname = $this->userFactory->newFromUserIdentity( $user )->getRealName();
 		} catch ( Exception $e ) {
 		}
 
 		try {
-			$ipaddress = $user->getRequest()->getIP();
+			$ipaddress = $this->userFactory->newFromUserIdentity( $user )->getRequest()->getIP();
 		} catch ( Exception $e ) {
 		}
 
