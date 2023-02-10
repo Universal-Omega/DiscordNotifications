@@ -32,6 +32,7 @@ use MediaWiki\User\UserGroupManager;
 use RequestContext;
 use TextSlotDiffRenderer;
 use TitleFactory;
+use Wikimedia\IPUtils;
 
 class Hooks implements
 	AfterImportPageHook,
@@ -128,7 +129,9 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
-			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) && !$user->isRegistered();
+			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
+				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) );
+
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
 		}
 
