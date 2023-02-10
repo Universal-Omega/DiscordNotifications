@@ -7,7 +7,6 @@ namespace MediaWiki\Extension\DiscordNotifications;
 use APIBase;
 use Config;
 use ConfigFactory;
-use Exception;
 use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
@@ -354,39 +353,22 @@ class Hooks implements
 			return;
 		}
 
-		$email = '';
-		$realname = '';
-		$ipaddress = '';
-
-		try {
-			$email = $this->userFactory->newFromUserIdentity( $user )->getEmail();
-		} catch ( Exception $e ) {
-		}
-
-		try {
-			$realname = $this->userFactory->newFromUserIdentity( $user )->getRealName();
-		} catch ( Exception $e ) {
-		}
-
-		try {
-			$ipaddress = $this->userFactory->newFromUserIdentity( $user )->getRequest()->getIP();
-		} catch ( Exception $e ) {
-		}
+		$user = $this->userFactory->newFromUserIdentity( $user );
 
 		$messageExtra = '';
 		if ( $this->config->get( 'DiscordShowNewUserEmail' ) || $this->config->get( 'DiscordShowNewUserFullName' ) || $this->config->get( 'DiscordShowNewUserIP' ) ) {
 			$messageExtra = '(';
 
 			if ( $this->config->get( 'DiscordShowNewUserEmail' ) ) {
-				$messageExtra .= $email . ', ';
+				$messageExtra .= $user->getEmail() . ', ';
 			}
 
 			if ( $this->config->get( 'DiscordShowNewUserFullName' ) ) {
-				$messageExtra .= $realname . ', ';
+				$messageExtra .= $user->getRealName() . ', ';
 			}
 
 			if ( $this->config->get( 'DiscordShowNewUserIP' ) ) {
-				$messageExtra .= $ipaddress . ', ';
+				$messageExtra .= $user->getRequest()->getIP() . ', ';
 			}
 
 			// Remove trailing comma
