@@ -220,7 +220,7 @@ You can use the below configuration options to configure it.
 | `$wgDiscordEnableExperimentalCVTFeatures`  | false | Set to true or none of the experimental CVT features will be enabled. |
 | `$wgDiscordExperimentalCVTMatchLimit`      | 250   | Configure the number of characters to display before and after the found match in the experimental CVT feed. |
 | `$wgDiscordExperimentalCVTMatchFilter`     | []    | An array of regexes to find matches, for sending to the experimental CVT feed. |
-| `$wgDiscordExperimentalCVTSendAllIPEdits`  | true  | Sends all edits by unregistered users to the experimental CVT feed. |
+| `$wgDiscordExperimentalCVTSendAllIPEdits`  | true  | Sends all edits by IP users to the experimental CVT feed. |
 | `$wgDiscordExperimentalCVTSendAllNewUsers` | true  | Sends all new user account creations (not autocreations) to the experimental CVT feed. |
 | `$wgDiscordExperimentalFeedLanguageCode`   | ''    | The language code to force the experimental CVT feed localisation too. If an empty string, it will use the default content language of the wiki the notification is from. |
 | `$wgDiscordExperimentalWebhook`            | ''    | The Discord incoming webhook URL to use for the experimental CVT feed. If an empty string, the experimental CVT feed features will be disabled. |
