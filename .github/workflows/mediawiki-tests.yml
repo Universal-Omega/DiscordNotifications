@@ -119,6 +119,7 @@ jobs:
       QUIBBLE_DOCKER_IMAGE: quibble-buster-php${{ matrix.php-docker }}
       COVERAGE_DOCKER_IMAGE: quibble-buster-php${{ matrix.php-docker }}-coverage
       PHAN_DOCKER_IMAGE: mediawiki-phan-php${{ matrix.php-docker }}
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
 
     steps:
       - name: Cancel Previous Runs
