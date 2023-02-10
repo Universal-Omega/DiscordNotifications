@@ -56,6 +56,27 @@ class DiscordEmbedBuilder {
 	private $timestamp;
 
 	/**
+	 * The image of the embed.
+	 *
+	 * @var array
+	 */
+	private $image;
+
+	/**
+	 * The thumbnail of the embed.
+	 *
+	 * @var array
+	 */
+	private $thumbnail;
+
+	/**
+	 * The author of the embed.
+	 *
+	 * @var array
+	 */
+	private $author;
+
+	/**
 	 * The footer of the embed.
 	 *
 	 * @var array
@@ -154,6 +175,52 @@ class DiscordEmbedBuilder {
 	}
 
 	/**
+	 * Sets the image of the embed.
+	 *
+	 * @param string $url The URL of the image to set.
+	 * @return self
+	 */
+	public function setImage( string $url ): self {
+		$this->image = [
+			'url' => $url,
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Sets the thumbnail of the embed.
+	 *
+	 * @param string $url The URL of the thumbnail to set.
+	 * @return self
+	 */
+	public function setThumbnail( string $url ): self {
+		$this->thumbnail = [
+			'url' => $url,
+		];
+
+		return $this;
+	}
+
+	/**
+	 * Sets the author of the embed.
+	 *
+	 * @param string $name The author name to set.
+	 * @param string $url The author URL to set.
+	 * @param string $iconUrl The author icon URL to set.
+	 * @return self
+	 */
+	public function setAuthor( string $name, string $url = '', string $iconUrl = '' ): self {
+		$this->author = array_filter( [
+			'name' => $name,
+			'url' => $url,
+			'icon_url' => $iconUrl,
+		] );
+
+		return $this;
+	}
+
+	/**
 	 * Sets the footer text and icon URL (if supplied) of the embed.
 	 *
 	 * @param string $text The text of the footer to set.
@@ -197,6 +264,9 @@ class DiscordEmbedBuilder {
 			'embeds' => [
 				array_filter( [
 					'title' => $this->title,
+					'author' => $this->author,
+					'image' => $this->image,
+					'thumbnail' => $this->thumbnail,
 					'description' => $this->description,
 					'url' => $this->url,
 					'color' => $this->color,
