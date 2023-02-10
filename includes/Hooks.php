@@ -26,9 +26,9 @@ use MediaWiki\Revision\RevisionLookup;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
-use MediaWiki\User\ActorStore;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
 use MediaWiki\User\UserGroupManager;
+use MediaWiki\User\UserIdentityValue;
 use RequestContext;
 use TextSlotDiffRenderer;
 use TitleFactory;
@@ -44,8 +44,6 @@ class Hooks implements
 	UploadCompleteHook,
 	UserGroupsChangedHook
 {
-	/** @var ActorStore */
-	private $actorStore;
 
 	/** @var Config */
 	private $config;
@@ -66,7 +64,6 @@ class Hooks implements
 	private $wikiPageFactory;
 
 	/**
-	 * @param ActorStore $actorStore
 	 * @param ConfigFactory $configFactory
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
@@ -75,7 +72,6 @@ class Hooks implements
 	 * @param WikiPageFactory $wikiPageFactory
 	 */
 	public function __construct(
-		ActorStore $actorStore,
 		ConfigFactory $configFactory,
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
@@ -85,7 +81,6 @@ class Hooks implements
 	) {
 		$this->config = $configFactory->makeConfig( 'DiscordNotifications' );
 
-		$this->actorStore = $actorStore;
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
@@ -454,7 +449,7 @@ class Hooks implements
 		$message = $this->discordNotifier->getMessage( 'discordnotifications-block-user',
 			$this->discordNotifier->getDiscordUserText( $user ),
 			$this->discordNotifier->getDiscordUserText(
-				$block->getTargetUserIdentity() ?? $this->actorStore->getUnknownActor()
+				$block->getTargetUserIdentity() ?? UserIdentityValue::newAnonymous( $block->getTargetName() )
 			),
 			$reason == '' ? '' : $this->discordNotifier->getMessage( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
 			$block->getExpiry(),
