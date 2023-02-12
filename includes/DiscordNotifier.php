@@ -362,6 +362,15 @@ class DiscordNotifier {
 
 	/**
 	 * @param string $key
+	 * @param string ...$params
+	 * @return string
+	 */
+	public function getMessageWithPlaintextParams( string $key, string ...$params ): string {
+		return $this->messageLocalizer->msg( $key )->plaintextParams( ...$params )->inContentLanguage()->text();
+	}
+
+	/**
+	 * @param string $key
 	 * @param string $languageCode
 	 * @param string ...$params
 	 * @return string
