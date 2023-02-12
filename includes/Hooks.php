@@ -168,7 +168,7 @@ class Hooks implements
 			$message = $this->discordNotifier->getMessage( 'discordnotifications-article-created',
 				$this->discordNotifier->getDiscordUserText( $user ),
 				$this->discordNotifier->getDiscordArticleText( $wikiPage ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
+				$summary == '' ? '' : $this->discordNotifier->getMessageWithPlaintextParams( 'discordnotifications-summary', $summary )
 			);
 
 			if ( $this->config->get( 'DiscordIncludeDiffSize' ) ) {
@@ -241,7 +241,7 @@ class Hooks implements
 				$this->discordNotifier->getDiscordUserText( $user ),
 				$isMinor ? $this->discordNotifier->getMessage( 'discordnotifications-article-saved-minor-edits' ) : $this->discordNotifier->getMessage( 'discordnotifications-article-saved-edit' ),
 				$this->discordNotifier->getDiscordArticleText( $wikiPage, true ),
-				$summary == '' ? '' : wfMessage( 'discordnotifications-summary' )->plaintextParams( $summary )->inContentLanguage()->text()
+				$summary == '' ? '' : $this->discordNotifier->getMessageWithPlaintextParams( 'discordnotifications-summary', $summary )
 			);
 
 			if (
@@ -275,11 +275,11 @@ class Hooks implements
 			return;
 		}
 
-		$message = wfMessage( 'discordnotifications-article-deleted' )->plaintextParams(
+		$message = $this->discordNotifier->getMessageWithPlaintextParams( 'discordnotifications-article-deleted',
 			$this->discordNotifier->getDiscordUserText( $deleter->getUser() ),
 			$this->discordNotifier->getDiscordArticleText( $wikiPage ),
 			$reason
-		)->inContentLanguage()->text();
+		);
 
 		$this->discordNotifier->notify( $message, $deleter->getUser(), 'article_deleted' );
 	}
