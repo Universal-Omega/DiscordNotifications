@@ -1,13 +1,15 @@
 {
 	"@metadata": {
 		"authors": [
-			"Mainframe98"
+			"Mainframe98",
+			"McDutchie"
 		]
 	},
 	"discordnotifications-block": "blokkeren",
 	"discordnotifications-groups": "groepen",
 	"discordnotifications-talk": "overleg",
 	"discordnotifications-contribs": "bijdragen",
+	"discordnotifications-centralauth": "CentralAuth",
 	"discordnotifications-edit": "bewerken",
 	"discordnotifications-delete": "verwijderen",
 	"discordnotifications-history": "geschiedenis",
@@ -28,6 +30,7 @@
 	"discordnotifications-block-user-reason": "met reden",
 	"discordnotifications-block-user-list": "Lijst met alle blokkades",
 	"discordnotifications-summary": "Samenvatting: $1",
+	"discordnotifications-content": "Inhoud:",
 	"discordnotifications-view-user-rights": "Gebruikerrechten beheren of bekijken",
 	"discordnotifications-flow-lock-topic-lock": "opgelost",
 	"discordnotifications-flow-lock-topic-unlock": "heropend",

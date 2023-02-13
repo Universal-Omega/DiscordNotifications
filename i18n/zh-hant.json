@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Kly",
+			"Universal Omega",
 			"Xiplus",
 			"捍粵者"
 		]
@@ -18,7 +19,7 @@
 	"discordnotifications-bytes": "$1{{PLURAL:$1|位元組}}",
 	"discordnotifications-article-saved": "📝 $1已$2條目$3 $4",
 	"discordnotifications-article-saved-minor-edits": "稍微編輯了",
-	"discordnotifications-article-saved-edit": "已編輯",
+	"discordnotifications-article-saved-edit": "編輯",
 	"discordnotifications-article-created": "📝 $1已建立條目$2 $3",
 	"discordnotifications-file-namespace": "檔案",
 	"discordnotifications-article-deleted": "❌ $1已刪除條目$2。原因：$3",

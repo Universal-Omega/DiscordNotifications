@@ -37,7 +37,7 @@
 	"discordnotifications-block-user-reason": "avec le motif",
 	"discordnotifications-block-user-list": "Liste de tous les blocages",
 	"discordnotifications-summary": "Résumé : $1",
-	"discordnotifications-content": "Contenu :",
+	"discordnotifications-content": "Contenu :",
 	"discordnotifications-view-user-rights": "Afficher ou gérer les droits des utilisateurs",
 	"discordnotifications-change-user-groups": "%s a changé les groupes d’utilisateurs pour %s. Nouveaux groupes : %s",
 	"discordnotifications-change-user-groups-with-old": "$1 a changé les groupes d’utilisateurs pour $2. Anciens groupes : $3. Nouveaux groupes : $4.",
