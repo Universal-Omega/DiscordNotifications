@@ -9,8 +9,6 @@ use Config;
 use ConfigFactory;
 use Exception;
 use ExtensionRegistry;
-use Flow\Collection\PostCollection;
-use Flow\Model\UUID;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\Hook\AfterImportPageHook;
@@ -227,7 +225,7 @@ class Hooks implements
 					}
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
-					$diff = $this->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
+					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
 
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', $experimentalLanguageCode, '' ) => $summary,
@@ -516,7 +514,7 @@ class Hooks implements
 			case 'edit-post':
 				$message = $this->discordNotifier->getMessage( 'discordnotifications-flow-edit-post',
 					$this->discordNotifier->getDiscordUserText( $user ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -524,14 +522,14 @@ class Hooks implements
 				$message = $this->discordNotifier->getMessage( 'discordnotifications-flow-edit-title',
 					$this->discordNotifier->getDiscordUserText( $user ),
 					$request['etcontent'],
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
 			case 'edit-topic-summary':
 				$message = $this->discordNotifier->getMessage( 'discordnotifications-flow-edit-topic-summary',
 					$this->discordNotifier->getDiscordUserText( $user ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -542,7 +540,7 @@ class Hooks implements
 					// * discordnotifications-flow-lock-topic-lock
 					// * discordnotifications-flow-lock-topic-unlock
 					$this->discordNotifier->getMessage( 'discordnotifications-flow-lock-topic-' . $request['cotmoderationState'] ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -557,7 +555,7 @@ class Hooks implements
 					// * discordnotifications-flow-moderate-delete
 					// * discordnotifications-flow-moderate-undelete
 					$this->discordNotifier->getMessage( 'discordnotifications-flow-moderate-' . $request['mpmoderationState'] ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -572,7 +570,7 @@ class Hooks implements
 					// * discordnotifications-flow-moderate-delete
 					// * discordnotifications-flow-moderate-undelete
 					$this->discordNotifier->getMessage( 'discordnotifications-flow-moderate-' . $request['mtmoderationState'] ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $request['page'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -587,7 +585,7 @@ class Hooks implements
 			case 'reply':
 				$message = $this->discordNotifier->getMessage( 'discordnotifications-flow-reply',
 					$this->discordNotifier->getDiscordUserText( $user ),
-					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . self::flowUUIDToTitleText( $result['workflow'] ) . '>'
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . 'Topic:' . $result['workflow'] ) . '|' . $this->discordNotifier->flowUUIDToTitleText( $result['workflow'] ) . '>'
 				);
 
 				break;
@@ -596,39 +594,5 @@ class Hooks implements
 		}
 
 		$this->discordNotifier->notify( $message, $user, 'flow' );
-	}
-
-	/**
-	 * Convert the HTML diff to a human-readable format so it can be in the Discord embed
-	 *
-	 * @param string $diff
-	 * @return string
-	 */
-	private function getPlainDiff( string $diff ): string {
-		$replacements = [
-			html_entity_decode( '&nbsp;' ) => ' ',
-			html_entity_decode( '&minus;' ) => '-',
-			'+' => "\n+",
-		];
-
-		// Preserve markers when stripping tags
-		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
-		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', "\n\n", $diff );
-		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
-
-		return str_replace( array_keys( $replacements ), array_values( $replacements ),
-			strip_tags( $diff ) );
-	}
-
-	/**
-	 * @param string $UUID
-	 * @return string
-	 */
-	private static function flowUUIDToTitleText( string $UUID ): string {
-		$UUID = UUID::create( $UUID );
-		$collection = PostCollection::newFromId( $UUID );
-		$revision = $collection->getLastRevision();
-
-		return $revision->getContent( 'topic-title-plaintext' );
 	}
 }

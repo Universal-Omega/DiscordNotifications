@@ -5,6 +5,8 @@ declare( strict_types = 1 );
 namespace MediaWiki\Extension\DiscordNotifications;
 
 use ExtensionRegistry;
+use Flow\Collection\PostCollection;
+use Flow\Model\UUID;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
 use MediaWiki\User\UserIdentity;
@@ -385,5 +387,39 @@ class DiscordNotifier {
 		} else {
 			return $this->messageLocalizer->msg( $key )->inLanguage( $languageCode )->text();
 		}
+	}
+
+	/**
+	 * Convert the HTML diff to a human-readable format so it can be in the Discord embed
+	 *
+	 * @param string $diff
+	 * @return string
+	 */
+	public function getPlainDiff( string $diff ): string {
+		$replacements = [
+			html_entity_decode( '&nbsp;' ) => ' ',
+			html_entity_decode( '&minus;' ) => '-',
+			'+' => "\n+",
+		];
+
+		// Preserve markers when stripping tags
+		$diff = str_replace( '<td class="diff-marker"></td>', ' ', $diff );
+		$diff = preg_replace( '@<td colspan="2"( class="(?:diff-side-deleted|diff-side-added)")?></td>@', "\n\n", $diff );
+		$diff = preg_replace( '/data-marker="([^"]*)">/', '>$1', $diff );
+
+		return str_replace( array_keys( $replacements ), array_values( $replacements ),
+			strip_tags( $diff ) );
+	}
+
+	/**
+	 * @param string $UUID
+	 * @return string
+	 */
+	public function flowUUIDToTitleText( string $UUID ): string {
+		$UUID = UUID::create( $UUID );
+		$collection = PostCollection::newFromId( $UUID );
+		$revision = $collection->getLastRevision();
+
+		return $revision->getContent( 'topic-title-plaintext' );
 	}
 }
