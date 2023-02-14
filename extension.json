@@ -97,6 +97,9 @@
 		"DiscordExcludedPermission": {
 			"value": ""
 		},
+		"DiscordNotificationExcludeBots": {
+			"value": false
+		},
 		"DiscordNotificationWikiUrl": {
 			"value": ""
 		},
@@ -203,6 +206,9 @@
 			"value": true
 		},
 		"DiscordExperimentalCVTSendAllNewUsers": {
+			"value": true
+		},
+		"DiscordExpermentalCVTExcludeBots": {
 			"value": true
 		},
 		"DiscordExperimentalFeedLanguageCode": {
