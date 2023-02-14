@@ -97,7 +97,7 @@
 		"DiscordExcludedPermission": {
 			"value": ""
 		},
-		"DiscordNotificationExcludeBots": {
+		"DiscordExcludeBots": {
 			"value": false
 		},
 		"DiscordNotificationWikiUrl": {
