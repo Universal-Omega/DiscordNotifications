@@ -25,6 +25,7 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Storage\Hook\PageSaveCompleteHook;
 use MediaWiki\User\Hook\UserGroupsChangedHook;
+use MediaWiki\User\UserFactory;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentityValue;
 use RequestContext;
@@ -56,6 +57,9 @@ class Hooks implements
 	/** @var TitleFactory */
 	private $titleFactory;
 
+	/** @var UserFactory */
+	private $userFactory;
+
 	/** @var UserGroupManager */
 	private $userGroupManager;
 
@@ -67,6 +71,7 @@ class Hooks implements
 	 * @param DiscordNotifier $discordNotifier
 	 * @param RevisionLookup $revisionLookup
 	 * @param TitleFactory $titleFactory
+	 * @param UserFactory $userFactory
 	 * @param UserGroupManager $userGroupManager
 	 * @param WikiPageFactory $wikiPageFactory
 	 */
@@ -75,6 +80,7 @@ class Hooks implements
 		DiscordNotifier $discordNotifier,
 		RevisionLookup $revisionLookup,
 		TitleFactory $titleFactory,
+		UserFactory $userFactory,
 		UserGroupManager $userGroupManager,
 		WikiPageFactory $wikiPageFactory
 	) {
@@ -83,6 +89,7 @@ class Hooks implements
 		$this->discordNotifier = $discordNotifier;
 		$this->revisionLookup = $revisionLookup;
 		$this->titleFactory = $titleFactory;
+		$this->userFactory = $userFactory;
 		$this->userGroupManager = $userGroupManager;
 		$this->wikiPageFactory = $wikiPageFactory;
 	}
@@ -98,6 +105,11 @@ class Hooks implements
 		}
 
 		if ( !$this->config->get( 'DiscordNotificationAddedArticle' ) && $isNew ) {
+			return;
+		}
+
+		$isBot = $this->userFactory->newFromUserIdentity( $user )->isBot();
+		if ( $this->config->get( 'DiscordExcludeBots' ) && $isBot ) {
 			return;
 		}
 
@@ -122,8 +134,14 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
+			// Determine whether to send a message to the experimental CVT feed for the given user edit.
+			// Checks if the configuration option to send all IP edits to the experimental CVT feed is enabled
+			// and the user is not registered and their name is a valid IP address.
+			// Also, checks if the configuration option to exclude bots from the experimental CVT feed is enabled,
+			// and if it is, skip sending to the experimental CVT feed if the user is a bot.
 			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
-				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) );
+				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) &&
+				!( $this->config->get( 'DiscordExpermentalCVTExcludeBots' ) && $isBot );
 
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
 		}

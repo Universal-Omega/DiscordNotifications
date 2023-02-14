@@ -29,6 +29,7 @@
 				"DiscordNotifier",
 				"RevisionLookup",
 				"TitleFactory",
+				"UserFactory",
 				"UserGroupManager",
 				"WikiPageFactory"
 			]
@@ -96,6 +97,9 @@
 		},
 		"DiscordExcludedPermission": {
 			"value": ""
+		},
+		"DiscordExcludeBots": {
+			"value": false
 		},
 		"DiscordNotificationWikiUrl": {
 			"value": ""
@@ -203,6 +207,9 @@
 			"value": true
 		},
 		"DiscordExperimentalCVTSendAllNewUsers": {
+			"value": true
+		},
+		"DiscordExpermentalCVTExcludeBots": {
 			"value": true
 		},
 		"DiscordExperimentalFeedLanguageCode": {

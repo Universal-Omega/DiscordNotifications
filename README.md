@@ -127,6 +127,9 @@ By default notifications from all users will be sent to your Discord room. If yo
 ```php
 // If this is set, actions by users with this permission won't cause alerts
 $wgDiscordExcludedPermission = '';
+
+// If this is enabled, bots will be excluded from all feeds
+$wgDiscordExcludeBots = false;
 ```
 
 ### Disable notifications from certain pages/namespaces
@@ -222,6 +225,7 @@ You can use the below configuration options to configure it.
 | `$wgDiscordExperimentalCVTMatchFilter`     | []    | An array of regexes to find matches, for sending to the experimental CVT feed. |
 | `$wgDiscordExperimentalCVTSendAllIPEdits`  | true  | Sends all edits by IP users to the experimental CVT feed. |
 | `$wgDiscordExperimentalCVTSendAllNewUsers` | true  | Sends all new user account creations (not autocreations) to the experimental CVT feed. |
+| `$wgDiscordExpermentalCVTExcludeBots`      | true  | Whether or not to exclude bots from the experimental CVT feed. |
 | `$wgDiscordExperimentalFeedLanguageCode`   | ''    | The language code to force the experimental CVT feed localisation too. If an empty string, it will use the default content language of the wiki the notification is from. |
 | `$wgDiscordExperimentalWebhook`            | ''    | The Discord incoming webhook URL to use for the experimental CVT feed. If an empty string, the experimental CVT feed features will be disabled. |
 | `$wgDiscordExperimentalNewUsersWebhook`    | ''    | The Discord incoming webhook URL to use for an experimental new users feed (not including autocreations). If this is set, they will be sent here rather than the experimental CVT feed. |
