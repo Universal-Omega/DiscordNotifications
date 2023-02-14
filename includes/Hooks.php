@@ -101,6 +101,10 @@ class Hooks implements
 			return;
 		}
 
+		if ( $this->config->get( 'DiscordNotificationExcludeBots' ) && $user->isBot() ) {
+			return;
+		}
+
 		if ( $this->discordNotifier->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
 			return;
 		}
@@ -122,8 +126,10 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
-			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
-				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) );
+			if ( $this->config->get( 'DiscordExpermentalCVTExcludeBots' ) && $user->isBot() ) {
+				$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
+					( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) );
+			}
 
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
 		}
