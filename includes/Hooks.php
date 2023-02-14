@@ -131,7 +131,7 @@ class Hooks implements
 			// and the user is not registered and their name is a valid IP address.
 			// Also, checks if the configuration option to exclude bots from the experimental CVT feed is enabled,
 			// and if it is, skip sending to the experimental CVT feed if the user is a bot.
-			$shouldSendToCVTFeed = $this->config->get('DiscordExperimentalCVTSendAllIPEdits') &&
+			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
 				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) &&
 				!( $this->config->get( 'DiscordExpermentalCVTExcludeBots' ) && $user->isBot() );
 
