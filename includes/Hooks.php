@@ -101,7 +101,7 @@ class Hooks implements
 			return;
 		}
 
-		if ( $this->config->get( 'DiscordNotificationExcludeBots' ) && $user->isBot() ) {
+		if ( $this->config->get( 'DiscordExcludeBots' ) && $user->isBot() ) {
 			return;
 		}
 
