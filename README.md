@@ -128,7 +128,8 @@ By default notifications from all users will be sent to your Discord room. If yo
 // If this is set, actions by users with this permission won't cause alerts
 $wgDiscordExcludedPermission = '';
 
-// If this is enabled, bots will be excluded from all feeds (expermental/might be removed, changed, or renamed without warning in the future)
+// If this is enabled, bots will be excluded from all feeds
+// Expermental: might be removed, renamed, or changed without warning in the future
 $wgDiscordExcludeBots = false;
 ```
 
