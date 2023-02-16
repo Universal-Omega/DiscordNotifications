@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Kareyac",
 			"Pacha Tchernof",
 			"Vlad5250"
 		]
@@ -31,6 +32,7 @@
 	"discordnotifications-block-user-reason": "по причине",
 	"discordnotifications-block-user-list": "Список всех блокировок",
 	"discordnotifications-summary": "Комментарий: $1",
+	"discordnotifications-content": "Содержание:",
 	"discordnotifications-view-user-rights": "Просмотреть или настроить права участников",
 	"discordnotifications-change-user-groups": "%s {{gender:%s|изменил|изменила|изменил-а}} группы участников для %s. Новые группы: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 {{gender:$1|изменил|изменила|изменил-а}} группы участников для $2. Прежние группы: $3. Новые группы: $4",
