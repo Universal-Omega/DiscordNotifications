@@ -488,7 +488,7 @@ class Hooks implements
 					$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode ),
 					$this->discordNotifier->getDiscordUserText(
 						$block->getTargetUserIdentity() ?? UserIdentityValue::newAnonymous( $block->getTargetName() ),
-						$experimentalLanguageCode
+						$experimentalLanguageCode, true
 					),
 					$reason == '' ? '' : $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user-reason', $experimentalLanguageCode ) . " '" . $reason . "'.",
 					$block->getExpiry(),
