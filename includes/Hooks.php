@@ -122,6 +122,8 @@ class Hooks implements
 			return;
 		}
 
+		$summary = strip_tags( $summary );
+
 		$enableExperimentalCVTFeatures = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
 				$this->config->get( 'DiscordExperimentalWebhook' );
 
@@ -449,7 +451,7 @@ class Hooks implements
 			$localFile->getMimeType(),
 			$lang->formatSize( $localFile->getSize() ),
 			'',
-			$localFile->getDescription()
+			strip_tags( $localFile->getDescription() )
 		);
 
 		$this->discordNotifier->notify( $message, $user, 'file_uploaded' );
