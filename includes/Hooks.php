@@ -475,6 +475,30 @@ class Hooks implements
 			'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . $this->discordNotifier->getMessage( 'discordnotifications-block-user-list' ) . '>.'
 		);
 
+		$webhook = $this->config->get( 'DiscordEnableExperimentalCVTFeatures' ) &&
+			$this->config->get( 'DiscordExperimentalCVTSendAllUserBlocks' ) ?
+			$this->config->get( 'DiscordExperimentalWebhook' ) :
+			( $this->config->get( 'DiscordExperimentalUserBlocksWebhook' ) ?: null );
+
+		if ( $webhook ) {
+			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
+			if ( $experimentalLanguageCode ) {
+				$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user',
+					$experimentalLanguageCode,
+					$this->discordNotifier->getDiscordUserText( $user, $experimentalLanguageCode ),
+					$this->discordNotifier->getDiscordUserText(
+						$block->getTargetUserIdentity() ?? UserIdentityValue::newAnonymous( $block->getTargetName() ),
+						$experimentalLanguageCode, true
+					),
+					$reason == '' ? '' : $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user-reason', $experimentalLanguageCode ) . " '" . $reason . "'.",
+					$block->getExpiry(),
+					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user-list', $experimentalLanguageCode ) . '>.'
+				);
+			}
+
+			$this->discordNotifier->notify( $messageInLanguage ?? $message, $user, 'user_blocked', [], $webhook );
+		}
+
 		$this->discordNotifier->notify( $message, $user, 'user_blocked' );
 	}
 

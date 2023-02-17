@@ -209,6 +209,9 @@
 		"DiscordExperimentalCVTSendAllNewUsers": {
 			"value": true
 		},
+		"DiscordExperimentalCVTSendAllUserBlocks": {
+			"value": true
+		},
 		"DiscordExpermentalCVTExcludeBots": {
 			"value": true
 		},
@@ -219,6 +222,9 @@
 			"value": ""
 		},
 		"DiscordExperimentalNewUsersWebhook": {
+			"value": ""
+		},
+		"DiscordExperimentalUserBlocksWebhook": {
 			"value": ""
 		}
 	},
