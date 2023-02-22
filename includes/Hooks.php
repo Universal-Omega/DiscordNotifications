@@ -131,14 +131,13 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
-			$isBot = $this->userFactory->newFromUserIdentity( $user )->isBot();
-
 			// Determine whether to send a message to the experimental CVT feed for the given user edit.
 			// Checks if the configuration option to send all IP edits to the experimental CVT feed is enabled
 			// and the user is not registered and their name is a valid IP address.
 			// Also, checks that the user is not a bot, and if it is will not send to the experimental CVT feed.
 			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
-				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) && !$isBot;
+				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) &&
+				!$this->userFactory->newFromUserIdentity( $user )->isBot();
 
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
 		}
