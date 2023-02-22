@@ -92,14 +92,11 @@
 		"DiscordIgnoreMinorEdits": {
 			"value": false
 		},
-		"DiscordExcludeNotificationsFrom": {
+		"DiscordExcludeConditions": {
 			"value": []
 		},
-		"DiscordExcludedPermission": {
-			"value": ""
-		},
-		"DiscordExcludeBots": {
-			"value": false
+		"DiscordExcludeNotificationsFrom": {
+			"value": []
 		},
 		"DiscordNotificationWikiUrl": {
 			"value": ""
@@ -210,9 +207,6 @@
 			"value": true
 		},
 		"DiscordExperimentalCVTSendAllUserBlocks": {
-			"value": true
-		},
-		"DiscordExpermentalCVTExcludeBots": {
 			"value": true
 		},
 		"DiscordExperimentalFeedLanguageCode": {

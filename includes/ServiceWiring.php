@@ -12,7 +12,8 @@ return [
 				DiscordNotifier::CONSTRUCTOR_OPTIONS,
 				$services->getConfigFactory()->makeConfig( 'DiscordNotifications' )
 			),
-			$services->getPermissionManager()
+			$services->getPermissionManager(),
+			$services->getUserGroupManager()
 		);
 	},
 ];

@@ -9,6 +9,7 @@ use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
 use MessageLocalizer;
 use Title;
@@ -20,8 +21,8 @@ class DiscordNotifier {
 		'DiscordAdditionalIncomingWebhookUrls',
 		'DiscordAvatarUrl',
 		'DiscordCurlProxy',
+		'DiscordExcludeConditions',
 		'DiscordExcludeNotificationsFrom',
-		'DiscordExcludedPermission',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -51,21 +52,27 @@ class DiscordNotifier {
 	/** @var PermissionManager */
 	private $permissionManager;
 
+	/** @var UserGroupManager */
+	private $userGroupManager;
+
 	/**
 	 * @param MessageLocalizer $messageLocalizer
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
+	 * @param UserGroupManager $userGroupManager
 	 */
 	public function __construct(
 		MessageLocalizer $messageLocalizer,
 		ServiceOptions $options,
-		PermissionManager $permissionManager
+		PermissionManager $permissionManager,
+		UserGroupManager $userGroupManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->messageLocalizer = $messageLocalizer;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
+		$this->userGroupManager = $userGroupManager;
 	}
 
 	/**
@@ -78,11 +85,9 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
-			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
-				// Users with the permission suppress notifications
-				return;
-			}
+		if ( $user && $this->conditionIsExcluded( $user, $action, (bool)$webhook ) ) {
+			// Don't send notifications if user meets exclude conditions
+			return;
 		}
 
 		$discordFromName = $this->options->get( 'DiscordFromName' );
@@ -343,6 +348,79 @@ class DiscordNotifier {
 				if ( strpos( $title, $currentExclude ) === 0 ) {
 					return true;
 				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether the exclude conditions are met
+	 *
+	 * @param UserIdentity $user
+	 * @param string $action
+	 * @param bool $experimental
+	 * @return bool
+	 */
+	public function conditionIsExcluded( UserIdentity $user, string $action, bool $experimental ): bool {
+		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
+
+		if ( !$excludeConditions ) {
+			// Exit early if no conditions are set
+			return false;
+		}
+
+		if ( is_array( $excludeConditions['permissions'] ?? null ) ) {
+			if ( array_intersect( $excludeConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications for any action, including expermental feeds
+				return true;
+			}
+		}
+
+		if ( is_array( $excludeConditions['groups'] ?? null ) ) {
+			if ( array_intersect( $excludeConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the group suppress notifications for any action, including expermental feeds
+				return true;
+			}
+		}
+
+		if ( $experimental ) {
+			if ( is_array( $excludeConditions['experimental'] ?? null ) ) {
+				if ( is_array( $excludeConditions['experimental']['permissions'] ?? null ) && array_intersect( $excludeConditions['experimental']['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+					// Users with the permissions suppress notifications for the experimental condition
+					return true;
+				}
+
+				if ( is_array( $excludeConditions['experimental']['groups'] ?? null ) && array_intersect( $excludeConditions['experimental']['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+					// Users with the groups suppress notifications for the experimental condition
+					return true;
+				}
+
+				if ( is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
+					$actionConditions = $excludeConditions['experimental'][$action];
+
+					if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+						// Users with the permissions suppress notifications if matching action
+						return true;
+					}
+
+					if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+						// Users with the groups suppress notifications if matching action
+						return true;
+					}
+				}
+			}
+		} elseif ( is_array( $excludeConditions[$action] ?? null ) ) {
+			$actionConditions = $excludeConditions[$action];
+
+			if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications if matching action
+				return true;
+			}
+
+			if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the groups suppress notifications if matching action
+				return true;
 			}
 		}
 
