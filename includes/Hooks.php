@@ -108,11 +108,6 @@ class Hooks implements
 			return;
 		}
 
-		$isBot = $this->userFactory->newFromUserIdentity( $user )->isBot();
-		if ( $this->config->get( 'DiscordExcludeBots' ) && $isBot ) {
-			return;
-		}
-
 		if ( $this->discordNotifier->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
 			return;
 		}
@@ -136,14 +131,14 @@ class Hooks implements
 				$content = strip_tags( $content->serialize() );
 			}
 
+			$isBot = $this->userFactory->newFromUserIdentity( $user )->isBot();
+
 			// Determine whether to send a message to the experimental CVT feed for the given user edit.
 			// Checks if the configuration option to send all IP edits to the experimental CVT feed is enabled
 			// and the user is not registered and their name is a valid IP address.
-			// Also, checks if the configuration option to exclude bots from the experimental CVT feed is enabled,
-			// and if it is, skip sending to the experimental CVT feed if the user is a bot.
+			// Also, checks that the user is not a bot, and if it is will not send to the experimental CVT feed.
 			$shouldSendToCVTFeed = $this->config->get( 'DiscordExperimentalCVTSendAllIPEdits' ) &&
-				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) &&
-				!( $this->config->get( 'DiscordExpermentalCVTExcludeBots' ) && $isBot );
+				( !$user->isRegistered() && IPUtils::isIPAddress( $user->getName() ) ) && !$isBot;
 
 			$experimentalLanguageCode = $this->config->get( 'DiscordExperimentalFeedLanguageCode' );
 		}
