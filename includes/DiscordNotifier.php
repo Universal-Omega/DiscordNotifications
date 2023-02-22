@@ -20,8 +20,8 @@ class DiscordNotifier {
 		'DiscordAdditionalIncomingWebhookUrls',
 		'DiscordAvatarUrl',
 		'DiscordCurlProxy',
+		'DiscordExcludeConditions',
 		'DiscordExcludeNotificationsFrom',
-		'DiscordExcludedPermission',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -78,8 +78,8 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( $this->options->get( 'DiscordExcludedPermission' ) ) {
-			if ( $user && $this->permissionManager->userHasRight( $user, $this->options->get( 'DiscordExcludedPermission' ) ) ) {
+		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )['rights'] ?? null ) ) {
+			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )['rights'], $this->permissionManager->getUserPermissions( $user ) ) ) {
 				// Users with the permission suppress notifications
 				return;
 			}
