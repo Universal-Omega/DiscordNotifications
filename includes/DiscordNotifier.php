@@ -85,7 +85,7 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( $user && $this->conditionIsExcluded( $user, $action, (bool)$webhook ) {
+		if ( $user && $this->conditionIsExcluded( $user, $action, (bool)$webhook ) ) {
 			// Don't send notifications if user meets exclude conditions
 			return;
 		}
