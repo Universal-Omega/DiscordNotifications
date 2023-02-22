@@ -11,3 +11,13 @@ $wgDiscordEnableExperimentalCVTFeatures = true;
 $wgDiscordExperimentalCVTMatchFilter = [
 	'test',
 ];
+
+$wgDiscordExcludeConditions = [
+	'experimental' => [
+		'article_inserted' => [
+			'groups' => [
+				'sysop',
+			],
+		],
+	],
+];
