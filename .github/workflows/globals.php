@@ -1,11 +1,11 @@
 <?php
 
-$wgDiscordIncomingWebhookUrl = 'https://discord.com/api/webhooks/960979188364484658/pejDt4WX1MT3D-JBg7l1LiKtZF3vAj8Nx7QnAKQOjbDJX9STNNdv5ugARCs3fVgLh_6N';
+$wgDiscordIncomingWebhookUrl = 'https://discord.com/api/webhooks/1078075149741477938/1-pOhyjsdrCHgC-G7RDvL0FHHy' . 'POsLt8wq169jW3L7VK9padVkPWq5Q9lp2CDBqsnGyK';
 $wgDiscordNotificationWikiUrl = 'http://localhost/';
 
 $wgDiscordNotificationCentralAuthWikiUrl = 'http://localhost/';
 
-$wgDiscordExperimentalWebhook = 'https://discord.com/api/webhooks/963568043320041502/cy764BVVAJokojgQEke7XPMm4-vxrp6Coa9R5Buclpq6Hu5EHao1ideCHddNk2z1rPX5';
+$wgDiscordExperimentalWebhook = 'https://discord.com/api/webhooks/1078075188580720810/WeTY7r2qQ08XitYURvdP' . 'iTJ3aQAikqQPvk_Crb60xP24TB5UYMyJdFg9HDg7CYo8oktu';
 $wgDiscordEnableExperimentalCVTFeatures = true;
 
 $wgDiscordExperimentalCVTMatchFilter = [
