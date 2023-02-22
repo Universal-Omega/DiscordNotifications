@@ -85,23 +85,9 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )['permissions'] ?? null ) ) {
-			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
-				// Users with the permissions suppress notifications for any action
-				return;
-			}
-		}
-
-		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )[$action] ?? null ) ) {
-			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )[$action]['permissions'] ?? [], $this->permissionManager->getUserPermissions( $user ) ) ) {
-				// Users with the permissions suppress notifications if matching action
-				return;
-			}
-
-			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )[$action]['groups'] ?? [], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
-				// Users with the groups suppress notifications if matching action
-				return;
-			}
+		if ( $user && $this->conditionIsExcluded( $user, $action, (bool)$webhook ) {
+			// Don't send notifications if user meets exclude conditions
+			return;
 		}
 
 		$discordFromName = $this->options->get( 'DiscordFromName' );
@@ -112,7 +98,6 @@ class DiscordNotifier {
 		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
-		$action = str_replace( '-expermental', '', $action );
 		switch ( $action ) {
 			case 'article_saved':
 			case 'flow':
@@ -363,6 +348,53 @@ class DiscordNotifier {
 				if ( strpos( $title, $currentExclude ) === 0 ) {
 					return true;
 				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether the exclude conditions are met
+	 *
+	 * @param UserIdentity $user
+	 * @param string $action
+	 * @param bool $experimental
+	 * @return bool
+	 */
+	public function conditionIsExcluded( UserIdentity $user, string $action, bool $experimental ): bool {
+		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
+
+		if ( is_array( $excludeConditions['permissions'] ?? null ) ) {
+			if ( array_intersect( $excludeConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications for any action
+				return true;
+			}
+		}
+
+		if ( $experimental && is_array( $excludeConditions['experimental'] ?? null ) && is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
+			$actionConditions = $excludeConditions['experimental'][$action];
+
+			if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications if matching action
+				return true;
+			}
+
+			if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the groups suppress notifications if matching action
+				return true;
+			}
+		} elseif ( is_array( $excludeConditions[$action] ?? null ) ) {
+			$actionConditions = $excludeConditions[$action];
+
+			if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications if matching action
+				return true;
+			}
+
+			if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the groups suppress notifications if matching action
+				return true;
 			}
 		}
 
