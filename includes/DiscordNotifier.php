@@ -9,6 +9,7 @@ use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
 use MessageLocalizer;
 use Title;
@@ -51,21 +52,27 @@ class DiscordNotifier {
 	/** @var PermissionManager */
 	private $permissionManager;
 
+	/** @var UserGroupManager */
+	private $userGroupManager;
+
 	/**
 	 * @param MessageLocalizer $messageLocalizer
 	 * @param ServiceOptions $options
 	 * @param PermissionManager $permissionManager
+	 * @param UserGroupManager $userGroupManager
 	 */
 	public function __construct(
 		MessageLocalizer $messageLocalizer,
 		ServiceOptions $options,
-		PermissionManager $permissionManager
+		PermissionManager $permissionManager,
+		UserGroupManager $userGroupManager
 	) {
 		$options->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
 
 		$this->messageLocalizer = $messageLocalizer;
 		$this->options = $options;
 		$this->permissionManager = $permissionManager;
+		$this->userGroupManager = $userGroupManager;
 	}
 
 	/**
@@ -78,9 +85,21 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )['rights'] ?? null ) ) {
-			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )['rights'], $this->permissionManager->getUserPermissions( $user ) ) ) {
-				// Users with the permission suppress notifications
+		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )['permissions'] ?? null ) ) {
+			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications for any action
+				return;
+			}
+		}
+
+		if ( is_array( $this->options->get( 'DiscordExcludeConditions' )[$action] ?? null ) ) {
+			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )[$action]['permissions'] ?? [], $this->permissionManager->getUserPermissions( $user ) ) ) {
+				// Users with the permissions suppress notifications if matching action
+				return;
+			}
+
+			if ( $user && (bool)array_intersect( $this->options->get( 'DiscordExcludeConditions' )[$action]['groups'] ?? [], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the groups suppress notifications if matching action
 				return;
 			}
 		}
@@ -93,6 +112,7 @@ class DiscordNotifier {
 		$message = preg_replace( '~(<)(http)([^|]*)(\|)([^\>]*)(>)~', '[$5]($2$3)', $message );
 		$message = str_replace( [ "\r", "\n" ], '', $message );
 
+		$action = str_replace( '-expermental', '', $action );
 		switch ( $action ) {
 			case 'article_saved':
 			case 'flow':
