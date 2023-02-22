@@ -372,14 +372,14 @@ class DiscordNotifier {
 
 		if ( is_array( $excludeConditions['permissions'] ?? null ) ) {
 			if ( array_intersect( $excludeConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
-				// Users with the permissions suppress notifications for any action
+				// Users with the permissions suppress notifications for any action, including expermental feeds
 				return true;
 			}
 		}
 
 		if ( is_array( $excludeConditions['groups'] ?? null ) ) {
 			if ( array_intersect( $excludeConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
-				// Users with the group suppress notifications for any action
+				// Users with the group suppress notifications for any action, including expermental feeds
 				return true;
 			}
 		}
