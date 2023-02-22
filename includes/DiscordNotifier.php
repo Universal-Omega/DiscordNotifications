@@ -372,17 +372,38 @@ class DiscordNotifier {
 			}
 		}
 
-		if ( $experimental && is_array( $excludeConditions['experimental'] ?? null ) && is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
-			$actionConditions = $excludeConditions['experimental'][$action];
-
-			if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
-				// Users with the permissions suppress notifications if matching action
+		if ( is_array( $excludeConditions['groups'] ?? null ) ) {
+			if ( array_intersect( $excludeConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+				// Users with the group suppress notifications for any action
 				return true;
 			}
+		}
 
-			if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
-				// Users with the groups suppress notifications if matching action
-				return true;
+		if ( $experimental ) {
+			if ( is_array( $excludeConditions['experimental'] ?? null ) ) {
+				if ( is_array( $excludeConditions['experimental']['permissions'] ?? null ) && array_intersect( $excludeConditions['experimental']['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+					// Users with the permissions suppress notifications for the experimental condition
+					return true;
+				}
+
+				if ( is_array( $excludeConditions['experimental']['groups'] ?? null ) && array_intersect( $excludeConditions['experimental']['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+					// Users with the groups suppress notifications for the experimental condition
+					return true;
+				}
+
+				if ( is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
+					$actionConditions = $excludeConditions['experimental'][$action];
+
+					if ( is_array( $actionConditions['permissions'] ?? null ) && array_intersect( $actionConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
+						// Users with the permissions suppress notifications if matching action
+						return true;
+					}
+
+					if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
+						// Users with the groups suppress notifications if matching action
+						return true;
+					}
+				}
 			}
 		} elseif ( is_array( $excludeConditions[$action] ?? null ) ) {
 			$actionConditions = $excludeConditions[$action];
