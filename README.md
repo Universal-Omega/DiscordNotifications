@@ -156,14 +156,14 @@ $wgDiscordExcludeConditions = [
 
 // To exclude sysops from article edits, but only on the experimental CVT feed, it would be:
 $wgDiscordExcludeConditions = [
-	'article_saved-experimental' => [
-		'groups' => [
-			'sysop',
+	'experimental' => [
+		'article_saved' => [
+			'groups' => [
+				'sysop',
+			],
 		],
 	],
 ];
-
-// Note: the syntax for expermental feeds might change at a later time
 ```
 
 ### Disable notifications from certain pages/namespaces
