@@ -164,6 +164,22 @@ $wgDiscordExcludeConditions = [
 		],
 	],
 ];
+
+/**
+ * Available actions to use in exclude conditions, also indicating if they support experimental:
+ *
+ * article_deleted: action for when an article is deleted
+ * article_inserted: action for when an article is created (supports experimental)
+ * article_moved: action for when an article is moved
+ * article_protected: action for when an article is protected
+ * article_saved: action for when an article is edited (supports experimental)
+ * file_uploaded: action for when a file is uploaded
+ * flow: action for when a change to a flow topic is executed
+ * import_complete: action for when an article is successfully imported
+ * new_user_account: action for when a new user account is created (supports experimental)
+ * user_blocked: action for when a user is blocked (supports experimental)
+ * user_groups_changed: action for when the user groups of a user is changed
+ */
 ```
 
 ### Disable notifications from certain pages/namespaces
