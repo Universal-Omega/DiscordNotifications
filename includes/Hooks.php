@@ -171,7 +171,7 @@ class Hooks implements
 						$content = substr( $content, $start, $length );
 					}
 
-					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
+					$this->discordNotifier->notify( $message, $user, 'article_inserted-expermental', [
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', $experimentalLanguageCode, '' ) => $summary,
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-content', $experimentalLanguageCode ) => $content ? "```\n$content\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
@@ -242,7 +242,7 @@ class Hooks implements
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
 					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
 
-					$this->discordNotifier->notify( $message, $user, 'article_saved', [
+					$this->discordNotifier->notify( $message, $user, 'article_saved-expermental', [
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', $experimentalLanguageCode, '' ) => $summary,
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-content', $experimentalLanguageCode ) => $diff ? "```diff\n$diff\n```" : '',
 					], $this->config->get( 'DiscordExperimentalWebhook' ) );
