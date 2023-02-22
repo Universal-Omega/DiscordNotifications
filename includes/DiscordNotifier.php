@@ -365,6 +365,11 @@ class DiscordNotifier {
 	public function conditionIsExcluded( UserIdentity $user, string $action, bool $experimental ): bool {
 		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
 
+		if ( !$excludeConditions ) {
+			// Exit early if no conditions are set
+			return false;
+		}
+
 		if ( is_array( $excludeConditions['permissions'] ?? null ) ) {
 			if ( array_intersect( $excludeConditions['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
 				// Users with the permissions suppress notifications for any action
