@@ -98,9 +98,6 @@
 		"DiscordExcludeNotificationsFrom": {
 			"value": []
 		},
-		"DiscordExcludeBots": {
-			"value": false
-		},
 		"DiscordNotificationWikiUrl": {
 			"value": ""
 		},
@@ -210,9 +207,6 @@
 			"value": true
 		},
 		"DiscordExperimentalCVTSendAllUserBlocks": {
-			"value": true
-		},
-		"DiscordExpermentalCVTExcludeBots": {
 			"value": true
 		},
 		"DiscordExperimentalFeedLanguageCode": {
