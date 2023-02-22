@@ -120,9 +120,9 @@ By default, we show the size of the edit. You can hide this information with the
 $wgDiscordIncludeDiffSize = false;
 ```
 
-### Disable notifications from certain user roles
+### Disable notifications for users meeting certain conditions
 
-By default notifications from all users will be sent to your Discord room. If you wish to exclude users in a certain group to not send notifications of any actions, you can set the group with the setting below.
+By default notifications from all users will be sent to your Discord channel. If you wish to exclude users in a certain group or with certain permissions to not send notifications of any actions or specific actions, you can set the conditions with the setting below.
 
 ```php
 // Sets conditions to exclude users from notifications
@@ -152,7 +152,7 @@ $wgDiscordExcludeConditions = [
 	],
 ];
 
-// Note: bots are always excluded from the experimental CVT feed, this may change in the future
+// Note: bots are always excluded from the experimental CVT feed, though this may change in the future
 
 // To exclude sysops from article edits, but only on the experimental CVT feed, it would be:
 $wgDiscordExcludeConditions = [
@@ -171,11 +171,13 @@ $wgDiscordExcludeConditions = [
 You can exclude notifications from certain namespaces/articles by adding them to this array. Note: This targets all pages starting with the name.
 
 ```php
-// Actions (add, edit, modify) won't be notified to Discord room from articles starting with these names
+// Actions (add, edit, modify) won't be notified to Discord channel from articles starting with these names
 $wgDiscordExcludeNotificationsFrom = [
 	'User:',
 	'Weirdgroup',
 ];
+
+// Note: this may be combined into $wgDiscordExcludeConditions in the future
 ```
 
 ### Show non-public article deletions
