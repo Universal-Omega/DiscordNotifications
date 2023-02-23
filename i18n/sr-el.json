@@ -28,6 +28,7 @@
 	"discordnotifications-block-user-reason": "navodeći razlog",
 	"discordnotifications-block-user-list": "Spisak svih blokiranja",
 	"discordnotifications-summary": "Opis izmene: $1",
+	"discordnotifications-content": "Sadržaj:",
 	"discordnotifications-view-user-rights": "Prikaži korisničke grupe ili upravljaj njima",
 	"discordnotifications-change-user-groups": "%s je promenio/la korisničke grupe korisnika ili IP adrese „%s”. Nove grupe: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 je promenio/la korisničke grupe korisnika ili IP adrese „$2”. Stare grupe: $3. Nove: $4",
