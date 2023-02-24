@@ -200,6 +200,9 @@
 		"DiscordExperimentalCVTMatchFilter": {
 			"value": []
 		},
+		"DiscordExperimentalCVTUsernameFilter": {
+			"value": []
+		},
 		"DiscordExperimentalCVTSendAllIPEdits": {
 			"value": true
 		},
