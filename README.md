@@ -182,18 +182,31 @@ $wgDiscordExcludeConditions = [
  */
 ```
 
-### Disable notifications from certain pages/namespaces
+### Disable notifications from certain titles or title prefixes
 
-You can exclude notifications from certain namespaces/articles by adding them to this array. Note: This targets all pages starting with the name.
+You can exclude notifications from certain title or title prefixes by adding them to this setting.
 
 ```php
-// Actions (add, edit, modify) won't be notified to Discord channel from articles starting with these names
-$wgDiscordExcludeNotificationsFrom = [
-	'User:',
-	'Weirdgroup',
+// Actions (add, edit, modify) won't be notified to Discord channel from articles with these titles
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'Title 1',
+		'Title 2',
+		'etc...',
+	],
 ];
 
-// Note: this may be combined into $wgDiscordExcludeConditions in the future
+// Actions (add, edit, modify) won't be notified to Discord channel from articles starting with these names
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'Exact Title',
+		'prefixes' => [
+			'User:',
+			'Another prefix:',
+			'etc...',
+		],
+	],
+];
 ```
 
 ### Show non-public article deletions
