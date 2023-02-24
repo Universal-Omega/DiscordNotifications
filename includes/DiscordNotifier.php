@@ -338,8 +338,8 @@ class DiscordNotifier {
 	/**
 	 * Returns whether the given title should be excluded
 	 *
-	 * @TODO Add support for options for experimental and per-action
-	 * @TODO Add additional options for namespaces and special options, such as own user pages
+	 * @todo Add support for options for experimental and per-action
+	 * @todo Add additional options for namespaces and special options, such as own user pages
 	 *
 	 * @param string $title
 	 * @return bool
