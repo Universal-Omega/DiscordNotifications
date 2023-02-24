@@ -384,6 +384,13 @@ class DiscordNotifier {
 			}
 		}
 
+		if ( is_array( $excludeConditions['users'] ?? null ) ) {
+			if ( in_array( $user->getName(), $excludeConditions['users'] ) ) {
+				// Individual users suppress notifications for any action, including expermental feeds
+				return true;
+			}
+		}
+
 		if ( $experimental ) {
 			if ( is_array( $excludeConditions['experimental'] ?? null ) ) {
 				if ( is_array( $excludeConditions['experimental']['permissions'] ?? null ) && array_intersect( $excludeConditions['experimental']['permissions'], $this->permissionManager->getUserPermissions( $user ) ) ) {
@@ -393,6 +400,11 @@ class DiscordNotifier {
 
 				if ( is_array( $excludeConditions['experimental']['groups'] ?? null ) && array_intersect( $excludeConditions['experimental']['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
 					// Users with the groups suppress notifications for the experimental condition
+					return true;
+				}
+
+				if ( is_array( $excludeConditions['experimental']['users'] ?? null ) && in_array( $user->getName(), $excludeConditions['experimental']['users'] ) ) {
+					// Individual users suppress notifications for the experimental condition
 					return true;
 				}
 
@@ -408,6 +420,11 @@ class DiscordNotifier {
 						// Users with the groups suppress notifications if matching action
 						return true;
 					}
+
+					if ( is_array( $actionConditions['users'] ?? null ) && in_array( $user->getName(), $actionConditions['users'] ) ) {
+						// Individual users suppress notifications if matching action
+						return true;
+					}
 				}
 			}
 		} elseif ( is_array( $excludeConditions[$action] ?? null ) ) {
@@ -420,6 +437,11 @@ class DiscordNotifier {
 
 			if ( is_array( $actionConditions['groups'] ?? null ) && array_intersect( $actionConditions['groups'], $this->userGroupManager->getUserEffectiveGroups( $user ) ) ) {
 				// Users with the groups suppress notifications if matching action
+				return true;
+			}
+
+			if ( is_array( $actionConditions['users'] ?? null ) && in_array( $user->getName(), $actionConditions['users'] ) ) {
+				// Individual users suppress notifications if matching action
 				return true;
 			}
 		}
