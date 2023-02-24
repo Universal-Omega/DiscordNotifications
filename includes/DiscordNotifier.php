@@ -22,7 +22,6 @@ class DiscordNotifier {
 		'DiscordAvatarUrl',
 		'DiscordCurlProxy',
 		'DiscordExcludeConditions',
-		'DiscordExcludeNotificationsFrom',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -85,7 +84,7 @@ class DiscordNotifier {
 	 * @param ?string $webhook
 	 */
 	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
-		if ( $user && $this->conditionIsExcluded( $user, $action, (bool)$webhook ) ) {
+		if ( $user && $this->userIsExcluded( $user, $action, (bool)$webhook ) ) {
 			// Don't send notifications if user meets exclude conditions
 			return;
 		}
@@ -339,12 +338,26 @@ class DiscordNotifier {
 	/**
 	 * Returns whether the given title should be excluded
 	 *
+	 * @TODO Add support for options for experimental and per-action
+	 * @TODO Add additional options for namespaces and special options, such as own user pages
+	 *
 	 * @param string $title
 	 * @return bool
 	 */
 	public function titleIsExcluded( string $title ): bool {
-		if ( is_array( $this->options->get( 'DiscordExcludeNotificationsFrom' ) ) && count( $this->options->get( 'DiscordExcludeNotificationsFrom' ) ) > 0 ) {
-			foreach ( $this->options->get( 'DiscordExcludeNotificationsFrom' ) as &$currentExclude ) {
+		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
+
+		if ( !is_array( $excludeConditions['titles'] ?? null ) ) {
+			// Exit early if no conditions are set for titles
+			return false;
+		}
+
+		if ( in_array( $title, $excludeConditions['titles'] ) ) {
+			return true;
+		}
+
+		if ( is_array( $excludeConditions['titles']['prefixes'] ?? null ) ) {
+			foreach ( $excludeConditions['titles']['prefixes'] as $currentExclude ) {
 				if ( strpos( $title, $currentExclude ) === 0 ) {
 					return true;
 				}
@@ -362,7 +375,7 @@ class DiscordNotifier {
 	 * @param bool $experimental
 	 * @return bool
 	 */
-	public function conditionIsExcluded( UserIdentity $user, string $action, bool $experimental ): bool {
+	public function userIsExcluded( UserIdentity $user, string $action, bool $experimental ): bool {
 		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
 
 		if ( !$excludeConditions ) {
