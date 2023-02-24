@@ -23,6 +23,7 @@ class DiscordNotifier {
 		'DiscordCurlProxy',
 		'DiscordExcludeConditions',
 		'DiscordExcludeNotificationsFrom',
+		'DiscordExperimentalCVTUsernameConditions',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -447,6 +448,35 @@ class DiscordNotifier {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns whether the username matches conditions
+	 *
+	 * @param string $username
+	 * @return bool
+	 */
+	public function isOffensiveUsername( string $username ): bool {
+		$usernameConditions = $this->options->get( 'DiscordExperimentalCVTUsernameConditions' );
+
+		$keywords = $usernameConditions['keywords'] ?? [];
+		$patterns = $usernameConditions['patterns'] ?? [];
+
+		// Check if username contains a match in the keywords condition
+		foreach ( $keywords as $keyword ) {
+			if ( stripos( username, $keyword ) !== false ) {
+				return false;
+			}
+		}
+
+		// Check if username matches any of the pattern conditions
+		foreach ( $patterns as $pattern) {
+			if ( preg_match( $pattern, $username ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
