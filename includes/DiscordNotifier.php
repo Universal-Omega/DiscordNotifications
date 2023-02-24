@@ -464,7 +464,7 @@ class DiscordNotifier {
 
 		// Check if username contains a match in the keywords condition
 		foreach ( $keywords as $keyword ) {
-			if ( stripos( username, $keyword ) !== false ) {
+			if ( stripos( $username, $keyword ) !== false ) {
 				return false;
 			}
 		}
