@@ -413,6 +413,13 @@ class Hooks implements
 					$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
 					$messageExtra
 				);
+
+				if ( $this->discordNotifier->isOffensiveUsername( $user->getName() ) ) {
+					$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user-filtered', $this->config->get( 'DiscordExperimentalFeedLanguageCode' ),
+						$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
+						$messageExtra
+					);
+				}
 			}
 
 			$this->discordNotifier->notify( $messageInLanguage ?? $message, $user, 'new_user_account', [], $webhook );
