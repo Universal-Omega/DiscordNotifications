@@ -21,6 +21,7 @@ class DiscordNotifier {
 		'DiscordAdditionalIncomingWebhookUrls',
 		'DiscordAvatarUrl',
 		'DiscordCurlProxy',
+		'DiscordDisableEmbedFooter',
 		'DiscordExcludeConditions',
 		'DiscordExcludeNotificationsFrom',
 		'DiscordFromName',
@@ -143,7 +144,9 @@ class DiscordNotifier {
 		}
 
 		// Temporary
-		$embed->setFooter( 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.' );
+		if ( !$this->options->get( 'DiscordDisableEmbedFooter' ) ) {
+			$embed->setFooter( 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.' );
+		}
 
 		$post = $embed->build();
 
