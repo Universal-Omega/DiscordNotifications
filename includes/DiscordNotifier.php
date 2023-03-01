@@ -144,7 +144,7 @@ class DiscordNotifier {
 		}
 
 		// Temporary
-		if ( !$this->options->get( 'DiscordDisableEmbedFooter' ) ) {
+		if ( !$this->options->get( 'DiscordDisableEmbedFooter' ) || $webhook ) {
 			$embed->setFooter( 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.' );
 		}
 
