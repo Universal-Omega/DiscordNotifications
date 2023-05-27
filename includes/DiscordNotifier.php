@@ -229,7 +229,7 @@ class DiscordNotifier {
 	 * @return string
 	 */
 	public function parseurl( string $url ): string {
-		$url = str_replace( ' ', '%20', $url );
+		$url = str_replace( ' ', '_', $url );
 		$url = str_replace( '(', '%28', $url );
 		$url = str_replace( ')', '%29', $url );
 
