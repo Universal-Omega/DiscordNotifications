@@ -11,6 +11,7 @@ use Exception;
 use ExtensionRegistry;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
@@ -501,6 +502,11 @@ class Hooks implements
 	 */
 	public function onUserGroupsChanged( $user, $added, $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
 		if ( !$this->config->get( 'DiscordNotificationUserGroupsChanged' ) ) {
+			return;
+		}
+
+		if ( $user->getWikiId() !== WikiAwareEntity::LOCAL ) {
+			// TODO: Support external users
 			return;
 		}
 
