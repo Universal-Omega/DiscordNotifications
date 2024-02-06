@@ -99,6 +99,10 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
+		if ( $editResult->isNullEdit() ) {
+			return;
+		}
+
 		$isNew = (bool)( $flags & EDIT_NEW );
 
 		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) {
