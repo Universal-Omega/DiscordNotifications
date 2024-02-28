@@ -465,18 +465,18 @@ class DiscordNotifier {
 		// Check if username contains a match in the keywords filter
 		foreach ( $keywords as $keyword ) {
 			if ( stripos( $username, $keyword ) !== false ) {
-				return false;
+				return true;
 			}
 		}
 
 		// Check if username matches any of the patterns filter
 		foreach ( $patterns as $pattern ) {
 			if ( preg_match( $pattern, $username ) ) {
-				return false;
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	/**
