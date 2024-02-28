@@ -207,6 +207,57 @@ $wgDiscordExcludeConditions = [
 		],
 	],
 ];
+
+// Actions (add, edit, modify) won't be notified to Discord channel from articles ending with these names
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'suffixes' => [
+			'/Subpage1',
+			'/Another subpage',
+			'etc...',
+		],
+	],
+];
+
+// Actions (add, edit, modify) won't be notified to Discord channel from articles in these namespaces
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'namespaces' => [
+			NS_USER,
+			NS_USER_TALK,
+			'etc...',
+		],
+	],
+];
+
+// Actions (add, edit, modify) won't be notified to Discord channel from the main page
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'special_conditions' => [
+			'mainpage',
+		],
+	],
+];
+
+// Actions (add, edit, modify) won't be notified to Discord channel if the user is editing their own user space
+$wgDiscordExcludeConditions = [
+	'titles' => [
+		'special_conditions' => [
+			'own_user_space',
+		],
+	],
+];
+
+// You can also use actions and 'expermental' similar to user criteria above
+
+/**
+ * Available actions to use in title exclude conditions, also indicating if they support experimental:
+ *
+ * article_deleted: action for when an article is deleted
+ * article_inserted: action for when an article is created (supports experimental)
+ * article_saved: action for when an article is edited (supports experimental)
+ * flow: action for when a change to a flow topic is executed
+ */
 ```
 
 ### Show non-public article deletions
