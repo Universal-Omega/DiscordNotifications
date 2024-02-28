@@ -83,9 +83,13 @@ class DiscordNotifier {
 	 * @param array $embedFields
 	 * @param ?string $webhook
 	 */
-	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null ) {
+	public function notify( string $message, ?UserIdentity $user, string $action, array $embedFields = [], ?string $webhook = null, ?Title $title = null ) {
 		if ( $user && $this->userIsExcluded( $user, $action, (bool)$webhook ) ) {
 			// Don't send notifications if user meets exclude conditions
+			return;
+		}
+
+		if ( $user && $title && $this->titleIsExcluded( $title, $user, $action, (bool)$webhook ) ) {
 			return;
 		}
 
@@ -338,44 +342,196 @@ class DiscordNotifier {
 	/**
 	 * Returns whether the given title should be excluded
 	 *
-	 * @todo Add support for options for experimental and per-action
-	 * @todo Add additional options for namespaces and special options, such as own user pages
-	 *
-	 * @param string $title
+	 * @param Title $title
+	 * @param UserIdentity $user
+	 * @param string $action
+	 * @param bool $experimental
 	 * @return bool
 	 */
-	public function titleIsExcluded( string $title ): bool {
+	public function titleIsExcluded( Title $title, UserIdentity $user, string $action, bool $experimental ): bool {
 		$excludeConditions = $this->options->get( 'DiscordExcludeConditions' );
 
-		if ( !is_array( $excludeConditions['titles'] ?? null ) ) {
-			// Exit early if no conditions are set for titles
+		if ( !$excludeConditions ) {
+			// Exit early if no conditions are set
 			return false;
 		}
 
-		if ( in_array( $title, $excludeConditions['titles'] ) ) {
-			return true;
-		}
+		$titleName = $title->getText();
 
-		if ( is_array( $excludeConditions['titles']['prefixes'] ?? null ) ) {
-			foreach ( $excludeConditions['titles']['prefixes'] as $currentExclude ) {
-				if ( strpos( $title, $currentExclude ) === 0 ) {
+		if ( is_array( $excludeConditions['titles'] ?? null ) ) {
+			if ( in_array( $titleName, $excludeConditions['titles'] ) ) {
+				return true;
+			}
+
+			if ( is_array( $excludeConditions['titles']['special_conditions'] ?? null ) ) {
+				if ( in_array( 'mainpage', $excludeConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
 					return true;
+				}
+
+				if (
+					in_array( 'own_user_space', $excludeConditions['titles']['special_conditions'] ) &&
+					$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
+					$user->getName() === $title->getRootText()
+				) {
+					return true;
+				}
+			}
+
+			if ( is_array( $excludeConditions['titles']['namespaces'] ?? null ) ) {
+				if ( $title->inNamespaces( $excludeConditions['titles']['namespaces'] ) ) {
+					return true;
+				}
+			}
+
+			if ( is_array( $excludeConditions['titles']['prefixes'] ?? null ) ) {
+				foreach ( $excludeConditions['titles']['prefixes'] as $currentExclude ) {
+					if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
+						return true;
+					}
+				}
+			}
+
+			if ( is_array( $excludeConditions['titles']['suffixes'] ?? null ) ) {
+				foreach ( $excludeConditions['titles']['suffixes'] as $currentExclude ) {
+					if ( str_ends_with( $titleName, $currentExclude ) ) {
+						return true;
+					}
 				}
 			}
 		}
 
-		if ( is_array( $excludeConditions['titles']['suffixes'] ?? null ) ) {
-			foreach ( $excludeConditions['titles']['suffixes'] as $currentExclude ) {
-				if ( str_ends_with( $title, $currentExclude ) ) {
-					return true;
+		if ( $experimental ) {
+			if ( is_array( $excludeConditions['experimental'] ?? null ) ) {
+				if ( is_array( $excludeConditions['experimental']['titles'] ?? null ) ) {
+					if ( in_array( $titleName, $excludeConditions['experimental']['titles'] ) ) {
+						return true;
+					}
+
+					if ( is_array( $excludeConditions['experimental']['titles']['special_conditions'] ?? null ) ) {
+						if ( in_array( 'mainpage', $excludeConditions['experimental']['titles']['special_conditions'] ) && $title->isMainPage() ) {
+							return true;
+						}
+
+						if (
+							in_array( 'own_user_space', $excludeConditions['experimental']['titles']['special_conditions'] ) &&
+							$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
+							$user->getName() === $title->getRootText()
+						) {
+							return true;
+						}
+					}
+
+					if ( is_array( $excludeConditions['experimental']['titles']['namespaces'] ?? null ) ) {
+						if ( $title->inNamespaces( $excludeConditions['experimental']['titles']['namespaces'] ) ) {
+							return true;
+						}
+					}
+
+					if ( is_array( $excludeConditions['experimental']['titles']['prefixes'] ?? null ) ) {
+						foreach ( $excludeConditions['experimental']['titles']['prefixes'] as $currentExclude ) {
+							if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
+								return true;
+							}
+						}
+					}
+
+					if ( is_array( $excludeConditions['experimental']['titles']['suffixes'] ?? null ) ) {
+						foreach ( $excludeConditions['experimental']['titles']['suffixes'] as $currentExclude ) {
+							if ( str_ends_with( $titleName, $currentExclude ) ) {
+								return true;
+							}
+						}
+					}
+				}
+
+				if ( is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
+					$actionConditions = $excludeConditions['experimental'][$action];
+
+					if ( is_array( $actionConditions['titles'] ?? null ) ) {
+						if ( in_array( $titleName, $actionConditions['titles'] ) ) {
+							return true;
+						}
+
+						if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
+							if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+								return true;
+							}
+
+							if (
+								in_array( 'own_user_space', $actionConditions['titles']['special_conditions'] ) &&
+								$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
+								$user->getName() === $title->getRootText()
+							) {
+								return true;
+							}
+						}
+
+						if ( is_array( $actionConditions['titles']['namespaces'] ?? null ) ) {
+							if ( $title->inNamespaces( $actionConditions['titles']['namespaces'] ) ) {
+								return true;
+							}
+						}
+
+						if ( is_array( $actionConditions['titles']['prefixes'] ?? null ) ) {
+							foreach ( $actionConditions['titles']['prefixes'] as $currentExclude ) {
+								if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
+									return true;
+								}
+							}
+						}
+
+						if ( is_array( $actionConditions['titles']['suffixes'] ?? null ) ) {
+							foreach ( $actionConditions['titles']['suffixes'] as $currentExclude ) {
+								if ( str_ends_with( $titleName, $currentExclude ) ) {
+									return true;
+								}
+							}
+						}
+					}
 				}
 			}
-		}
+		} elseif ( is_array( $excludeConditions[$action] ?? null ) ) {
+			$actionConditions = $excludeConditions[$action];
 
-		if ( is_array( $excludeConditions['titles']['subpages'] ?? null ) ) {
-			foreach ( $excludeConditions['titles']['subpages'] as $currentExclude ) {
-				if ( strpos( $currentExclude, '/' ) === 0 && str_contains( $title, $currentExclude ) ) {
+			if ( is_array( $actionConditions['titles'] ?? null ) ) {
+				if ( in_array( $titleName, $actionConditions['titles'] ) ) {
 					return true;
+				}
+
+				if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
+					if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+						return true;
+					}
+
+					if (
+						in_array( 'own_user_space', $actionConditions['titles']['special_conditions'] ) &&
+						$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
+						$user->getName() === $title->getRootText()
+					) {
+						return true;
+					}
+				}
+
+				if ( is_array( $actionConditions['titles']['namespaces'] ?? null ) ) {
+					if ( $title->inNamespaces( $actionConditions['titles']['namespaces'] ) ) {
+						return true;
+					}
+				}
+
+				if ( is_array( $actionConditions['titles']['prefixes'] ?? null ) ) {
+					foreach ( $actionConditions['titles']['prefixes'] as $currentExclude ) {
+						if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
+							return true;
+						}
+					}
+				}
+
+				if ( is_array( $actionConditions['titles']['suffixes'] ?? null ) ) {
+					foreach ( $actionConditions['titles']['suffixes'] as $currentExclude ) {
+						if ( str_ends_with( $titleName, $currentExclude ) ) {
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -384,7 +540,7 @@ class DiscordNotifier {
 	}
 
 	/**
-	 * Returns whether the exclude conditions are met
+	 * Returns whether the users exclude conditions are met
 	 *
 	 * @param UserIdentity $user
 	 * @param string $action
