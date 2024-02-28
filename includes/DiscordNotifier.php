@@ -364,6 +364,22 @@ class DiscordNotifier {
 			}
 		}
 
+		if ( is_array( $excludeConditions['titles']['suffixes'] ?? null ) ) {
+			foreach ( $excludeConditions['titles']['suffixes'] as $currentExclude ) {
+				if ( str_ends_with( $title, $currentExclude ) ) {
+					return true;
+				}
+			}
+		}
+
+		if ( is_array( $excludeConditions['titles']['subpages'] ?? null ) ) {
+			foreach ( $excludeConditions['titles']['subpages'] as $currentExclude ) {
+				if ( strpos( $currentExclude, '/' ) === 0 && str_contains( $title, $currentExclude ) ) {
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
