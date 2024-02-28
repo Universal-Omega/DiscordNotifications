@@ -11,6 +11,7 @@ use Exception;
 use ExtensionRegistry;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
+use MediaWiki\DAO\WikiAwareEntity;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
@@ -98,6 +99,10 @@ class Hooks implements
 	 * @inheritDoc
 	 */
 	public function onPageSaveComplete( $wikiPage, $user, $summary, $flags, $revisionRecord, $editResult ) {
+		if ( $editResult->isNullEdit() ) {
+			return;
+		}
+
 		$isNew = (bool)( $flags & EDIT_NEW );
 
 		if ( !$this->config->get( 'DiscordNotificationEditedArticle' ) && !$isNew ) {
@@ -405,6 +410,13 @@ class Hooks implements
 					$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
 					$messageExtra
 				);
+
+				if ( $this->config->get( 'DiscordExperimentalCVTUsernameFilter' ) && $this->discordNotifier->isOffensiveUsername( $user->getName() ) ) {
+					$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user-filtered', $this->config->get( 'DiscordExperimentalFeedLanguageCode' ),
+						$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
+						$messageExtra
+					);
+				}
 			}
 
 			$this->discordNotifier->notify( $messageInLanguage ?? $message, $user, 'new_user_account', [], $webhook );
@@ -457,7 +469,7 @@ class Hooks implements
 				$block->getTargetUserIdentity() ?? UserIdentityValue::newAnonymous( $block->getTargetName() )
 			),
 			$reason == '' ? '' : $this->discordNotifier->getMessage( 'discordnotifications-block-user-reason' ) . " '" . $reason . "'.",
-			$block->getExpiry(),
+			$block->getExpiry() === 'infinity' ? 'infinity' : '<t:' . wfTimestamp( TS_UNIX, $block->getExpiry() ) . ':F>',
 			'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . $this->discordNotifier->getMessage( 'discordnotifications-block-user-list' ) . '>.'
 		);
 
@@ -477,7 +489,7 @@ class Hooks implements
 						$experimentalLanguageCode, true
 					),
 					$reason == '' ? '' : $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user-reason', $experimentalLanguageCode ) . " '" . $reason . "'.",
-					$block->getExpiry(),
+					$block->getExpiry() === 'infinity' ? 'infinity' : '<t:' . wfTimestamp( TS_UNIX, $block->getExpiry() ) . ':F>',
 					'<' . $this->discordNotifier->parseurl( $this->config->get( 'DiscordNotificationWikiUrl' ) . $this->config->get( 'DiscordNotificationWikiUrlEnding' ) . $this->config->get( 'DiscordNotificationWikiUrlEndingBlockList' ) ) . '|' . $this->discordNotifier->getMessageInLanguage( 'discordnotifications-block-user-list', $experimentalLanguageCode ) . '>.'
 				);
 			}
@@ -493,6 +505,11 @@ class Hooks implements
 	 */
 	public function onUserGroupsChanged( $user, $added, $removed, $performer, $reason, $oldUGMs, $newUGMs ) {
 		if ( !$this->config->get( 'DiscordNotificationUserGroupsChanged' ) ) {
+			return;
+		}
+
+		if ( $user->getWikiId() !== WikiAwareEntity::LOCAL ) {
+			// TODO: Support external users
 			return;
 		}
 

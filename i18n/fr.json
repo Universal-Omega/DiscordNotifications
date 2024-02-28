@@ -11,6 +11,7 @@
 		]
 	},
 	"discordnotifications-desc": "Envoie des notifications Discord pour les actions sélectionnées qui se sont produites sur vos sites MediaWiki.",
+	"discordnotifications-extensionname": "NotificationsDiscord",
 	"discordnotifications-block": "blocage",
 	"discordnotifications-groups": "groupes",
 	"discordnotifications-talk": "discussion",

@@ -21,7 +21,9 @@ class DiscordNotifier {
 		'DiscordAdditionalIncomingWebhookUrls',
 		'DiscordAvatarUrl',
 		'DiscordCurlProxy',
+		'DiscordDisableEmbedFooter',
 		'DiscordExcludeConditions',
+		'DiscordExperimentalCVTUsernameFilter',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -146,7 +148,9 @@ class DiscordNotifier {
 		}
 
 		// Temporary
-		$embed->setFooter( 'DiscordNotifications v3 — Let CosmicAlpha#3274 know of any issues.' );
+		if ( !$this->options->get( 'DiscordDisableEmbedFooter' ) || $webhook ) {
+			$embed->setFooter( 'DiscordNotifications v3 — Let @cosmicalpha know of any issues.' );
+		}
 
 		$post = $embed->build();
 
@@ -229,7 +233,7 @@ class DiscordNotifier {
 	 * @return string
 	 */
 	public function parseurl( string $url ): string {
-		$url = str_replace( ' ', '%20', $url );
+		$url = str_replace( ' ', '_', $url );
 		$url = str_replace( '(', '%28', $url );
 		$url = str_replace( ')', '%29', $url );
 
@@ -296,15 +300,15 @@ class DiscordNotifier {
 			$out = sprintf(
 				'%s (%s | %s | %s',
 				$this->parseurl( $prefix ) . '|' . $title . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-edit', $languageCode ) . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-delete', $languageCode ) . '>',
-				$this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-history', $languageCode ) . '>'
+				$this->parseurl( $prefix . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-edit', $languageCode ) . '>',
+				$this->parseurl( $prefix . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-delete', $languageCode ) . '>',
+				$this->parseurl( $prefix . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessageInLanguage( 'discordnotifications-history', $languageCode ) . '>'
 			);
 
 			if ( $diff ) {
 				$revisionId = $wikiPage->getRevisionRecord()->getId();
 
-				$out .= ' | ' . $this->parseurl( $prefix . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . $this->getMessageInLanguage( 'discordnotifications-diff', $languageCode ) . '>)';
+				$out .= ' | ' . $this->parseurl( $prefix . $this->options->get( 'DiscordNotificationWikiUrlEndingDiff' ) . $revisionId ) . '|' . $this->getMessageInLanguage( 'discordnotifications-diff', $languageCode ) . '>)';
 			} else {
 				$out .= ')';
 			}
@@ -330,9 +334,9 @@ class DiscordNotifier {
 			return sprintf(
 				'%s (%s | %s | %s)',
 				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-edit' ) . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-delete' ) . '>',
-				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . '&' . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessage( 'discordnotifications-history' ) . '>'
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . $this->options->get( 'DiscordNotificationWikiUrlEndingEditArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-edit' ) . '>',
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . $this->options->get( 'DiscordNotificationWikiUrlEndingDeleteArticle' ) ) . '|' . $this->getMessage( 'discordnotifications-delete' ) . '>',
+				'<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url . $this->options->get( 'DiscordNotificationWikiUrlEndingHistory' ) ) . '|' . $this->getMessage( 'discordnotifications-history' ) . '>'
 			);
 		} else {
 			return '<' . $this->parseurl( $this->options->get( 'DiscordNotificationWikiUrl' ) . $this->options->get( 'DiscordNotificationWikiUrlEnding' ) . $title_url ) . '|' . $titleName . '>';
@@ -627,6 +631,35 @@ class DiscordNotifier {
 
 			if ( is_array( $actionConditions['users'] ?? null ) && in_array( $user->getName(), $actionConditions['users'] ) ) {
 				// Individual users suppress notifications if matching action
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether the username matches filters
+	 *
+	 * @param string $username
+	 * @return bool
+	 */
+	public function isOffensiveUsername( string $username ): bool {
+		$usernameFilter = $this->options->get( 'DiscordExperimentalCVTUsernameFilter' );
+
+		$keywords = $usernameFilter['keywords'] ?? [];
+		$patterns = $usernameFilter['patterns'] ?? [];
+
+		// Check if username contains a match in the keywords filter
+		foreach ( $keywords as $keyword ) {
+			if ( stripos( $username, $keyword ) !== false ) {
+				return true;
+			}
+		}
+
+		// Check if username matches any of the patterns filter
+		foreach ( $patterns as $pattern ) {
+			if ( preg_match( $pattern, $username ) ) {
 				return true;
 			}
 		}

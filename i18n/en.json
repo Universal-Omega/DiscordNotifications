@@ -28,6 +28,7 @@
 	"discordnotifications-article-protected-change": "changed protection of",
 	"discordnotifications-article-protected-remove": "removed protection of",
 	"discordnotifications-new-user": "👥 New user account $1 was just created $2",
+	"discordnotifications-new-user-filtered": "👥 New user account $1 was just created $2\n\nMatching filter",
 	"discordnotifications-file-uploaded": "📤 $1 has uploaded file <$2|$3> (format: $4, size: $5 $6, summary: $7)",
 	"discordnotifications-block-user": "🚫 $1 has blocked $2 $3 Block expiration: $4. $5",
 	"discordnotifications-block-user-reason": "with reason",

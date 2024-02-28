@@ -1,7 +1,8 @@
 {
 	"@metadata": {
 		"authors": [
-			"Eleassar"
+			"Eleassar",
+			"Upwinxp"
 		]
 	},
 	"discordnotifications-desc": "Pošilja obvestila Discord za izbrana dejanja, ki so se zgodila na vaših spletnih mestih MediaWiki.",

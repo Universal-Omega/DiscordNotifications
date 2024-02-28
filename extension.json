@@ -92,6 +92,9 @@
 		"DiscordIgnoreMinorEdits": {
 			"value": false
 		},
+		"DiscordDisableEmbedFooter": {
+			"value": false
+		},
 		"DiscordExcludeConditions": {
 			"value": []
 		},
@@ -123,16 +126,16 @@
 			"value": "Special:Contributions/"
 		},
 		"DiscordNotificationWikiUrlEndingEditArticle": {
-			"value": "action=edit"
+			"value": "&action=edit"
 		},
 		"DiscordNotificationWikiUrlEndingDeleteArticle": {
-			"value": "action=delete"
+			"value": "&action=delete"
 		},
 		"DiscordNotificationWikiUrlEndingHistory": {
-			"value": "action=history"
+			"value": "&action=history"
 		},
 		"DiscordNotificationWikiUrlEndingDiff": {
-			"value": "diff=prev&oldid="
+			"value": "&diff=prev&oldid="
 		},
 		"DiscordNotificationNewUser": {
 			"value": true
@@ -195,6 +198,9 @@
 			"value": 250
 		},
 		"DiscordExperimentalCVTMatchFilter": {
+			"value": []
+		},
+		"DiscordExperimentalCVTUsernameFilter": {
 			"value": []
 		},
 		"DiscordExperimentalCVTSendAllIPEdits": {
