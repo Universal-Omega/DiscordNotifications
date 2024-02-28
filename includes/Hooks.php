@@ -414,7 +414,7 @@ class Hooks implements
 					$messageExtra
 				);
 
-				if ( $this->discordNotifier->isOffensiveUsername( $user->getName() ) ) {
+				if ( $this->config->get( 'DiscordExperimentalCVTUsernameFilter' ) && $this->discordNotifier->isOffensiveUsername( $user->getName() ) ) {
 					$messageInLanguage = $this->discordNotifier->getMessageInLanguage( 'discordnotifications-new-user-filtered', $this->config->get( 'DiscordExperimentalFeedLanguageCode' ),
 						$this->discordNotifier->getDiscordUserText( $user, $this->config->get( 'DiscordExperimentalFeedLanguageCode' ), true ),
 						$messageExtra
