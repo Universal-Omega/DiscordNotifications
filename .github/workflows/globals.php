@@ -12,6 +12,12 @@ $wgDiscordExperimentalCVTMatchFilter = [
 	'test',
 ];
 
+$wgDiscordExperimentalCVTUsernameFilter = [
+	'keywords' => [
+		'user-',
+	],
+];
+
 $wgDiscordExcludeConditions = [
 	'experimental' => [
 		'article_inserted' => [
