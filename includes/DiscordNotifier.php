@@ -24,6 +24,7 @@ class DiscordNotifier {
 		'DiscordDisableEmbedFooter',
 		'DiscordExcludeConditions',
 		'DiscordExcludeNotificationsFrom',
+		'DiscordExperimentalCVTUsernameFilter',
 		'DiscordFromName',
 		'DiscordIncludePageUrls',
 		'DiscordIncludeUserUrls',
@@ -445,6 +446,35 @@ class DiscordNotifier {
 
 			if ( is_array( $actionConditions['users'] ?? null ) && in_array( $user->getName(), $actionConditions['users'] ) ) {
 				// Individual users suppress notifications if matching action
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns whether the username matches filters
+	 *
+	 * @param string $username
+	 * @return bool
+	 */
+	public function isOffensiveUsername( string $username ): bool {
+		$usernameFilter = $this->options->get( 'DiscordExperimentalCVTUsernameFilter' );
+
+		$keywords = $usernameFilter['keywords'] ?? [];
+		$patterns = $usernameFilter['patterns'] ?? [];
+
+		// Check if username contains a match in the keywords filter
+		foreach ( $keywords as $keyword ) {
+			if ( stripos( $username, $keyword ) !== false ) {
+				return true;
+			}
+		}
+
+		// Check if username matches any of the patterns filter
+		foreach ( $patterns as $pattern ) {
+			if ( preg_match( $pattern, $username ) ) {
 				return true;
 			}
 		}
