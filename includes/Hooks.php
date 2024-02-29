@@ -31,6 +31,7 @@ use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentityValue;
 use RequestContext;
 use TextSlotDiffRenderer;
+use Title;
 use TitleFactory;
 use Wikimedia\IPUtils;
 
