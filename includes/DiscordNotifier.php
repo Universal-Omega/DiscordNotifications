@@ -367,11 +367,11 @@ class DiscordNotifier {
 				return true;
 			}
 
-			if ( is_array( $excludeConditions['titles']['special_conditions'] ?? null ) ) {
-				if ( in_array( 'mainpage', $excludeConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
-					return true;
-				}
+			if ( in_array( 'mainpage', $excludeConditions['titles'] ) && $title->isMainPage() ) {
+				return true;
+			}
 
+			if ( is_array( $excludeConditions['titles']['special_conditions'] ?? null ) ) {
 				if (
 					in_array( 'own_user_space', $excludeConditions['titles']['special_conditions'] ) &&
 					$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
