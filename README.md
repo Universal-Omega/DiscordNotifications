@@ -233,9 +233,7 @@ $wgDiscordExcludeConditions = [
 // Actions (add, edit, modify) won't be notified to Discord channel from the main page
 $wgDiscordExcludeConditions = [
 	'titles' => [
-		'special_conditions' => [
-			'mainpage',
-		],
+		'mainpage',
 	],
 ];
 
