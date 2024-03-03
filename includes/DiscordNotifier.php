@@ -456,7 +456,7 @@ class DiscordNotifier {
 							return true;
 						}
 
-						if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+						if ( in_array( 'mainpage', $actionConditions['titles'] ) && $title->isMainPage() ) {
 							return true;
 						}
 
@@ -502,7 +502,7 @@ class DiscordNotifier {
 					return true;
 				}
 
-				if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+				if ( in_array( 'mainpage', $actionConditions['titles'] ) && $title->isMainPage() ) {
 					return true;
 				}
 
