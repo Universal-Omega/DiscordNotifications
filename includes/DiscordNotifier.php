@@ -411,11 +411,11 @@ class DiscordNotifier {
 						return true;
 					}
 
-					if ( is_array( $excludeConditions['experimental']['titles']['special_conditions'] ?? null ) ) {
-						if ( in_array( 'mainpage', $excludeConditions['experimental']['titles']['special_conditions'] ) && $title->isMainPage() ) {
-							return true;
-						}
+					if ( in_array( 'mainpage', $excludeConditions['experimental']['titles'] ) && $title->isMainPage() ) {
+						return true;
+					}
 
+					if ( is_array( $excludeConditions['experimental']['titles']['special_conditions'] ?? null ) ) {
 						if (
 							in_array( 'own_user_space', $excludeConditions['experimental']['titles']['special_conditions'] ) &&
 							$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
@@ -456,11 +456,11 @@ class DiscordNotifier {
 							return true;
 						}
 
-						if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
-							if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
-								return true;
-							}
+						if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+							return true;
+						}
 
+						if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
 							if (
 								in_array( 'own_user_space', $actionConditions['titles']['special_conditions'] ) &&
 								$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
@@ -502,11 +502,11 @@ class DiscordNotifier {
 					return true;
 				}
 
-				if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
-					if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
-						return true;
-					}
+				if ( in_array( 'mainpage', $actionConditions['titles']['special_conditions'] ) && $title->isMainPage() ) {
+					return true;
+				}
 
+				if ( is_array( $actionConditions['titles']['special_conditions'] ?? null ) ) {
 					if (
 						in_array( 'own_user_space', $actionConditions['titles']['special_conditions'] ) &&
 						$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
