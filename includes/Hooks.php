@@ -31,6 +31,7 @@ use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentityValue;
 use RequestContext;
 use TextSlotDiffRenderer;
+use Title;
 use TitleFactory;
 use Wikimedia\IPUtils;
 
@@ -113,10 +114,6 @@ class Hooks implements
 			return;
 		}
 
-		if ( $this->discordNotifier->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
-			return;
-		}
-
 		// Do not announce newly added file uploads as articles...
 		if ( $wikiPage->getTitle()->getNsText() && $wikiPage->getTitle()->getNsText() == $this->discordNotifier->getMessage( 'discordnotifications-file-namespace' ) ) {
 			return;
@@ -177,7 +174,7 @@ class Hooks implements
 					$this->discordNotifier->notify( $message, $user, 'article_inserted', [
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', $experimentalLanguageCode, '' ) => $summary,
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-content', $experimentalLanguageCode ) => $content ? "```\n$content\n```" : '',
-					], $this->config->get( 'DiscordExperimentalWebhook' ) );
+					], $this->config->get( 'DiscordExperimentalWebhook' ), $wikiPage->getTitle() );
 				}
 			}
 
@@ -191,7 +188,7 @@ class Hooks implements
 				$message .= ' (' . $this->discordNotifier->getMessage( 'discordnotifications-bytes', sprintf( '%d', $revisionRecord->getSize() ) ) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_inserted' );
+			$this->discordNotifier->notify( $message, $user, 'article_inserted', [], null, $wikiPage->getTitle() );
 		} else {
 			$isMinor = (bool)( $flags & EDIT_MINOR );
 
@@ -247,7 +244,7 @@ class Hooks implements
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-summary', $experimentalLanguageCode, '' ) => $summary,
 						$this->discordNotifier->getMessageInLanguage( 'discordnotifications-content', $experimentalLanguageCode ) => $diff ? "```diff\n$diff\n```" : '',
-					], $this->config->get( 'DiscordExperimentalWebhook' ) );
+					], $this->config->get( 'DiscordExperimentalWebhook' ), $wikiPage->getTitle() );
 				}
 			}
 
@@ -268,7 +265,7 @@ class Hooks implements
 				) . ')';
 			}
 
-			$this->discordNotifier->notify( $message, $user, 'article_saved' );
+			$this->discordNotifier->notify( $message, $user, 'article_saved', [], null, $wikiPage->getTitle() );
 		}
 	}
 
@@ -286,17 +283,13 @@ class Hooks implements
 
 		$wikiPage = $this->wikiPageFactory->newFromTitle( $page );
 
-		if ( $this->discordNotifier->titleIsExcluded( $wikiPage->getTitle()->getText() ) ) {
-			return;
-		}
-
 		$message = $this->discordNotifier->getMessageWithPlaintextParams( 'discordnotifications-article-deleted',
 			$this->discordNotifier->getDiscordUserText( $deleter->getUser() ),
 			$this->discordNotifier->getDiscordArticleText( $wikiPage ),
 			$reason
 		);
 
-		$this->discordNotifier->notify( $message, $deleter->getUser(), 'article_deleted' );
+		$this->discordNotifier->notify( $message, $deleter->getUser(), 'article_deleted', [], null, $wikiPage->getTitle() );
 	}
 
 	/**
@@ -550,10 +543,7 @@ class Hooks implements
 			return;
 		}
 
-		if ( $this->discordNotifier->titleIsExcluded( $request['page'] ) ) {
-			return;
-		}
-
+		$title = Title::newFromText( $request['page'] );
 		$user = RequestContext::getMain()->getUser();
 
 		switch ( $action ) {
@@ -646,6 +636,6 @@ class Hooks implements
 				return;
 		}
 
-		$this->discordNotifier->notify( $message, $user, 'flow' );
+		$this->discordNotifier->notify( $message, $user, 'flow', [], null, $title );
 	}
 }

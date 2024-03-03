@@ -98,9 +98,6 @@
 		"DiscordExcludeConditions": {
 			"value": []
 		},
-		"DiscordExcludeNotificationsFrom": {
-			"value": []
-		},
 		"DiscordNotificationWikiUrl": {
 			"value": ""
 		},
