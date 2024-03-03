@@ -453,7 +453,7 @@ class DiscordNotifier {
 				if ( is_array( $experimentalConditions[$action] ?? null ) ) {
 					$actionConditions = $experimentalConditions[$action];
 
-					if ( is_array( $actionConditions['titles'] ?? null ) ) {
+					if ( !empty( $actionConditions['titles'] ) && is_array( $actionConditions['titles'] ) ) {
 						if ( in_array( $titleName, $actionConditions['titles'] ) ) {
 							return true;
 						}
