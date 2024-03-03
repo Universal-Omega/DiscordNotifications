@@ -27,6 +27,7 @@
 	"discordnotifications-article-protected-change": "שינוי הגנה",
 	"discordnotifications-article-protected-remove": "הסרה הגנה",
 	"discordnotifications-new-user": "👥 חשבון המשתמש החדש $1 נוצר זה עתה $2",
+	"discordnotifications-new-user-filtered": "👥 חשבון המשתמש החדש $1 נוצר זה עתה $2 \n\nתואם מסנן",
 	"discordnotifications-file-uploaded": "📤 $1 {{GENDER:$1|העלה|העלתה}} את הקובץ <$2|$3> (תסדיר: $4, גודל: $5 $6, תקציר: $7)",
 	"discordnotifications-block-user": "🚫 $1 {{GENDER:$1|חסם|חסמה}} את $2 $3 פקיעת החסימה: $4. $5",
 	"discordnotifications-block-user-reason": "עם הסיבה",
