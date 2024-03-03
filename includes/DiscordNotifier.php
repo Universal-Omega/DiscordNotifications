@@ -476,7 +476,7 @@ class DiscordNotifier {
 							}
 						}
 
-						if ( is_array( $actionConditions['titles']['prefixes'] ?? null ) ) {
+						if ( is_array( $actionConditions['titles']['prefixes'] ?? false ) ) {
 							foreach ( $actionConditions['titles']['prefixes'] as $currentExclude ) {
 								if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
 									return true;
