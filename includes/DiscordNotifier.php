@@ -406,18 +406,20 @@ class DiscordNotifier {
 
 		if ( $experimental ) {
 			if ( is_array( $excludeConditions['experimental'] ?? null ) ) {
-				if ( is_array( $excludeConditions['experimental']['titles'] ?? null ) ) {
-					if ( in_array( $titleName, $excludeConditions['experimental']['titles'] ) ) {
+				$experimentalConditions = $excludeConditions['experimental'];
+
+				if ( is_array( $experimentalConditions['titles'] ?? null ) ) {
+					if ( in_array( $titleName, $experimentalConditions['titles'] ) ) {
 						return true;
 					}
 
-					if ( in_array( 'mainpage', $excludeConditions['experimental']['titles'] ) && $title->isMainPage() ) {
+					if ( in_array( 'mainpage', $experimentalConditions['titles'] ) && $title->isMainPage() ) {
 						return true;
 					}
 
-					if ( is_array( $excludeConditions['experimental']['titles']['special_conditions'] ?? null ) ) {
+					if ( is_array( $experimentalConditions['titles']['special_conditions'] ?? null ) ) {
 						if (
-							in_array( 'own_user_space', $excludeConditions['experimental']['titles']['special_conditions'] ) &&
+							in_array( 'own_user_space', $experimentalConditions['titles']['special_conditions'] ) &&
 							$title->inNamespaces( NS_USER, NS_USER_TALK ) &&
 							$user->getName() === $title->getRootText()
 						) {
@@ -425,22 +427,22 @@ class DiscordNotifier {
 						}
 					}
 
-					if ( is_array( $excludeConditions['experimental']['titles']['namespaces'] ?? null ) ) {
-						if ( $title->inNamespaces( $excludeConditions['experimental']['titles']['namespaces'] ) ) {
+					if ( is_array( $experimentalConditions['titles']['namespaces'] ?? null ) ) {
+						if ( $title->inNamespaces( $experimentalConditions['titles']['namespaces'] ) ) {
 							return true;
 						}
 					}
 
-					if ( is_array( $excludeConditions['experimental']['titles']['prefixes'] ?? null ) ) {
-						foreach ( $excludeConditions['experimental']['titles']['prefixes'] as $currentExclude ) {
+					if ( is_array( $experimentalConditions['titles']['prefixes'] ?? null ) ) {
+						foreach ( $experimentalConditions['titles']['prefixes'] as $currentExclude ) {
 							if ( strpos( $titleName, $currentExclude ) === 0 || $title->getNsText() === $currentExclude ) {
 								return true;
 							}
 						}
 					}
 
-					if ( is_array( $excludeConditions['experimental']['titles']['suffixes'] ?? null ) ) {
-						foreach ( $excludeConditions['experimental']['titles']['suffixes'] as $currentExclude ) {
+					if ( is_array( $experimentalConditions['titles']['suffixes'] ?? null ) ) {
+						foreach ( $experimentalConditions['titles']['suffixes'] as $currentExclude ) {
 							if ( str_ends_with( $titleName, $currentExclude ) ) {
 								return true;
 							}
@@ -448,8 +450,8 @@ class DiscordNotifier {
 					}
 				}
 
-				if ( is_array( $excludeConditions['experimental'][$action] ?? null ) ) {
-					$actionConditions = $excludeConditions['experimental'][$action];
+				if ( is_array( $experimentalConditions[$action] ?? null ) ) {
+					$actionConditions = $experimentalConditions[$action];
 
 					if ( is_array( $actionConditions['titles'] ?? null ) ) {
 						if ( in_array( $titleName, $actionConditions['titles'] ) ) {
