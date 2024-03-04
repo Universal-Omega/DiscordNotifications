@@ -27,6 +27,7 @@
 	"discordnotifications-article-protected-change": "je spremenil_a zaščito",
 	"discordnotifications-article-protected-remove": "je odstranil_a zaščito",
 	"discordnotifications-new-user": "👥 Pravkar je bil ustvarjen nov uporabniški račun $1. $2",
+	"discordnotifications-new-user-filtered": "👥 Nov uporabniški račun $1 je bil pravkar ustvarjen $2 \n\nFilter za ujemanje",
 	"discordnotifications-file-uploaded": "📤 $1 je naložil_a datoteko <$2|$3> (oblika: $4, velikost: $5, $6, povzetek: $7)",
 	"discordnotifications-block-user": "🚫 $1 je blokiral_a »$2«. $3 Pretek blokiranja: $4. $5",
 	"discordnotifications-block-user-reason": "z razlogom",

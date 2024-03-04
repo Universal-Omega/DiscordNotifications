@@ -27,6 +27,7 @@
 	"discordnotifications-article-protected-change": "измени заштитата на",
 	"discordnotifications-article-protected-remove": "отстрани заштитата на",
 	"discordnotifications-new-user": "👥 Штотуку создадена нова корисничка сметка $1 $2",
+	"discordnotifications-new-user-filtered": "👥 Штотуку е создадена корисничката сметка $1 $2\n\nСовпаднат филтер",
 	"discordnotifications-file-uploaded": "📤 $1 ја подигна податотеката <$2|$3> (формат: $4, големина: $5 $6, опис: $7)",
 	"discordnotifications-block-user": "🚫 $1 го блокираше $2 $3. Истек на блокот: $4. $5",
 	"discordnotifications-block-user-reason": "со причината",
