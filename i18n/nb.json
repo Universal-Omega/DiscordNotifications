@@ -26,6 +26,7 @@
 	"discordnotifications-article-protected-change": "endret beskyttelsen for",
 	"discordnotifications-article-protected-remove": "fjernet beskyttelsen av",
 	"discordnotifications-new-user": "👥 Ny brukerkonto $1 ble nettopp opprettet $2",
+	"discordnotifications-new-user-filtered": "👥 En ny brukerkonto, $1, ble nettopp opprettet $2\n\nMatchende filter",
 	"discordnotifications-file-uploaded": "📤 $1 har lastet opp fila <$2|$3> (format: $4, størrelse $5 $6, sammendrag: $7)",
 	"discordnotifications-block-user": "🚫 $1 har blokkert $2 $3 Blokkeringen løper ut: $4. $5",
 	"discordnotifications-block-user-reason": "med årsak",
