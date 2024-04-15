@@ -27,6 +27,7 @@
 	"discordnotifications-article-protected-change": "cambiate le protection de",
 	"discordnotifications-article-protected-remove": "removite le protection de",
 	"discordnotifications-new-user": "👥 Un nove conto de usator $1 ha justo ora essite create $2",
+	"discordnotifications-new-user-filtered": "👥 Le nove conto de usator $1 ha justo ora essite create $2\n\nFiltro correspondente",
 	"discordnotifications-file-uploaded": "📤 $1 ha incargate le file <$2|$3> (formato: $4, dimension: $5 $6, summario: $7)",
 	"discordnotifications-block-user": "🚫 $1 ha blocate $2 $3 Expiration del blocada: $4. $5",
 	"discordnotifications-block-user-reason": "con motivo",
