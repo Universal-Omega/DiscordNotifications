@@ -22,7 +22,7 @@ Want to translate this extension to your language? Just visit [translatewiki.net
 ## Requirements
 
 * [cURL](http://curl.haxx.se/) or ability to use PHP function `file_get_contents` for sending the data. Defaults to cURL. See the configuration parameter `$wgDiscordSendMethod` below to switch between cURL and file_get_contents.
-* MediaWiki 1.39+
+* MediaWiki 1.41+
 * Apache should have NE (NoEscape) flag on to prevent issues in URLs. By default, you should have this enabled.
 
 ## How to install
@@ -353,4 +353,4 @@ You can use the below configuration options to configure it.
 ## Issues/Ideas/Comments
 
 * Feel free to use the [Issues](https://github.com/Universal-Omega/DiscordNotifications/issues) section on GitHub for this project to submit any issues/ideas/comments! :)
-* You can also contact CosmicAlpha#3274 on Discord for any issues you may encounter.
+* You can also contact @cosmicalpha on Discord for any issues you may encounter.
