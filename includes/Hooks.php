@@ -249,6 +249,7 @@ class Hooks implements
 						$this->config->get( MainConfigNames::Wikidiff2Options )
 					);
 
+					$textSlotDiffRenderer->setFormat( 'table' );
 					$textSlotDiffRenderer->setTextDiffer( $textDiffer );
 
 					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
