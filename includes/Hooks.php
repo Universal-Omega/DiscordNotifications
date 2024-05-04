@@ -250,7 +250,7 @@ class Hooks implements
 					);
 
 					$textSlotDiffRenderer->setTextDiffer( $textDiffer );
-					
+
 					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
 
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
