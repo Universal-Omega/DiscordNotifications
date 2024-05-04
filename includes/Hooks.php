@@ -12,10 +12,12 @@ use ExtensionRegistry;
 use ManualLogEntry;
 use MediaWiki\Auth\Hook\LocalUserCreatedHook;
 use MediaWiki\DAO\WikiAwareEntity;
+use MediaWiki\Diff\TextDiffer\ManifoldTextDiffer;
 use MediaWiki\Hook\AfterImportPageHook;
 use MediaWiki\Hook\BlockIpCompleteHook;
 use MediaWiki\Hook\PageMoveCompleteHook;
 use MediaWiki\Hook\UploadCompleteHook;
+use MediaWiki\MainConfigNames;
 use MediaWiki\Page\Hook\ArticleProtectCompleteHook;
 use MediaWiki\Page\Hook\PageDeleteCompleteHook;
 use MediaWiki\Page\ProperPageIdentity;
@@ -239,6 +241,16 @@ class Hooks implements
 					}
 
 					$textSlotDiffRenderer = new TextSlotDiffRenderer();
+					$textDiffer = new ManifoldTextDiffer(
+						RequestContext::getMain(),
+						null,
+						$this->config->get( MainConfigNames::DiffEngine ),
+						$this->config->get( MainConfigNames::ExternalDiffEngine ),
+						$this->config->get( MainConfigNames::Wikidiff2Options )
+					);
+
+					$textSlotDiffRenderer->setTextDiffer( $textDiffer );
+					
 					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
 
 					$this->discordNotifier->notify( $message, $user, 'article_saved', [
