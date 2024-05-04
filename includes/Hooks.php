@@ -250,8 +250,8 @@ class Hooks implements
 					);
 
 					$textSlotDiffRenderer->setFormat( 'table' );
-					$textSlotDiffRenderer->setEngine( TextSlotDiffRenderer::ENGINE_PHP );
 					$textSlotDiffRenderer->setTextDiffer( $textDiffer );
+					$textSlotDiffRenderer->setEngine( TextSlotDiffRenderer::ENGINE_PHP );
 
 					$diff = $this->discordNotifier->getPlainDiff( $textSlotDiffRenderer->getTextDiff( $oldContent, $content ) );
 
