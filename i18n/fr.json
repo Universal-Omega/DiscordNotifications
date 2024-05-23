@@ -33,6 +33,7 @@
 	"discordnotifications-article-protected-change": "modifié la protection de",
 	"discordnotifications-article-protected-remove": "supprimé la protection de",
 	"discordnotifications-new-user": "👥 Le nouveau compte utilisateur « $1 » vient d’être créé. $2",
+	"discordnotifications-new-user-filtered": "👥 Le nouveau compte utilisateur $1 vient d'être créé $2\n\nFiltre de correspondance",
 	"discordnotifications-file-uploaded": "📤 $1 a téléversé le fichier <$2|$3> (format : $4 ; taille : $5 $6 ; résumé : $7)",
 	"discordnotifications-block-user": "🚫 $1 a bloqué « $2 ». $3. Expiration du blocage : $4. $5",
 	"discordnotifications-block-user-reason": "avec le motif",
