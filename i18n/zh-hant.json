@@ -29,6 +29,7 @@
 	"discordnotifications-article-protected-change": "變更保護",
 	"discordnotifications-article-protected-remove": "移除保護",
 	"discordnotifications-new-user": "👥 新使用者帳戶$1被建立 $2",
+	"discordnotifications-new-user-filtered": "👥 新使用者帳號$1剛建立$2\n\n匹配篩選",
 	"discordnotifications-file-uploaded": "📤 $1已上傳檔案<$2|$3>（格式：$4，大小：$5 $6，摘要：$7）",
 	"discordnotifications-block-user": "🚫 $1已封鎖$2 $3 封鎖期限：$4。$5",
 	"discordnotifications-block-user-reason": "附帶原因",
