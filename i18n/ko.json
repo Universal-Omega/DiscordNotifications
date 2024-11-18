@@ -2,6 +2,7 @@
 	"@metadata": {
 		"authors": [
 			"Markingdots",
+			"Suleiman the Magnificent Television",
 			"Ykhwong",
 			"lens0021",
 			"렌즈"
@@ -29,6 +30,7 @@
 	"discordnotifications-article-protected-change": "보호 수준을 변경했습니다",
 	"discordnotifications-article-protected-remove": "보호를 제거했습니다",
 	"discordnotifications-new-user": "👥 새 사용자 $1 님이 가입했습니다 $2",
+	"discordnotifications-new-user-filtered": "👥 사용자 계정 $1 새로 생성됨 $2\n\n맞는 필터",
 	"discordnotifications-file-uploaded": "📤 $1님이 새 파일 <$2|$3>을 업로드했습니다 (형식: $4, 크기: $5 $6, 요약: $7)",
 	"discordnotifications-block-user": "🚫 $1 님이 $2을 차단했습니다 ($3) (기한:$4) ($5)",
 	"discordnotifications-block-user-reason": "이유:",
