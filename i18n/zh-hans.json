@@ -34,6 +34,7 @@
 	"discordnotifications-block-user-reason": "附加原因",
 	"discordnotifications-block-user-list": "所有封禁列表",
 	"discordnotifications-summary": "摘要：$1",
+	"discordnotifications-content": "内容：",
 	"discordnotifications-view-user-rights": "查看或管理用户权限",
 	"discordnotifications-change-user-groups": "%s更改了%s的用户组。新群组：%s",
 	"discordnotifications-change-user-groups-with-old": "$1更改了$2的用户组。旧群组：$3。新群组：$4",
