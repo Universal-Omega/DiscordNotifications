@@ -12,6 +12,7 @@
 	"discordnotifications-groups": "المجموعات",
 	"discordnotifications-talk": "نقاش",
 	"discordnotifications-contribs": "مساهمات",
+	"discordnotifications-centralauth": "سنترال أوث",
 	"discordnotifications-edit": "تعديل",
 	"discordnotifications-delete": "حذف",
 	"discordnotifications-history": "تاريخ",
@@ -28,11 +29,13 @@
 	"discordnotifications-article-protected-change": "غير حماية",
 	"discordnotifications-article-protected-remove": "إزالة الحماية من",
 	"discordnotifications-new-user": "👥 تم إنشاء حساب المستخدم الجديد $1 للتو $2",
+	"discordnotifications-new-user-filtered": "👥 تم إنشاء حساب مستخدم جديد $1 للتو $2 \n\nمرشح مطابق",
 	"discordnotifications-file-uploaded": "📤 $1 قد رفع الملف <$2|$3> (الصيغة: $4، الحجم: $5 $6، الملخص: $7)",
 	"discordnotifications-block-user": "🚫 $1 قد منع $2 $3 انتهاء الصلاحية المنع $4. $5",
 	"discordnotifications-block-user-reason": "بسبب",
 	"discordnotifications-block-user-list": "قائمة جميع عمليات المنع",
 	"discordnotifications-summary": "الملخص: $1",
+	"discordnotifications-content": "محتوى:",
 	"discordnotifications-view-user-rights": "عرض أو إدارة صلاحيات المستخدم",
 	"discordnotifications-change-user-groups": "%s قد غير مجموعات المستخدمين لـ%s، المجموعات الجديدة: %s",
 	"discordnotifications-change-user-groups-with-old": "$1 قد غير مجموعات المستخدمين لـ$2، المجموعات القديمة: $3، المجموعات الجديدة: $4",
