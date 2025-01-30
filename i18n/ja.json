@@ -7,6 +7,7 @@
 			"MathXplore",
 			"Omotecho",
 			"Shirayuki",
+			"Waki285",
 			"렌즈"
 		]
 	},
@@ -32,6 +33,7 @@
 	"discordnotifications-article-protected-change": "保護",
 	"discordnotifications-article-protected-remove": "保護解除",
 	"discordnotifications-new-user": "👥 新規アカウント $1 が登録されました。 $2",
+	"discordnotifications-new-user-filtered": "👥 $2 新しい利用者アカウント $1 が作成されました\n\n一致するフィルター",
 	"discordnotifications-file-uploaded": "📤 $1 がファイル <$2|$3> をアップロードしました(形式: $4, サイズ: $5 $6, 説明: $7)。",
 	"discordnotifications-block-user": "🚫 $1 が $2 をブロックしました。 $3 ブロック期限: $4 $5",
 	"discordnotifications-block-user-reason": "理由",
