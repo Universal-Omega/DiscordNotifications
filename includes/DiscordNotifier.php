@@ -236,6 +236,7 @@ class DiscordNotifier {
 		$url = str_replace( ' ', '_', $url );
 		$url = str_replace( '(', '%28', $url );
 		$url = str_replace( ')', '%29', $url );
+		$url = str_replace( '?', '%3F', $url );
 
 		return $url;
 	}
