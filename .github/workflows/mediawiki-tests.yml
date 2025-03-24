@@ -14,7 +14,7 @@ jobs:
       matrix:
         include:
           # Latest stable MediaWiki - PHP 8.1 (phan)
-          - mw: 'REL1_42'
+          - mw: 'REL1_43'
             php: 8.1
             php-docker: 81
             experimental: false
@@ -35,7 +35,7 @@ jobs:
             stage: coverage
 
           # Latest stable MediaWiki - PHP 8.1 (phpunit)
-          - mw: 'REL1_42'
+          - mw: 'REL1_43'
             php: 8.1
             php-docker: 81
             experimental: false
@@ -49,21 +49,21 @@ jobs:
             stage: phpunit
 
           # Latest stable MediaWiki - PHP 8.1 (selenium)
-          - mw: 'REL1_42'
+          - mw: 'REL1_43'
             php: 8.1
             php-docker: 81
             experimental: true
             stage: selenium
 
           # Latest stable MediaWiki - PHP 8.1 (qunit)
-          - mw: 'REL1_42'
+          - mw: 'REL1_43'
             php: 8.1
             php-docker: 81
             experimental: true
             stage: qunit
   
           # Latest stable MediaWiki - PHP 8.1 (composer-test)
-          - mw: 'REL1_42'
+          - mw: 'REL1_43'
             php: 8.1
             php-docker: 81
             experimental: false
