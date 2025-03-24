@@ -4,15 +4,15 @@ declare( strict_types = 1 );
 
 namespace MediaWiki\Extension\DiscordNotifications;
 
-use ExtensionRegistry;
 use Flow\Collection\PostCollection;
 use Flow\Model\UUID;
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Permissions\PermissionManager;
+use MediaWiki\Registration\ExtensionRegistry;
+use MediaWiki\Title\Title;
 use MediaWiki\User\UserGroupManager;
 use MediaWiki\User\UserIdentity;
 use MessageLocalizer;
-use Title;
 use WikiPage;
 
 class DiscordNotifier {
