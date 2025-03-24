@@ -1,20 +1,17 @@
 {
 	"name": "DiscordNotifications",
 	"version": "3.0.0",
-	"author": [
-		"Universal Omega",
-		"Aleksi Postari"
-	],
-	"url": "https://github.com/Universal-Omega/DiscordNotifications",
+	"author": "Universal Omega",
+	"url": "https://github.com/miraheze/DiscordNotifications",
 	"descriptionmsg": "discordnotifications-desc",
 	"namemsg": "discordnotifications-extensionname",
-	"license-name": "MIT",
+	"license-name": "GPL-3.0-or-later",
 	"type": "other",
 	"requires": {
 		"MediaWiki": ">= 1.43.0"
 	},
 	"AutoloadNamespaces": {
-		"MediaWiki\\Extension\\DiscordNotifications\\": "includes/"
+		"Miraheze\\DiscordNotifications\\": "includes/"
 	},
 	"MessagesDirs": {
 		"DiscordNotifications": [
@@ -23,7 +20,7 @@
 	},
 	"HookHandlers": {
 		"main": {
-			"class": "MediaWiki\\Extension\\DiscordNotifications\\Hooks",
+			"class": "Miraheze\\DiscordNotifications\\Hooks",
 			"services": [
 				"ConfigFactory",
 				"DiscordNotifier",

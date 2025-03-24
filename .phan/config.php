@@ -17,7 +17,6 @@ $cfg['exclude_analysis_directory_list'] = array_merge(
 );
 
 $cfg['suppress_issue_types'] = [
-	// https://github.com/phan/phan/issues/3420
 	'PhanAccessMethodInternal',
 ];
 

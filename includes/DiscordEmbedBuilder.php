@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace MediaWiki\Extension\DiscordNotifications;
+namespace Miraheze\DiscordNotifications;
 
 class DiscordEmbedBuilder {
 

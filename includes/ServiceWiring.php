@@ -1,6 +1,6 @@
 <?php
 
-namespace MediaWiki\Extension\DiscordNotifications;
+namespace Miraheze\DiscordNotifications;
 
 use MediaWiki\Config\ServiceOptions;
 use MediaWiki\Context\RequestContext;

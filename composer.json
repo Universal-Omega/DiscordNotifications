@@ -1,7 +1,21 @@
 {
-	"name": "mediawiki/discordnotifications",
-	"description": "",
-	"license": "MIT",
+	"name": "miraheze/discord-notifications",
+	"type": "mediawiki-extension",
+	"description": "A MediaWiki extension that sends notifications to Discord.",
+	"homepage": "https://www.mediawiki.org/wiki/Extension:DiscordNotifications",
+	"license": "GPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Universal Omega"
+		}
+	],
+	"support": {
+		"issues": "https://issue-tracker.miraheze.org/tag/discordnotifications/",
+		"wiki": "https://www.mediawiki.org/wiki/Extension:DiscordNotifications"
+	},
+	"require": {
+		"composer/installers": ">=1.0.1"
+	},
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "46.0.0",
 		"mediawiki/mediawiki-phan-config": "0.15.1",
@@ -26,6 +40,7 @@
 		"prepend-autoloader": false,
 		"optimize-autoloader": true,
 		"allow-plugins": {
+			"composer/installers": true,
 			"dealerdirect/phpcodesniffer-composer-installer": true
 		}
 	}

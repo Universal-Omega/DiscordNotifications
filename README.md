@@ -2,6 +2,10 @@
 
 This is an extension for [MediaWiki](https://www.mediawiki.org/wiki/MediaWiki) that sends notifications of actions in your Wiki-like editing, adding, or removing a page into [Discord](https://discord.com/) channel.
 
+Developed by Universal Omega.
+
+Licensed under the GPLv3 (or later) LICENSE.
+
 ## Supported MediaWiki operations to send notifications
 
 * Article is added, removed, moved, or edited.
@@ -31,7 +35,7 @@ Want to translate this extension to your language? Just visit [translatewiki.net
 
 2) After setting up the Webhook you will get a Webhook URL. Copy that URL as you will need it in step 4.
 
-3) [Download the latest release of this extension](https://github.com/Universal-Omega/DiscordNotifications/archive/master.zip), uncompress the archive, and move folder `DiscordNotifications` into your `mediawiki_installation/extensions` folder. (And instead of manually downloading the latest version, you could also just git clone this repository to that same extensions folder).
+3) [Download the latest release of this extension](https://github.com/miraheze/DiscordNotifications/archive/master.zip), uncompress the archive, and move folder `DiscordNotifications` into your `mediawiki_installation/extensions` folder. (And instead of manually downloading the latest version, you could also just git clone this repository to that same extensions folder).
 
 4) Add the settings listed below in your `localSettings.php`. Note that it is mandatory to set these settings for this extension to work:
 
@@ -346,11 +350,9 @@ You can use the below configuration options to configure it.
 | `$wgDiscordExperimentalUserBlocksWebhook`    | ''    | The Discord incoming webhook URL to use for an experimental user blocks feed. If this is set, they will be sent here rather than the experimental CVT feed. |
 | `$wgDiscordNotificationCentralAuthWikiUrl`   | ''    | The URL for the wiki to use in the CentralAuth URL. The CentralAuth URL will only appear in the experimental CVT feed. If set to an empty string, no CentralAuth link will appear. |
 
-## License
 
-[MIT License](LICENSE.md)
+## Security Vulnerabilities
 
-## Issues/Ideas/Comments
+If you believe you have found a security vulnerability in any part of our code, please do not post it publicly by using our wikis or bug trackers for that; rather, please read our [security page](https://meta.miraheze.org/wiki/Special:MyLanguage/Security) carefully, and follow the instructions.
 
-* Feel free to use the [Issues](https://github.com/Universal-Omega/DiscordNotifications/issues) section on GitHub for this project to submit any issues/ideas/comments! :)
-* You can also contact @cosmicalpha on Discord for any issues you may encounter.
+As a quick overview, you can email security concerns to security@miraheze.org or if you'd like, you can instead directly create a security-related task [here](https://issue-tracker.miraheze.org/maniphest/task/edit/form/2/), but please leave the "Security" project on the issue.
