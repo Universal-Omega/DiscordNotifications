@@ -11,7 +11,7 @@
 	"license-name": "MIT",
 	"type": "other",
 	"requires": {
-		"MediaWiki": ">= 1.42.0"
+		"MediaWiki": ">= 1.43.0"
 	},
 	"AutoloadNamespaces": {
 		"MediaWiki\\Extension\\DiscordNotifications\\": "includes/"
@@ -226,7 +226,7 @@
 		}
 	},
 	"ConfigRegistry": {
-		"DiscordNotifications": "GlobalVarConfig::newInstance"
+		"DiscordNotifications": "MediaWiki\\Config\\GlobalVarConfig::newInstance"
 	},
 	"ServiceWiringFiles": [
 		"includes/ServiceWiring.php"
