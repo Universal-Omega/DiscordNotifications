@@ -1,7 +1,9 @@
 <?php
 
+namespace MediaWiki\Extension\DiscordNotifications;
+
 use MediaWiki\Config\ServiceOptions;
-use MediaWiki\Extension\DiscordNotifications\DiscordNotifier;
+use MediaWiki\Context\RequestContext;
 use MediaWiki\MediaWikiServices;
 
 return [
